@@ -13,14 +13,14 @@ const rateLimit = require('express-rate-limit');
 let Database;
 try { Database = require('better-sqlite3'); } catch (e) { Database = null; }
 
-let pgCreateClient;
-try { pgCreateClient = require('@vercel/postgres').createClient; } catch (e) { pgCreateClient = null; }
+let PgClient;
+try { ({ Client: PgClient } = require('pg')); } catch (e) { PgClient = null; }
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const IS_VERCEL = !!process.env.VERCEL;
 const POSTGRES_CONNECTION_STRING = process.env.POSTGRES_URL || process.env.DATABASE_URL || process.env.PRISMA_DATABASE_URL;
-const HAS_POSTGRES = !!(pgCreateClient && POSTGRES_CONNECTION_STRING);
+const HAS_POSTGRES = !!(PgClient && POSTGRES_CONNECTION_STRING);
 
 // Trust the first proxy (Vercel, etc.) so express-rate-limit reads X-Forwarded-For correctly
 app.set('trust proxy', 1);
@@ -51,7 +51,11 @@ let db = null;
 let postgresSchemaReady = null;
 
 async function pgQuery(queryText, values = []) {
-    const client = pgCreateClient({ connectionString: POSTGRES_CONNECTION_STRING });
+    const shouldUseSsl = /sslmode=require/i.test(POSTGRES_CONNECTION_STRING || '');
+    const client = new PgClient({
+        connectionString: POSTGRES_CONNECTION_STRING,
+        ssl: shouldUseSsl ? { rejectUnauthorized: false } : undefined
+    });
     await client.connect();
     try {
         return await client.query(queryText, values);
