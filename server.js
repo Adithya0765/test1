@@ -7,9 +7,11 @@ require('dotenv').config();
 
 const express = require('express');
 const path = require('path');
-const Database = require('better-sqlite3');
 const nodemailer = require('nodemailer');
 const rateLimit = require('express-rate-limit');
+
+let Database;
+try { Database = require('better-sqlite3'); } catch (e) { Database = null; }
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,34 +34,40 @@ const apiLimiter = rateLimit({
 
 app.use('/api/', apiLimiter);
 
-// --- Database Setup ---
-const db = new Database(path.join(__dirname, 'qualium.db'));
+// --- Database Setup (skipped on Vercel / when better-sqlite3 unavailable) ---
+let db = null;
+if (Database) {
+    try {
+        db = new Database(path.join(__dirname, 'qualium.db'));
+        db.pragma('journal_mode = WAL');
+        db.exec(`
+            CREATE TABLE IF NOT EXISTS registrations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                first_name TEXT NOT NULL,
+                last_name TEXT NOT NULL,
+                email TEXT NOT NULL UNIQUE,
+                phone TEXT DEFAULT '',
+                company TEXT DEFAULT '',
+                role TEXT DEFAULT '',
+                use_case TEXT DEFAULT '',
+                registered_at TEXT DEFAULT (datetime('now')),
+                email_confirmed INTEGER DEFAULT 0
+            );
 
-db.pragma('journal_mode = WAL');
-
-db.exec(`
-    CREATE TABLE IF NOT EXISTS registrations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        first_name TEXT NOT NULL,
-        last_name TEXT NOT NULL,
-        email TEXT NOT NULL UNIQUE,
-        phone TEXT DEFAULT '',
-        company TEXT DEFAULT '',
-        role TEXT DEFAULT '',
-        use_case TEXT DEFAULT '',
-        registered_at TEXT DEFAULT (datetime('now')),
-        email_confirmed INTEGER DEFAULT 0
-    );
-
-    CREATE TABLE IF NOT EXISTS contact_messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL,
-        company TEXT DEFAULT '',
-        message TEXT NOT NULL,
-        sent_at TEXT DEFAULT (datetime('now'))
-    );
-`);
+            CREATE TABLE IF NOT EXISTS contact_messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                company TEXT DEFAULT '',
+                message TEXT NOT NULL,
+                sent_at TEXT DEFAULT (datetime('now'))
+            );
+        `);
+    } catch (e) {
+        console.warn('SQLite unavailable:', e.message);
+        db = null;
+    }
+}
 
 // --- Email Configuration ---
 // IMPORTANT: Replace these with your actual email credentials before deployment.
@@ -395,27 +403,29 @@ app.post('/api/register', (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid email address.' });
         }
 
-        // Insert into database
-        const stmt = db.prepare(`
-            INSERT INTO registrations (first_name, last_name, email, phone, company, role, use_case)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `);
+        // Insert into database (if available)
+        if (db) {
+            const stmt = db.prepare(`
+                INSERT INTO registrations (first_name, last_name, email, phone, company, role, use_case)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            `);
 
-        try {
-            stmt.run(
-                firstName.trim(),
-                lastName.trim(),
-                email.trim().toLowerCase(),
-                (phone || '').trim(),
-                (company || '').trim(),
-                (role || '').trim(),
-                (useCase || '').trim()
-            );
-        } catch (dbErr) {
-            if (dbErr.message && dbErr.message.includes('UNIQUE constraint failed')) {
-                return res.status(409).json({ success: false, message: 'This email is already registered.' });
+            try {
+                stmt.run(
+                    firstName.trim(),
+                    lastName.trim(),
+                    email.trim().toLowerCase(),
+                    (phone || '').trim(),
+                    (company || '').trim(),
+                    (role || '').trim(),
+                    (useCase || '').trim()
+                );
+            } catch (dbErr) {
+                if (dbErr.message && dbErr.message.includes('UNIQUE constraint failed')) {
+                    return res.status(409).json({ success: false, message: 'This email is already registered.' });
+                }
+                throw dbErr;
             }
-            throw dbErr;
         }
 
         // Send confirmation email (async, don't block response)
@@ -458,12 +468,14 @@ app.post('/api/contact', (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid email address.' });
         }
 
-        // Save to database
-        const stmt = db.prepare(`
-            INSERT INTO contact_messages (name, email, company, message)
-            VALUES (?, ?, ?, ?)
-        `);
-        stmt.run(name.trim(), email.trim().toLowerCase(), (company || '').trim(), message.trim());
+        // Save to database (if available)
+        if (db) {
+            const stmt = db.prepare(`
+                INSERT INTO contact_messages (name, email, company, message)
+                VALUES (?, ?, ?, ?)
+            `);
+            stmt.run(name.trim(), email.trim().toLowerCase(), (company || '').trim(), message.trim());
+        }
 
         // Send notification email to team
         if (transporter) {
@@ -507,6 +519,7 @@ app.post('/api/contact', (req, res) => {
 
 // GET /api/registrations — Admin endpoint to view all registrations
 app.get('/api/registrations', (req, res) => {
+    if (!db) return res.json({ success: true, count: 0, data: [], note: 'Database not available in serverless mode.' });
     try {
         const rows = db.prepare('SELECT * FROM registrations ORDER BY registered_at DESC').all();
         res.json({ success: true, count: rows.length, data: rows });
@@ -518,6 +531,7 @@ app.get('/api/registrations', (req, res) => {
 
 // GET /api/contacts — Admin endpoint to view all contact messages
 app.get('/api/contacts', (req, res) => {
+    if (!db) return res.json({ success: true, count: 0, data: [], note: 'Database not available in serverless mode.' });
     try {
         const rows = db.prepare('SELECT * FROM contact_messages ORDER BY sent_at DESC').all();
         res.json({ success: true, count: rows.length, data: rows });
@@ -527,14 +541,18 @@ app.get('/api/contacts', (req, res) => {
     }
 });
 
-// --- Start Server ---
-app.listen(PORT, () => {
-    console.log(`\n  ✦ Qaulium AI server running at http://localhost:${PORT}\n`);
-    console.log(`  Routes:`);
-    console.log(`    GET  /                   → Landing page`);
-    console.log(`    GET  /hardware           → Hardware page`);
-    console.log(`    POST /api/register       → User registration`);
-    console.log(`    POST /api/contact        → Contact form`);
-    console.log(`    GET  /api/registrations  → View all registrations`);
-    console.log(`    GET  /api/contacts       → View all contact messages\n`);
-});
+// --- Start Server (skip on Vercel) ---
+if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`\n  ✦ Qaulium AI server running at http://localhost:${PORT}\n`);
+        console.log(`  Routes:`);
+        console.log(`    GET  /                   → Landing page`);
+        console.log(`    GET  /hardware           → Hardware page`);
+        console.log(`    POST /api/register       → User registration`);
+        console.log(`    POST /api/contact        → Contact form`);
+        console.log(`    GET  /api/registrations  → View all registrations`);
+        console.log(`    GET  /api/contacts       → View all contact messages\n`);
+    });
+}
+
+module.exports = app;
