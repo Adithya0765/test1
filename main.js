@@ -493,11 +493,19 @@
     var careerForm = document.getElementById('careerForm');
     var careerFormStatus = document.getElementById('careerFormStatus');
     var careerApplyBtn = document.getElementById('careerApplyBtn');
+    var careerRoleField = document.getElementById('careerRole');
 
     function showCareerStatus(message, type) {
         if (!careerFormStatus) return;
         careerFormStatus.textContent = message;
         careerFormStatus.className = 'form-status ' + type;
+    }
+
+    if (careerRoleField) {
+        var roleParam = new URLSearchParams(window.location.search).get('role');
+        if (roleParam) {
+            careerRoleField.value = roleParam;
+        }
     }
 
     if (careerForm) {
@@ -510,16 +518,18 @@
                 email: document.getElementById('careerEmail').value.trim(),
                 phone: document.getElementById('careerPhone').value.trim(),
                 roleApplied: document.getElementById('careerRole').value,
-                experienceYears: document.getElementById('careerExperience').value.trim(),
                 location: document.getElementById('careerLocation').value.trim(),
-                currentCompany: document.getElementById('careerCompany').value.trim(),
+                university: document.getElementById('careerUniversity').value.trim(),
+                degree: document.getElementById('careerDegree').value.trim(),
+                graduationYear: document.getElementById('careerGraduationYear').value.trim(),
+                availability: document.getElementById('careerAvailability').value.trim(),
                 linkedinUrl: document.getElementById('careerLinkedIn').value.trim(),
                 portfolioUrl: document.getElementById('careerPortfolio').value.trim(),
                 resumeUrl: document.getElementById('careerResume').value.trim(),
                 coverLetter: document.getElementById('careerCoverLetter').value.trim()
             };
 
-            if (!payload.firstName || !payload.lastName || !payload.email || !payload.phone || !payload.roleApplied || !payload.experienceYears || !payload.location || !payload.resumeUrl || !payload.coverLetter) {
+            if (!payload.firstName || !payload.lastName || !payload.email || !payload.phone || !payload.roleApplied || !payload.location || !payload.university || !payload.degree || !payload.graduationYear || !payload.availability || !payload.resumeUrl || !payload.coverLetter) {
                 showCareerStatus('Please fill all required fields before submitting.', 'error');
                 return;
             }

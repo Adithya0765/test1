@@ -41,6 +41,14 @@ app.get('/careers.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'careers.html'));
 });
 
+app.get('/careers/apply', (req, res) => {
+    res.sendFile(path.join(__dirname, 'careers-apply.html'));
+});
+
+app.get('/careers-apply.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'careers-apply.html'));
+});
+
 // Rate limiting to prevent abuse
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -111,9 +119,13 @@ async function ensurePostgresSchema() {
                     email TEXT NOT NULL,
                     phone TEXT NOT NULL,
                     role_applied TEXT NOT NULL,
-                    experience_years INTEGER NOT NULL,
+                    experience_years INTEGER DEFAULT 0,
                     location TEXT NOT NULL,
                     current_company TEXT DEFAULT '',
+                    university TEXT DEFAULT '',
+                    degree TEXT DEFAULT '',
+                    graduation_year INTEGER DEFAULT 0,
+                    availability TEXT DEFAULT '',
                     linkedin_url TEXT DEFAULT '',
                     portfolio_url TEXT DEFAULT '',
                     resume_url TEXT NOT NULL,
@@ -121,6 +133,11 @@ async function ensurePostgresSchema() {
                     applied_at TIMESTAMPTZ DEFAULT NOW()
                 )
             `);
+
+            await pgQuery(`ALTER TABLE career_applications ADD COLUMN IF NOT EXISTS university TEXT DEFAULT ''`);
+            await pgQuery(`ALTER TABLE career_applications ADD COLUMN IF NOT EXISTS degree TEXT DEFAULT ''`);
+            await pgQuery(`ALTER TABLE career_applications ADD COLUMN IF NOT EXISTS graduation_year INTEGER DEFAULT 0`);
+            await pgQuery(`ALTER TABLE career_applications ADD COLUMN IF NOT EXISTS availability TEXT DEFAULT ''`);
         })();
     }
     await postgresSchemaReady;
@@ -162,9 +179,13 @@ if (HAS_POSTGRES) {
                 email TEXT NOT NULL,
                 phone TEXT NOT NULL,
                 role_applied TEXT NOT NULL,
-                experience_years INTEGER NOT NULL,
+                experience_years INTEGER DEFAULT 0,
                 location TEXT NOT NULL,
                 current_company TEXT DEFAULT '',
+                university TEXT DEFAULT '',
+                degree TEXT DEFAULT '',
+                graduation_year INTEGER DEFAULT 0,
+                availability TEXT DEFAULT '',
                 linkedin_url TEXT DEFAULT '',
                 portfolio_url TEXT DEFAULT '',
                 resume_url TEXT NOT NULL,
@@ -172,6 +193,11 @@ if (HAS_POSTGRES) {
                 applied_at TEXT DEFAULT (datetime('now'))
             );
         `);
+
+        try { db.prepare('ALTER TABLE career_applications ADD COLUMN university TEXT DEFAULT ""').run(); } catch (e) {}
+        try { db.prepare('ALTER TABLE career_applications ADD COLUMN degree TEXT DEFAULT ""').run(); } catch (e) {}
+        try { db.prepare('ALTER TABLE career_applications ADD COLUMN graduation_year INTEGER DEFAULT 0').run(); } catch (e) {}
+        try { db.prepare('ALTER TABLE career_applications ADD COLUMN availability TEXT DEFAULT ""').run(); } catch (e) {}
     } catch (e) {
         console.warn('SQLite unavailable:', e.message);
         db = null;
@@ -572,9 +598,11 @@ function buildCareerApplicationNotificationEmail(data) {
 <tr><td style="padding:8px 0;font-weight:600;color:#0A0A0A;">Email</td><td style="padding:8px 0;">${data.email}</td></tr>
 <tr><td style="padding:8px 0;font-weight:600;color:#0A0A0A;">Phone</td><td style="padding:8px 0;">${data.phone}</td></tr>
 <tr><td style="padding:8px 0;font-weight:600;color:#0A0A0A;">Role Applied</td><td style="padding:8px 0;">${data.roleApplied}</td></tr>
-<tr><td style="padding:8px 0;font-weight:600;color:#0A0A0A;">Experience</td><td style="padding:8px 0;">${data.experienceYears} years</td></tr>
 <tr><td style="padding:8px 0;font-weight:600;color:#0A0A0A;">Location</td><td style="padding:8px 0;">${data.location}</td></tr>
-<tr><td style="padding:8px 0;font-weight:600;color:#0A0A0A;">Current Company</td><td style="padding:8px 0;">${data.currentCompany || '-'}</td></tr>
+<tr><td style="padding:8px 0;font-weight:600;color:#0A0A0A;">University / College</td><td style="padding:8px 0;">${data.university || '-'}</td></tr>
+<tr><td style="padding:8px 0;font-weight:600;color:#0A0A0A;">Degree / Program</td><td style="padding:8px 0;">${data.degree || '-'}</td></tr>
+<tr><td style="padding:8px 0;font-weight:600;color:#0A0A0A;">Graduation Year</td><td style="padding:8px 0;">${data.graduationYear || '-'}</td></tr>
+<tr><td style="padding:8px 0;font-weight:600;color:#0A0A0A;">Availability</td><td style="padding:8px 0;">${data.availability || '-'}</td></tr>
 <tr><td style="padding:8px 0;font-weight:600;color:#0A0A0A;">LinkedIn</td><td style="padding:8px 0;">${data.linkedinUrl || '-'}</td></tr>
 <tr><td style="padding:8px 0;font-weight:600;color:#0A0A0A;">Portfolio</td><td style="padding:8px 0;">${data.portfolioUrl || '-'}</td></tr>
 <tr><td style="padding:8px 0;font-weight:600;color:#0A0A0A;">Resume URL</td><td style="padding:8px 0;">${data.resumeUrl}</td></tr>
@@ -788,16 +816,18 @@ app.post('/api/careers/apply', async (req, res) => {
             email,
             phone,
             roleApplied,
-            experienceYears,
             location,
-            currentCompany,
+            university,
+            degree,
+            graduationYear,
+            availability,
             linkedinUrl,
             portfolioUrl,
             resumeUrl,
             coverLetter
         } = req.body;
 
-        if (!firstName || !lastName || !email || !phone || !roleApplied || !experienceYears || !location || !resumeUrl || !coverLetter) {
+        if (!firstName || !lastName || !email || !phone || !roleApplied || !location || !university || !degree || !graduationYear || !availability || !resumeUrl || !coverLetter) {
             return res.status(400).json({ success: false, message: 'Please provide all required application details.' });
         }
 
@@ -806,9 +836,9 @@ app.post('/api/careers/apply', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid email address.' });
         }
 
-        const safeExperienceYears = parseInt(experienceYears, 10);
-        if (Number.isNaN(safeExperienceYears) || safeExperienceYears < 0 || safeExperienceYears > 50) {
-            return res.status(400).json({ success: false, message: 'Experience must be a valid number of years.' });
+        const safeGraduationYear = parseInt(graduationYear, 10);
+        if (Number.isNaN(safeGraduationYear) || safeGraduationYear < 2024 || safeGraduationYear > 2035) {
+            return res.status(400).json({ success: false, message: 'Graduation year must be between 2024 and 2035.' });
         }
 
         if (HAS_POSTGRES) {
@@ -817,9 +847,10 @@ app.post('/api/careers/apply', async (req, res) => {
                 `
                 INSERT INTO career_applications (
                     first_name, last_name, email, phone, role_applied, experience_years, location,
-                    current_company, linkedin_url, portfolio_url, resume_url, cover_letter
+                    current_company, university, degree, graduation_year, availability,
+                    linkedin_url, portfolio_url, resume_url, cover_letter
                 )
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
                 `,
                 [
                     firstName.trim(),
@@ -827,9 +858,13 @@ app.post('/api/careers/apply', async (req, res) => {
                     email.trim().toLowerCase(),
                     phone.trim(),
                     roleApplied.trim(),
-                    safeExperienceYears,
+                    0,
                     location.trim(),
-                    (currentCompany || '').trim(),
+                    '',
+                    university.trim(),
+                    degree.trim(),
+                    safeGraduationYear,
+                    availability.trim(),
                     (linkedinUrl || '').trim(),
                     (portfolioUrl || '').trim(),
                     resumeUrl.trim(),
@@ -840,9 +875,10 @@ app.post('/api/careers/apply', async (req, res) => {
             const stmt = db.prepare(`
                 INSERT INTO career_applications (
                     first_name, last_name, email, phone, role_applied, experience_years, location,
-                    current_company, linkedin_url, portfolio_url, resume_url, cover_letter
+                    current_company, university, degree, graduation_year, availability,
+                    linkedin_url, portfolio_url, resume_url, cover_letter
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `);
 
             stmt.run(
@@ -851,9 +887,13 @@ app.post('/api/careers/apply', async (req, res) => {
                 email.trim().toLowerCase(),
                 phone.trim(),
                 roleApplied.trim(),
-                safeExperienceYears,
+                0,
                 location.trim(),
-                (currentCompany || '').trim(),
+                '',
+                university.trim(),
+                degree.trim(),
+                safeGraduationYear,
+                availability.trim(),
                 (linkedinUrl || '').trim(),
                 (portfolioUrl || '').trim(),
                 resumeUrl.trim(),
@@ -868,9 +908,11 @@ app.post('/api/careers/apply', async (req, res) => {
                 email: escapeHtml(email.trim().toLowerCase()),
                 phone: escapeHtml(phone.trim()),
                 roleApplied: escapeHtml(roleApplied.trim()),
-                experienceYears: safeExperienceYears,
                 location: escapeHtml(location.trim()),
-                currentCompany: escapeHtml((currentCompany || '').trim()),
+                university: escapeHtml(university.trim()),
+                degree: escapeHtml(degree.trim()),
+                graduationYear: safeGraduationYear,
+                availability: escapeHtml(availability.trim()),
                 linkedinUrl: escapeHtml((linkedinUrl || '').trim()),
                 portfolioUrl: escapeHtml((portfolioUrl || '').trim()),
                 resumeUrl: escapeHtml(resumeUrl.trim()),
@@ -955,7 +997,7 @@ app.get('/api/stats', async (req, res) => {
                 LIMIT 10
             `);
             const careersResult = await pgQuery(`
-                SELECT id, first_name, last_name, email, phone, role_applied, experience_years, location, current_company, linkedin_url, portfolio_url, resume_url, applied_at
+                SELECT id, first_name, last_name, email, phone, role_applied, location, university, degree, graduation_year, availability, linkedin_url, portfolio_url, resume_url, applied_at
                 FROM career_applications
                 ORDER BY applied_at DESC
                 LIMIT 10
@@ -977,7 +1019,7 @@ app.get('/api/stats', async (req, res) => {
             ).all();
 
             recentCareers = db.prepare(
-                'SELECT id, first_name, last_name, email, phone, role_applied, experience_years, location, current_company, linkedin_url, portfolio_url, resume_url, applied_at FROM career_applications ORDER BY applied_at DESC LIMIT 10'
+                'SELECT id, first_name, last_name, email, phone, role_applied, location, university, degree, graduation_year, availability, linkedin_url, portfolio_url, resume_url, applied_at FROM career_applications ORDER BY applied_at DESC LIMIT 10'
             ).all();
         }
 
