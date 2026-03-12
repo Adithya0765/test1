@@ -575,6 +575,10 @@ img { max-width: 100%; display: block; }
     flex-direction: column;
 }
 
+[data-theme="dark"] .arch-block {
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
 .arch-block:hover {
     background: var(--color-surface);
 }
