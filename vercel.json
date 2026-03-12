@@ -5,10 +5,5 @@
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/careers", "destination": "/careers.html" },
     { "source": "/careers/apply", "destination": "/careers-apply.html" }
-  ],
-  "functions": {
-    "api/index.js": {
-      "includeFiles": "../logo-white.png"
-    }
-  }
+  ]
 }
