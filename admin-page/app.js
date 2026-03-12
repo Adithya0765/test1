@@ -18,26 +18,31 @@
       subject: 'Welcome to Qaulium AI — Registration Confirmed',
       body: `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Welcome to Qaulium AI</title></head>
 <body style="margin:0;padding:0;background-color:#f5f5f5;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;padding:40px 0;">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
 <tr><td style="background-color:#0A0A0A;padding:28px 40px;border-radius:12px 12px 0 0;">
-<table width="100%"><tr>
+<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
 <td><img src="cid:qualium-logo" alt="Qaulium AI" height="36" style="display:block;height:36px;width:auto;border:0;"></td>
-<td align="right" style="font-size:12px;color:#888888;letter-spacing:0.05em;text-transform:uppercase;">Registration Confirmed</td>
+<td align="right" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#888888;letter-spacing:0.05em;text-transform:uppercase;">Registration Confirmed</td>
 </tr></table>
 </td></tr>
 <tr><td style="background-color:#ffffff;padding:48px 40px;">
-<h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#0A0A0A;letter-spacing:-0.03em;">Welcome.</h1>
-<p style="margin:0 0 28px;font-size:15px;color:#6B7280;line-height:1.65;">Your registration has been confirmed.</p>
+<h1 style="margin:0 0 8px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:26px;font-weight:700;color:#0A0A0A;letter-spacing:-0.03em;line-height:1.2;">Welcome.</h1>
+<p style="margin:0 0 28px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;color:#6B7280;line-height:1.65;">Your registration has been confirmed.</p>
 <hr style="border:none;border-top:1px solid #E5E7EB;margin:0 0 28px;">
-<p style="margin:0 0 20px;font-size:15px;color:#374151;line-height:1.7;">Thank you for registering with Qaulium AI. {{CONTENT}}</p>
-<p style="margin:0 0 16px;font-size:14px;color:#374151;line-height:1.6;">If you have questions, reach us at <a href="mailto:admin@qauliumai.in" style="color:#2563EB;text-decoration:none;font-weight:500;">admin@qauliumai.in</a></p>
+<p style="margin:0 0 20px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;color:#374151;line-height:1.7;">Thank you for registering with Qaulium AI. {{CONTENT}}</p>
+<p style="margin:0 0 16px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;color:#374151;line-height:1.6;">If you have questions, reply to this email or reach us at <a href="mailto:admin@qauliumai.in" style="color:#2563EB;text-decoration:none;font-weight:500;">admin@qauliumai.in</a> or visit <a href="https://qauliumai.in" style="color:#2563EB;text-decoration:none;font-weight:500;">qauliumai.in</a>.</p>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 0;"><tr><td align="left" style="padding-top:8px;">
+<a href="https://discord.gg/gUnhDhh2" style="display:inline-block;margin-right:12px;text-decoration:none;" target="_blank"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/discord.svg" width="20" height="20" alt="Discord" style="vertical-align:middle;filter:invert(0);"></a>
+<a href="https://www.linkedin.com/company/qalium-ai" style="display:inline-block;margin-right:12px;text-decoration:none;" target="_blank"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg" width="20" height="20" alt="LinkedIn" style="vertical-align:middle;filter:invert(0);"></a>
+<a href="https://qauliumai.in" style="display:inline-block;text-decoration:none;" target="_blank"><img src="https://img.icons8.com/material-rounded/48/000000/globe--v1.png" width="20" height="20" alt="Website" style="vertical-align:middle;"></a>
+</td></tr></table>
 </td></tr>
-<tr><td style="background-color:#0A0A0A;padding:24px 40px;border-radius:0 0 12px 12px;border-top:1px solid #1f2937;">
-<p style="margin:0;font-size:12px;color:#888888;">&copy; 2026 Qaulium AI. All rights reserved.</p>
+<tr><td style="background-color:#0A0A0A;padding:24px 40px;border-radius:0 0 12px 12px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#888888;line-height:1.5;">&copy; 2026 Qaulium AI. All rights reserved.<br>Amaravati, Andhra Pradesh, India</td></tr></table>
 </td></tr>
 </table></td></tr>
 </table>
@@ -47,27 +52,32 @@
       subject: 'Interview Invitation - Qaulium AI',
       body: `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Interview Invitation</title></head>
 <body style="margin:0;padding:0;background-color:#f5f5f5;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;padding:40px 0;">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
 <tr><td style="background-color:#0A0A0A;padding:28px 40px;border-radius:12px 12px 0 0;">
-<table width="100%"><tr>
+<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
 <td><img src="cid:qualium-logo" alt="Qaulium AI" height="36" style="display:block;height:36px;width:auto;border:0;"></td>
-<td align="right" style="font-size:12px;color:#888888;letter-spacing:0.05em;text-transform:uppercase;">Interview</td>
+<td align="right" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#888888;letter-spacing:0.05em;text-transform:uppercase;">Interview Invitation</td>
 </tr></table>
 </td></tr>
 <tr><td style="background-color:#ffffff;padding:48px 40px;">
-<h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#0A0A0A;letter-spacing:-0.03em;">Interview Invitation</h1>
-<p style="margin:0 0 28px;font-size:15px;color:#6B7280;line-height:1.65;">We would like to invite you for an interview.</p>
+<h1 style="margin:0 0 8px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:26px;font-weight:700;color:#0A0A0A;letter-spacing:-0.03em;line-height:1.2;">Interview Invitation</h1>
+<p style="margin:0 0 28px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;color:#6B7280;line-height:1.65;">We would like to invite you for an interview.</p>
 <hr style="border:none;border-top:1px solid #E5E7EB;margin:0 0 28px;">
-<p style="margin:0 0 20px;font-size:15px;color:#374151;line-height:1.7;">{{CONTENT}}</p>
-<p style="margin:0 0 20px;font-size:15px;color:#374151;line-height:1.7;">We look forward to speaking with you soon.</p>
-<p style="margin:0 0 16px;font-size:14px;color:#374151;line-height:1.6;">Questions? Reach us at <a href="mailto:admin@qauliumai.in" style="color:#2563EB;text-decoration:none;font-weight:500;">admin@qauliumai.in</a></p>
+<p style="margin:0 0 20px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;color:#374151;line-height:1.7;">{{CONTENT}}</p>
+<p style="margin:0 0 20px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;color:#374151;line-height:1.7;">We look forward to speaking with you soon.</p>
+<p style="margin:0 0 16px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;color:#374151;line-height:1.6;">Questions? Reach us at <a href="mailto:admin@qauliumai.in" style="color:#2563EB;text-decoration:none;font-weight:500;">admin@qauliumai.in</a> or visit <a href="https://qauliumai.in" style="color:#2563EB;text-decoration:none;font-weight:500;">qauliumai.in</a>.</p>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 0;"><tr><td align="left" style="padding-top:8px;">
+<a href="https://discord.gg/gUnhDhh2" style="display:inline-block;margin-right:12px;text-decoration:none;" target="_blank"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/discord.svg" width="20" height="20" alt="Discord" style="vertical-align:middle;filter:invert(0);"></a>
+<a href="https://www.linkedin.com/company/qalium-ai" style="display:inline-block;margin-right:12px;text-decoration:none;" target="_blank"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg" width="20" height="20" alt="LinkedIn" style="vertical-align:middle;filter:invert(0);"></a>
+<a href="https://qauliumai.in" style="display:inline-block;text-decoration:none;" target="_blank"><img src="https://img.icons8.com/material-rounded/48/000000/globe--v1.png" width="20" height="20" alt="Website" style="vertical-align:middle;"></a>
+</td></tr></table>
 </td></tr>
-<tr><td style="background-color:#0A0A0A;padding:24px 40px;border-radius:0 0 12px 12px;border-top:1px solid #1f2937;">
-<p style="margin:0;font-size:12px;color:#888888;">&copy; 2026 Qaulium AI. All rights reserved.</p>
+<tr><td style="background-color:#0A0A0A;padding:24px 40px;border-radius:0 0 12px 12px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#888888;line-height:1.5;">&copy; 2026 Qaulium AI. All rights reserved.<br>Amaravati, Andhra Pradesh, India</td></tr></table>
 </td></tr>
 </table></td></tr>
 </table>
@@ -77,26 +87,31 @@
       subject: 'Application Received - Qaulium AI Careers',
       body: `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Application Received</title></head>
 <body style="margin:0;padding:0;background-color:#f5f5f5;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;padding:40px 0;">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
 <tr><td style="background-color:#0A0A0A;padding:28px 40px;border-radius:12px 12px 0 0;">
-<table width="100%"><tr>
+<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
 <td><img src="cid:qualium-logo" alt="Qaulium AI" height="36" style="display:block;height:36px;width:auto;border:0;"></td>
-<td align="right" style="font-size:12px;color:#888888;letter-spacing:0.05em;text-transform:uppercase;">Application Received</td>
+<td align="right" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#888888;letter-spacing:0.05em;text-transform:uppercase;">Application Received</td>
 </tr></table>
 </td></tr>
 <tr><td style="background-color:#ffffff;padding:48px 40px;">
-<h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#0A0A0A;letter-spacing:-0.03em;">Thank You</h1>
-<p style="margin:0 0 28px;font-size:15px;color:#6B7280;line-height:1.65;">We have received your application.</p>
+<h1 style="margin:0 0 8px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:26px;font-weight:700;color:#0A0A0A;letter-spacing:-0.03em;line-height:1.2;">Thank You</h1>
+<p style="margin:0 0 28px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;color:#6B7280;line-height:1.65;">We have received your application.</p>
 <hr style="border:none;border-top:1px solid #E5E7EB;margin:0 0 28px;">
-<p style="margin:0 0 20px;font-size:15px;color:#374151;line-height:1.7;">Our hiring team is reviewing your profile and will get back to you shortly with the next steps. {{CONTENT}}</p>
-<p style="margin:0 0 16px;font-size:14px;color:#374151;line-height:1.6;">For questions, contact us at <a href="mailto:admin@qauliumai.in" style="color:#2563EB;text-decoration:none;font-weight:500;">admin@qauliumai.in</a></p>
+<p style="margin:0 0 20px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;color:#374151;line-height:1.7;">Our hiring team is reviewing your profile and will get back to you shortly with the next steps. {{CONTENT}}</p>
+<p style="margin:0 0 16px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;color:#374151;line-height:1.6;">For questions, contact us at <a href="mailto:admin@qauliumai.in" style="color:#2563EB;text-decoration:none;font-weight:500;">admin@qauliumai.in</a> or visit <a href="https://qauliumai.in" style="color:#2563EB;text-decoration:none;font-weight:500;">qauliumai.in</a>.</p>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 0;"><tr><td align="left" style="padding-top:8px;">
+<a href="https://discord.gg/gUnhDhh2" style="display:inline-block;margin-right:12px;text-decoration:none;" target="_blank"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/discord.svg" width="20" height="20" alt="Discord" style="vertical-align:middle;filter:invert(0);"></a>
+<a href="https://www.linkedin.com/company/qalium-ai" style="display:inline-block;margin-right:12px;text-decoration:none;" target="_blank"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg" width="20" height="20" alt="LinkedIn" style="vertical-align:middle;filter:invert(0);"></a>
+<a href="https://qauliumai.in" style="display:inline-block;text-decoration:none;" target="_blank"><img src="https://img.icons8.com/material-rounded/48/000000/globe--v1.png" width="20" height="20" alt="Website" style="vertical-align:middle;"></a>
+</td></tr></table>
 </td></tr>
-<tr><td style="background-color:#0A0A0A;padding:24px 40px;border-radius:0 0 12px 12px;border-top:1px solid #1f2937;">
-<p style="margin:0;font-size:12px;color:#888888;">&copy; 2026 Qaulium AI. All rights reserved.</p>
+<tr><td style="background-color:#0A0A0A;padding:24px 40px;border-radius:0 0 12px 12px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#888888;line-height:1.5;">&copy; 2026 Qaulium AI. All rights reserved.<br>Amaravati, Andhra Pradesh, India</td></tr></table>
 </td></tr>
 </table></td></tr>
 </table>
@@ -106,26 +121,31 @@
       subject: 'Response from Qaulium AI',
       body: `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Response from Qaulium AI</title></head>
 <body style="margin:0;padding:0;background-color:#f5f5f5;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;padding:40px 0;">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
 <tr><td style="background-color:#0A0A0A;padding:28px 40px;border-radius:12px 12px 0 0;">
-<table width="100%"><tr>
+<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
 <td><img src="cid:qualium-logo" alt="Qaulium AI" height="36" style="display:block;height:36px;width:auto;border:0;"></td>
-<td align="right" style="font-size:12px;color:#888888;letter-spacing:0.05em;text-transform:uppercase;">Response</td>
+<td align="right" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#888888;letter-spacing:0.05em;text-transform:uppercase;">Response</td>
 </tr></table>
 </td></tr>
 <tr><td style="background-color:#ffffff;padding:48px 40px;">
-<h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#0A0A0A;letter-spacing:-0.03em;">Thank You for Reaching Out</h1>
-<p style="margin:0 0 28px;font-size:15px;color:#6B7280;line-height:1.65;">We appreciate your inquiry.</p>
+<h1 style="margin:0 0 8px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:26px;font-weight:700;color:#0A0A0A;letter-spacing:-0.03em;line-height:1.2;">Thank You for Reaching Out</h1>
+<p style="margin:0 0 28px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;color:#6B7280;line-height:1.65;">We appreciate your inquiry.</p>
 <hr style="border:none;border-top:1px solid #E5E7EB;margin:0 0 28px;">
-<p style="margin:0 0 20px;font-size:15px;color:#374151;line-height:1.7;">{{CONTENT}}</p>
-<p style="margin:0 0 16px;font-size:14px;color:#374151;line-height:1.6;">Best regards, <br>Qaulium AI Team<br><a href="mailto:admin@qauliumai.in" style="color:#2563EB;text-decoration:none;font-weight:500;">admin@qauliumai.in</a></p>
+<p style="margin:0 0 20px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;color:#374151;line-height:1.7;">{{CONTENT}}</p>
+<p style="margin:0 0 16px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;color:#374151;line-height:1.6;">Best regards,<br>Qaulium AI Team<br><a href="mailto:admin@qauliumai.in" style="color:#2563EB;text-decoration:none;font-weight:500;">admin@qauliumai.in</a></p>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 0;"><tr><td align="left" style="padding-top:8px;">
+<a href="https://discord.gg/gUnhDhh2" style="display:inline-block;margin-right:12px;text-decoration:none;" target="_blank"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/discord.svg" width="20" height="20" alt="Discord" style="vertical-align:middle;filter:invert(0);"></a>
+<a href="https://www.linkedin.com/company/qalium-ai" style="display:inline-block;margin-right:12px;text-decoration:none;" target="_blank"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg" width="20" height="20" alt="LinkedIn" style="vertical-align:middle;filter:invert(0);"></a>
+<a href="https://qauliumai.in" style="display:inline-block;text-decoration:none;" target="_blank"><img src="https://img.icons8.com/material-rounded/48/000000/globe--v1.png" width="20" height="20" alt="Website" style="vertical-align:middle;"></a>
+</td></tr></table>
 </td></tr>
-<tr><td style="background-color:#0A0A0A;padding:24px 40px;border-radius:0 0 12px 12px;border-top:1px solid #1f2937;">
-<p style="margin:0;font-size:12px;color:#888888;">&copy; 2026 Qaulium AI. All rights reserved.</p>
+<tr><td style="background-color:#0A0A0A;padding:24px 40px;border-radius:0 0 12px 12px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#888888;line-height:1.5;">&copy; 2026 Qaulium AI. All rights reserved.<br>Amaravati, Andhra Pradesh, India</td></tr></table>
 </td></tr>
 </table></td></tr>
 </table>
@@ -135,26 +155,31 @@
       subject: 'News from Qaulium AI',
       body: `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>News from Qaulium AI</title></head>
 <body style="margin:0;padding:0;background-color:#f5f5f5;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;padding:40px 0;">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
 <tr><td style="background-color:#0A0A0A;padding:28px 40px;border-radius:12px 12px 0 0;">
-<table width="100%"><tr>
+<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
 <td><img src="cid:qualium-logo" alt="Qaulium AI" height="36" style="display:block;height:36px;width:auto;border:0;"></td>
-<td align="right" style="font-size:12px;color:#888888;letter-spacing:0.05em;text-transform:uppercase;">Announcement</td>
+<td align="right" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#888888;letter-spacing:0.05em;text-transform:uppercase;">Announcement</td>
 </tr></table>
 </td></tr>
 <tr><td style="background-color:#ffffff;padding:48px 40px;">
-<h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#0A0A0A;letter-spacing:-0.03em;">Important Announcement</h1>
-<p style="margin:0 0 28px;font-size:15px;color:#6B7280;line-height:1.65;">We have exciting news to share.</p>
+<h1 style="margin:0 0 8px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:26px;font-weight:700;color:#0A0A0A;letter-spacing:-0.03em;line-height:1.2;">Important Announcement</h1>
+<p style="margin:0 0 28px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;color:#6B7280;line-height:1.65;">We have exciting news to share.</p>
 <hr style="border:none;border-top:1px solid #E5E7EB;margin:0 0 28px;">
-<p style="margin:0 0 20px;font-size:15px;color:#374151;line-height:1.7;">{{CONTENT}}</p>
-<p style="margin:0 0 16px;font-size:14px;color:#374151;line-height:1.6;">Learn more at <a href="https://qauliumai.in" style="color:#2563EB;text-decoration:none;font-weight:500;">qauliumai.in</a></p>
+<p style="margin:0 0 20px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;color:#374151;line-height:1.7;">{{CONTENT}}</p>
+<p style="margin:0 0 16px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;color:#374151;line-height:1.6;">Learn more at <a href="https://qauliumai.in" style="color:#2563EB;text-decoration:none;font-weight:500;">qauliumai.in</a></p>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 0;"><tr><td align="left" style="padding-top:8px;">
+<a href="https://discord.gg/gUnhDhh2" style="display:inline-block;margin-right:12px;text-decoration:none;" target="_blank"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/discord.svg" width="20" height="20" alt="Discord" style="vertical-align:middle;filter:invert(0);"></a>
+<a href="https://www.linkedin.com/company/qalium-ai" style="display:inline-block;margin-right:12px;text-decoration:none;" target="_blank"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg" width="20" height="20" alt="LinkedIn" style="vertical-align:middle;filter:invert(0);"></a>
+<a href="https://qauliumai.in" style="display:inline-block;text-decoration:none;" target="_blank"><img src="https://img.icons8.com/material-rounded/48/000000/globe--v1.png" width="20" height="20" alt="Website" style="vertical-align:middle;"></a>
+</td></tr></table>
 </td></tr>
-<tr><td style="background-color:#0A0A0A;padding:24px 40px;border-radius:0 0 12px 12px;border-top:1px solid #1f2937;">
-<p style="margin:0;font-size:12px;color:#888888;">&copy; 2026 Qaulium AI. All rights reserved.</p>
+<tr><td style="background-color:#0A0A0A;padding:24px 40px;border-radius:0 0 12px 12px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#888888;line-height:1.5;">&copy; 2026 Qaulium AI. All rights reserved.<br>Amaravati, Andhra Pradesh, India</td></tr></table>
 </td></tr>
 </table></td></tr>
 </table>
@@ -164,20 +189,27 @@
       subject: 'Message from Qaulium AI',
       body: `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Message from Qaulium AI</title></head>
 <body style="margin:0;padding:0;background-color:#f5f5f5;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;padding:40px 0;">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
 <tr><td style="background-color:#0A0A0A;padding:28px 40px;border-radius:12px 12px 0 0;">
-<img src="cid:qualium-logo" alt="Qaulium AI" height="36" style="display:block;height:36px;width:auto;border:0;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+<td><img src="cid:qualium-logo" alt="Qaulium AI" height="36" style="display:block;height:36px;width:auto;border:0;"></td>
+</tr></table>
 </td></tr>
 <tr><td style="background-color:#ffffff;padding:48px 40px;">
-<p style="margin:0 0 20px;font-size:15px;color:#374151;line-height:1.7;">{{CONTENT}}</p>
-<p style="margin:0 0 16px;font-size:14px;color:#374151;line-height:1.6;">Best regards, <br>Qaulium AI Team</p>
+<p style="margin:0 0 20px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;color:#374151;line-height:1.7;">{{CONTENT}}</p>
+<p style="margin:0 0 16px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;color:#374151;line-height:1.6;">Best regards,<br>Qaulium AI Team<br><a href="mailto:admin@qauliumai.in" style="color:#2563EB;text-decoration:none;font-weight:500;">admin@qauliumai.in</a></p>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 0;"><tr><td align="left" style="padding-top:8px;">
+<a href="https://discord.gg/gUnhDhh2" style="display:inline-block;margin-right:12px;text-decoration:none;" target="_blank"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/discord.svg" width="20" height="20" alt="Discord" style="vertical-align:middle;filter:invert(0);"></a>
+<a href="https://www.linkedin.com/company/qalium-ai" style="display:inline-block;margin-right:12px;text-decoration:none;" target="_blank"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg" width="20" height="20" alt="LinkedIn" style="vertical-align:middle;filter:invert(0);"></a>
+<a href="https://qauliumai.in" style="display:inline-block;text-decoration:none;" target="_blank"><img src="https://img.icons8.com/material-rounded/48/000000/globe--v1.png" width="20" height="20" alt="Website" style="vertical-align:middle;"></a>
+</td></tr></table>
 </td></tr>
-<tr><td style="background-color:#0A0A0A;padding:24px 40px;border-radius:0 0 12px 12px;border-top:1px solid #1f2937;">
-<p style="margin:0;font-size:12px;color:#888888;">&copy; 2026 Qaulium AI. All rights reserved.</p>
+<tr><td style="background-color:#0A0A0A;padding:24px 40px;border-radius:0 0 12px 12px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#888888;line-height:1.5;">&copy; 2026 Qaulium AI. All rights reserved.<br>Amaravati, Andhra Pradesh, India</td></tr></table>
 </td></tr>
 </table></td></tr>
 </table>
