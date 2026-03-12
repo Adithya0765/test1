@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qaulium AI Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="loginView" class="auth-shell">
+    <div class="auth-card">
+      <div class="brand-row">
+        <img src="../logo-white.png" alt="Qaulium AI" class="brand-logo">
+        <h1>Qaulium AI Admin</h1>
+      </div>
+      <p class="muted">Secure access for registrations, contacts, careers, and communication.</p>
+      <form id="loginForm" class="stack">
+        <label>
+          API Base URL
+          <input type="url" id="apiBase" placeholder="https://qauliumai.in" required>
+        </label>
+        <label>
+          Admin Email
+          <input type="email" id="adminEmail" placeholder="admin@qauliumai.in" required>
+        </label>
+        <label>
+          Password
+          <input type="password" id="adminPassword" required>
+        </label>
+        <button type="submit" class="btn btn-primary" id="loginBtn">Login</button>
+      </form>
+      <div id="loginStatus" class="status"></div>
+    </div>
+  </div>
+
+  <div id="appView" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="brand-row">
+        <img src="../logo-white.png" alt="Qaulium AI" class="brand-logo">
+        <h2>Admin Console</h2>
+      </div>
+      <nav class="menu">
+        <button class="menu-item active" data-tab="overview">Overview</button>
+        <button class="menu-item" data-tab="registrations">Registrations</button>
+        <button class="menu-item" data-tab="contacts">Contacts</button>
+        <button class="menu-item" data-tab="careers">Careers</button>
+        <button class="menu-item" data-tab="composer">Email Composer</button>
+      </nav>
+      <button class="btn btn-secondary" id="logoutBtn">Logout</button>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">Overview</h1>
+          <p class="muted" id="pageSubtitle">Monitor submissions and send communication.</p>
+        </div>
+      </header>
+
+      <section class="tab-panel" id="panel-overview">
+        <div class="stats-grid">
+          <div class="stat-card"><h3>Registrations</h3><p id="statRegistrations">0</p></div>
+          <div class="stat-card"><h3>Contacts</h3><p id="statContacts">0</p></div>
+          <div class="stat-card"><h3>Careers</h3><p id="statCareers">0</p></div>
+          <div class="stat-card"><h3>Total Requests</h3><p id="statAll">0</p></div>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-registrations">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Role</th><th>Date</th></tr></thead>
+            <tbody id="registrationsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-contacts">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Message</th><th>Date</th></tr></thead>
+            <tbody id="contactsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-careers">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>University</th><th>Degree</th><th>Grad Year</th><th>Date</th></tr></thead>
+            <tbody id="careersBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-composer">
+        <form id="composerForm" class="composer-card">
+          <div class="form-grid">
+            <label>Audience
+              <select id="audience">
+                <option value="all">All Members</option>
+                <option value="registrations">Registrations</option>
+                <option value="contacts">Contacts</option>
+                <option value="careers">Career Applicants</option>
+                <option value="custom">Custom Emails</option>
+              </select>
+            </label>
+            <label>Template
+              <select id="template">
+                <option value="internship-offer">Internship Offer Letter</option>
+                <option value="interview-invite">Interview Invitation</option>
+                <option value="profile-followup">Profile Follow-up</option>
+                <option value="company-update">Company Update</option>
+                <option value="blank">Blank Professional Format</option>
+              </select>
+            </label>
+          </div>
+
+          <label id="customEmailsWrap" class="hidden">Custom Emails (comma separated)
+            <textarea id="customEmails" rows="2" placeholder="user1@mail.com, user2@mail.com"></textarea>
+          </label>
+
+          <label>Email Subject
+            <input type="text" id="emailSubject" required>
+          </label>
+
+          <label>Middle Content (your custom matter)
+            <textarea id="middleContent" rows="5" placeholder="Write your message here..." required></textarea>
+          </label>
+
+          <label>Final Email HTML Preview/Editor
+            <textarea id="emailBody" rows="14" required></textarea>
+          </label>
+
+          <div class="composer-actions">
+            <button type="button" class="btn btn-secondary" id="regenerateTemplate">Regenerate Template</button>
+            <button type="submit" class="btn btn-primary" id="sendEmailBtn">Send Email</button>
+          </div>
+          <div id="composerStatus" class="status"></div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

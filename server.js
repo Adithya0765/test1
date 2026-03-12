@@ -7,6 +7,7 @@ require('dotenv').config({ quiet: true });
 
 const express = require('express');
 const path = require('path');
+const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const rateLimit = require('express-rate-limit');
 
@@ -21,6 +22,10 @@ const PORT = process.env.PORT || 3000;
 const IS_VERCEL = !!process.env.VERCEL;
 const POSTGRES_CONNECTION_STRING = process.env.POSTGRES_URL || process.env.DATABASE_URL || process.env.PRISMA_DATABASE_URL;
 const HAS_POSTGRES = !!(PgClient && POSTGRES_CONNECTION_STRING);
+const ADMIN_APP_ORIGIN = process.env.ADMIN_APP_ORIGIN || 'https://admin.qauliumai.in';
+const ADMIN_LOGIN_EMAIL = process.env.ADMIN_LOGIN_EMAIL || 'admin@qauliumai.in';
+const ADMIN_LOGIN_PASSWORD = process.env.ADMIN_LOGIN_PASSWORD || '';
+const ADMIN_TOKEN_SECRET = process.env.ADMIN_TOKEN_SECRET || '';
 
 // Trust the first proxy (Vercel, etc.) so express-rate-limit reads X-Forwarded-For correctly
 app.set('trust proxy', 1);
@@ -49,6 +54,35 @@ app.get('/careers-apply.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'careers-apply.html'));
 });
 
+// CORS for separate admin subdomain app
+app.use((req, res, next) => {
+    if (!req.path.startsWith('/api/admin')) return next();
+
+    const origin = req.headers.origin;
+    const allowedOrigins = [
+        ADMIN_APP_ORIGIN,
+        'https://admin.qauliumai.in',
+        'http://localhost:3001',
+        'http://127.0.0.1:3001',
+        'http://localhost:5500',
+        'http://127.0.0.1:5500'
+    ];
+
+    if (origin && allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+        res.header('Vary', 'Origin');
+    }
+
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+
+    if (req.method === 'OPTIONS') {
+        return res.status(204).send('');
+    }
+
+    return next();
+});
+
 // Rate limiting to prevent abuse
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -59,6 +93,48 @@ const apiLimiter = rateLimit({
 });
 
 app.use('/api/', apiLimiter);
+
+function base64UrlEncode(value) {
+    return Buffer.from(value).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
+
+function base64UrlDecode(value) {
+    const padded = value.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (value.length % 4)) % 4);
+    return Buffer.from(padded, 'base64').toString();
+}
+
+function signAdminToken(payload) {
+    const payloadStr = JSON.stringify(payload);
+    const encoded = base64UrlEncode(payloadStr);
+    const sig = crypto.createHmac('sha256', ADMIN_TOKEN_SECRET).update(encoded).digest('base64url');
+    return `${encoded}.${sig}`;
+}
+
+function verifyAdminToken(token) {
+    if (!token || !token.includes('.')) return null;
+    const [encoded, signature] = token.split('.');
+    const expected = crypto.createHmac('sha256', ADMIN_TOKEN_SECRET).update(encoded).digest('base64url');
+    if (signature !== expected) return null;
+
+    try {
+        const payload = JSON.parse(base64UrlDecode(encoded));
+        if (!payload || !payload.exp || Date.now() > payload.exp) return null;
+        return payload;
+    } catch (e) {
+        return null;
+    }
+}
+
+function requireAdminAuth(req, res, next) {
+    const auth = req.headers.authorization || '';
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+    const payload = verifyAdminToken(token);
+    if (!payload) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+    req.admin = payload;
+    return next();
+}
 
 // --- Database Setup ---
 // Priority:
@@ -955,8 +1031,183 @@ app.post('/api/careers/apply', async (req, res) => {
     }
 });
 
+async function fetchRegistrations() {
+    if (HAS_POSTGRES) {
+        await ensurePostgresSchema();
+        const result = await pgQuery('SELECT * FROM registrations ORDER BY registered_at DESC');
+        return result.rows;
+    }
+    if (db) return db.prepare('SELECT * FROM registrations ORDER BY registered_at DESC').all();
+    return [];
+}
+
+async function fetchContacts() {
+    if (HAS_POSTGRES) {
+        await ensurePostgresSchema();
+        const result = await pgQuery('SELECT * FROM contact_messages ORDER BY sent_at DESC');
+        return result.rows;
+    }
+    if (db) return db.prepare('SELECT * FROM contact_messages ORDER BY sent_at DESC').all();
+    return [];
+}
+
+async function fetchCareers() {
+    if (HAS_POSTGRES) {
+        await ensurePostgresSchema();
+        const result = await pgQuery('SELECT * FROM career_applications ORDER BY applied_at DESC');
+        return result.rows;
+    }
+    if (db) return db.prepare('SELECT * FROM career_applications ORDER BY applied_at DESC').all();
+    return [];
+}
+
+function chunkArray(items, size) {
+    const chunks = [];
+    for (let i = 0; i < items.length; i += size) {
+        chunks.push(items.slice(i, i + size));
+    }
+    return chunks;
+}
+
+async function getAudienceEmails(audience, customEmails) {
+    const registrations = await fetchRegistrations();
+    const contacts = await fetchContacts();
+    const careers = await fetchCareers();
+
+    const regEmails = registrations.map((item) => (item.email || '').trim().toLowerCase()).filter(Boolean);
+    const contactEmails = contacts.map((item) => (item.email || '').trim().toLowerCase()).filter(Boolean);
+    const careerEmails = careers.map((item) => (item.email || '').trim().toLowerCase()).filter(Boolean);
+
+    let emails = [];
+    if (audience === 'registrations') emails = regEmails;
+    else if (audience === 'contacts') emails = contactEmails;
+    else if (audience === 'careers') emails = careerEmails;
+    else if (audience === 'custom') emails = (customEmails || []).map((v) => (v || '').trim().toLowerCase()).filter(Boolean);
+    else emails = regEmails.concat(contactEmails, careerEmails);
+
+    return [...new Set(emails)];
+}
+
+// --- Admin Auth + Admin APIs (for separate admin subdomain) ---
+app.post('/api/admin/login', (req, res) => {
+    const { email, password } = req.body || {};
+
+    if (!ADMIN_TOKEN_SECRET) {
+        return res.status(500).json({ success: false, message: 'Admin auth is not configured.' });
+    }
+
+    if (!ADMIN_LOGIN_PASSWORD) {
+        return res.status(500).json({ success: false, message: 'Admin login password not configured.' });
+    }
+
+    if ((email || '').trim().toLowerCase() !== ADMIN_LOGIN_EMAIL.toLowerCase() || (password || '') !== ADMIN_LOGIN_PASSWORD) {
+        return res.status(401).json({ success: false, message: 'Invalid credentials.' });
+    }
+
+    const token = signAdminToken({
+        email: ADMIN_LOGIN_EMAIL,
+        role: 'admin',
+        exp: Date.now() + (12 * 60 * 60 * 1000)
+    });
+
+    return res.json({ success: true, token, admin: { email: ADMIN_LOGIN_EMAIL, role: 'admin' } });
+});
+
+app.get('/api/admin/me', requireAdminAuth, (req, res) => {
+    return res.json({ success: true, admin: req.admin });
+});
+
+app.get('/api/admin/stats', requireAdminAuth, async (req, res) => {
+    try {
+        const registrations = await fetchRegistrations();
+        const contacts = await fetchContacts();
+        const careers = await fetchCareers();
+
+        return res.json({
+            success: true,
+            totals: {
+                registrations: registrations.length,
+                contacts: contacts.length,
+                careers: careers.length,
+                allRequests: registrations.length + contacts.length + careers.length
+            },
+            recent: {
+                registrations: registrations.slice(0, 10),
+                contacts: contacts.slice(0, 10),
+                careers: careers.slice(0, 10)
+            }
+        });
+    } catch (err) {
+        console.error('Admin stats error:', err.message);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+});
+
+app.get('/api/admin/registrations', requireAdminAuth, async (req, res) => {
+    try {
+        const rows = await fetchRegistrations();
+        return res.json({ success: true, count: rows.length, data: rows });
+    } catch (err) {
+        console.error('Admin registrations error:', err.message);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+});
+
+app.get('/api/admin/contacts', requireAdminAuth, async (req, res) => {
+    try {
+        const rows = await fetchContacts();
+        return res.json({ success: true, count: rows.length, data: rows });
+    } catch (err) {
+        console.error('Admin contacts error:', err.message);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+});
+
+app.get('/api/admin/careers', requireAdminAuth, async (req, res) => {
+    try {
+        const rows = await fetchCareers();
+        return res.json({ success: true, count: rows.length, data: rows });
+    } catch (err) {
+        console.error('Admin careers error:', err.message);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+});
+
+app.post('/api/admin/email/send', requireAdminAuth, async (req, res) => {
+    try {
+        const { audience, subject, body, customEmails } = req.body || {};
+        if (!transporter) {
+            return res.status(500).json({ success: false, message: 'Email service not configured.' });
+        }
+        if (!subject || !body) {
+            return res.status(400).json({ success: false, message: 'Subject and body are required.' });
+        }
+
+        const recipients = await getAudienceEmails(audience || 'all', Array.isArray(customEmails) ? customEmails : []);
+        if (!recipients.length) {
+            return res.status(400).json({ success: false, message: 'No recipients found for selected audience.' });
+        }
+
+        const chunks = chunkArray(recipients, 50);
+        for (const chunk of chunks) {
+            await transporter.sendMail({
+                from: SMTP_FROM,
+                to: process.env.CONTACT_EMAIL || 'admin@qauliumai.in',
+                bcc: chunk,
+                subject: String(subject).trim(),
+                html: String(body)
+            });
+        }
+
+        return res.json({ success: true, message: 'Email sent successfully.', sent: recipients.length });
+    } catch (err) {
+        console.error('Admin bulk email error:', err.message);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+});
+
 // GET /api/stats — Admin endpoint for total request counts and recent submissions
-app.get('/api/stats', async (req, res) => {
+app.get('/api/stats', requireAdminAuth, async (req, res) => {
     if (!HAS_POSTGRES && !db) {
         return res.json({
             success: true,
@@ -1044,7 +1295,7 @@ app.get('/api/stats', async (req, res) => {
 });
 
 // GET /api/registrations — Admin endpoint to view all registrations
-app.get('/api/registrations', async (req, res) => {
+app.get('/api/registrations', requireAdminAuth, async (req, res) => {
     if (!HAS_POSTGRES && !db) return res.json({ success: true, count: 0, data: [], note: 'No persistent DB configured.' });
     try {
         let rows;
@@ -1063,7 +1314,7 @@ app.get('/api/registrations', async (req, res) => {
 });
 
 // GET /api/contacts — Admin endpoint to view all contact messages
-app.get('/api/contacts', async (req, res) => {
+app.get('/api/contacts', requireAdminAuth, async (req, res) => {
     if (!HAS_POSTGRES && !db) return res.json({ success: true, count: 0, data: [], note: 'No persistent DB configured.' });
     try {
         let rows;
@@ -1082,7 +1333,7 @@ app.get('/api/contacts', async (req, res) => {
 });
 
 // GET /api/careers — Admin endpoint to view all career applications
-app.get('/api/careers', async (req, res) => {
+app.get('/api/careers', requireAdminAuth, async (req, res) => {
     if (!HAS_POSTGRES && !db) return res.json({ success: true, count: 0, data: [], note: 'No persistent DB configured.' });
     try {
         let rows;
@@ -1110,10 +1361,13 @@ if (!process.env.VERCEL) {
         console.log(`    POST /api/register       → User registration`);
         console.log(`    POST /api/contact        → Contact form`);
         console.log(`    POST /api/careers/apply  → Career application`);
-        console.log(`    GET  /api/stats          → Admin stats`);
-        console.log(`    GET  /api/registrations  → View all registrations`);
-        console.log(`    GET  /api/contacts       → View all contact messages\n`);
-        console.log(`    GET  /api/careers        → View all career applications\n`);
+        console.log(`    POST /api/admin/login    → Admin login`);
+        console.log(`    GET  /api/admin/me       → Admin session validation`);
+        console.log(`    GET  /api/admin/stats    → Admin stats`);
+        console.log(`    GET  /api/admin/registrations → Admin registrations`);
+        console.log(`    GET  /api/admin/contacts → Admin contacts`);
+        console.log(`    GET  /api/admin/careers  → Admin careers`);
+        console.log(`    POST /api/admin/email/send → Admin bulk email\n`);
     });
 }
 
