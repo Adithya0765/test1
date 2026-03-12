@@ -274,6 +274,19 @@
   const composerForm = document.getElementById('composerForm');
   const composerStatus = document.getElementById('composerStatus');
 
+  const recordModal = document.getElementById('recordModal');
+  const recordModalTitle = document.getElementById('recordModalTitle');
+  const recordForm = document.getElementById('recordForm');
+  const recordFormFields = document.getElementById('recordFormFields');
+  const recordModalClose = document.getElementById('recordModalClose');
+  const recordCancelBtn = document.getElementById('recordCancelBtn');
+
+  const confirmModal = document.getElementById('confirmModal');
+  const confirmModalMessage = document.getElementById('confirmModalMessage');
+  const confirmModalClose = document.getElementById('confirmModalClose');
+  const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+  const confirmOkBtn = document.getElementById('confirmOkBtn');
+
   const subtitleByTab = {
     overview: 'Monitor submissions and send communication.',
     registrations: 'View all platform registrations collected from the landing site.',
@@ -573,53 +586,106 @@
     };
   }
 
+  const fieldConfig = {
+    registrations: [
+      { key: 'first_name', label: 'First Name' },
+      { key: 'last_name', label: 'Last Name' },
+      { key: 'email', label: 'Email' },
+      { key: 'phone', label: 'Phone' },
+      { key: 'company', label: 'Company' },
+      { key: 'role', label: 'Role' },
+      { key: 'use_case', label: 'Use Case', multiline: true }
+    ],
+    contacts: [
+      { key: 'name', label: 'Name' },
+      { key: 'email', label: 'Email' },
+      { key: 'company', label: 'Company' },
+      { key: 'message', label: 'Message', multiline: true }
+    ],
+    careers: [
+      { key: 'first_name', label: 'First Name' },
+      { key: 'last_name', label: 'Last Name' },
+      { key: 'email', label: 'Email' },
+      { key: 'phone', label: 'Phone' },
+      { key: 'role_applied', label: 'Role Applied' },
+      { key: 'location', label: 'Location' },
+      { key: 'university', label: 'University' },
+      { key: 'degree', label: 'Degree' },
+      { key: 'graduation_year', label: 'Graduation Year', numeric: true },
+      { key: 'availability', label: 'Availability' },
+      { key: 'linkedin_url', label: 'LinkedIn URL' },
+      { key: 'portfolio_url', label: 'Portfolio URL' },
+      { key: 'resume_url', label: 'Resume URL' },
+      { key: 'current_company', label: 'Current Company' },
+      { key: 'experience_years', label: 'Experience Years', numeric: true },
+      { key: 'cover_letter', label: 'Cover Letter', multiline: true }
+    ]
+  };
+
+  let activeEditContext = null;
+  let activeConfirmAction = null;
+
+  function openModal(modal) {
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(modal) {
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  function openEditModal(type, row) {
+    const payload = getEditablePayload(type, row);
+    const fields = fieldConfig[type] || [];
+
+    recordModalTitle.textContent = 'Edit ' + type.slice(0, -1).replace(/^./, function (c) { return c.toUpperCase(); });
+    recordFormFields.innerHTML = fields.map(function (field) {
+      const value = payload[field.key] == null ? '' : payload[field.key];
+      const inputHtml = field.multiline
+        ? '<textarea rows="4" name="' + field.key + '" spellcheck="true">' + escapeHtml(String(value)) + '</textarea>'
+        : '<input type="' + (field.numeric ? 'number' : 'text') + '" name="' + field.key + '" value="' + escapeHtml(String(value)) + '">';
+
+      return '<div class="modal-field">' +
+        '<label>' + escapeHtml(field.label) + '</label>' +
+        inputHtml +
+      '</div>';
+    }).join('');
+
+    activeEditContext = { type: type, id: row.id };
+    openModal(recordModal);
+  }
+
+  function openConfirmModal(message, actionFn) {
+    confirmModalMessage.textContent = message;
+    activeConfirmAction = actionFn;
+    openModal(confirmModal);
+  }
+
   async function editRecord(type, id) {
     const rows = getRowsByType(type);
     const row = rows.find(function (item) { return String(item.id) === String(id); });
     if (!row) {
-      window.alert('Record not found.');
+      setStatus(composerStatus, 'Record not found.', 'err');
       return;
     }
 
-    const input = window.prompt(
-      'Edit JSON payload and click OK to update:',
-      JSON.stringify(getEditablePayload(type, row), null, 2)
-    );
-    if (input === null) return;
-
-    let payload;
-    try {
-      payload = JSON.parse(input);
-    } catch (e) {
-      window.alert('Invalid JSON. Please try again.');
-      return;
-    }
-
-    try {
-      await request('/api/admin/' + type + '/' + id, {
-        method: 'PUT',
-        headers: authHeaders(),
-        body: JSON.stringify(payload)
-      });
-      await loadDashboard();
-      window.alert('Record updated successfully.');
-    } catch (err) {
-      window.alert(err.message || 'Update failed.');
-    }
+    openEditModal(type, row);
   }
 
   async function deleteRecord(type, id) {
-    if (!window.confirm('Delete this record? This action cannot be undone.')) return;
-    try {
-      await request('/api/admin/' + type + '/' + id, {
-        method: 'DELETE',
-        headers: authHeaders()
-      });
-      await loadDashboard();
-      window.alert('Record deleted successfully.');
-    } catch (err) {
-      window.alert(err.message || 'Delete failed.');
-    }
+    openConfirmModal('Delete this record? This action cannot be undone.', async function () {
+      try {
+        await request('/api/admin/' + type + '/' + id, {
+          method: 'DELETE',
+          headers: authHeaders()
+        });
+        await loadDashboard();
+        setStatus(composerStatus, 'Record deleted successfully.', 'ok');
+      } catch (err) {
+        setStatus(composerStatus, err.message || 'Delete failed.', 'err');
+      }
+    });
   }
 
   async function loadDashboard() {
@@ -863,6 +929,75 @@
         deleteRecord(type, id);
       }
     });
+  });
+
+  recordForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    if (!activeEditContext) return;
+
+    const formData = new FormData(recordForm);
+    const fields = fieldConfig[activeEditContext.type] || [];
+    const payload = {};
+    fields.forEach(function (field) {
+      const raw = formData.get(field.key);
+      payload[field.key] = field.numeric ? (parseInt(raw || '0', 10) || 0) : String(raw || '').trim();
+    });
+
+    try {
+      await request('/api/admin/' + activeEditContext.type + '/' + activeEditContext.id, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify(payload)
+      });
+      closeModal(recordModal);
+      activeEditContext = null;
+      await loadDashboard();
+      setStatus(composerStatus, 'Record updated successfully.', 'ok');
+    } catch (err) {
+      setStatus(composerStatus, err.message || 'Update failed.', 'err');
+    }
+  });
+
+  [recordModalClose, recordCancelBtn].forEach(function (el) {
+    el.addEventListener('click', function () {
+      closeModal(recordModal);
+      activeEditContext = null;
+    });
+  });
+
+  [confirmModalClose, confirmCancelBtn].forEach(function (el) {
+    el.addEventListener('click', function () {
+      closeModal(confirmModal);
+      activeConfirmAction = null;
+    });
+  });
+
+  confirmOkBtn.addEventListener('click', async function () {
+    if (!activeConfirmAction) return;
+    const action = activeConfirmAction;
+    activeConfirmAction = null;
+    closeModal(confirmModal);
+    await action();
+  });
+
+  [recordModal, confirmModal].forEach(function (modal) {
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) {
+        closeModal(modal);
+      }
+    });
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (!recordModal.classList.contains('hidden')) {
+      closeModal(recordModal);
+      activeEditContext = null;
+    }
+    if (!confirmModal.classList.contains('hidden')) {
+      closeModal(confirmModal);
+      activeConfirmAction = null;
+    }
   });
 
   // Audience radio button listeners
