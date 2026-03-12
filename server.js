@@ -239,6 +239,9 @@ async function ensurePostgresSchema() {
             await pgQuery(`ALTER TABLE career_applications ADD COLUMN IF NOT EXISTS graduation_year INTEGER DEFAULT 0`);
             await pgQuery(`ALTER TABLE career_applications ADD COLUMN IF NOT EXISTS availability TEXT DEFAULT ''`);
 
+            await pgQuery(`CREATE UNIQUE INDEX IF NOT EXISTS idx_contact_messages_email ON contact_messages(email)`);
+            await pgQuery(`CREATE UNIQUE INDEX IF NOT EXISTS idx_career_applications_email ON career_applications(email)`);
+
             await pgQuery(`
                 CREATE TABLE IF NOT EXISTS forms (
                     id SERIAL PRIMARY KEY,
@@ -321,6 +324,9 @@ if (HAS_POSTGRES) {
         try { db.prepare('ALTER TABLE career_applications ADD COLUMN degree TEXT DEFAULT ""').run(); } catch (e) {}
         try { db.prepare('ALTER TABLE career_applications ADD COLUMN graduation_year INTEGER DEFAULT 0').run(); } catch (e) {}
         try { db.prepare('ALTER TABLE career_applications ADD COLUMN availability TEXT DEFAULT ""').run(); } catch (e) {}
+
+        try { db.prepare('CREATE UNIQUE INDEX IF NOT EXISTS idx_contact_messages_email ON contact_messages(email)').run(); } catch (e) {}
+        try { db.prepare('CREATE UNIQUE INDEX IF NOT EXISTS idx_career_applications_email ON career_applications(email)').run(); } catch (e) {}
 
         db.exec(`
             CREATE TABLE IF NOT EXISTS forms (
@@ -787,7 +793,7 @@ app.post('/api/register', async (req, res) => {
     try {
         const { firstName, lastName, email, phone, company, role, useCase } = req.body;
 
-        if (!firstName || !lastName || !email) {
+        if (!firstName || !firstName.trim() || !lastName || !lastName.trim() || !email || !email.trim()) {
             return res.status(400).json({ success: false, message: 'First name, last name, and email are required.' });
         }
 
@@ -817,7 +823,7 @@ app.post('/api/register', async (req, res) => {
                 );
             } catch (dbErr) {
                 if (dbErr.code === '23505') {
-                    return res.status(409).json({ success: false, message: 'This email is already registered.' });
+                    return res.status(409).json({ success: false, message: 'This email is already registered. Please use a different email.' });
                 }
                 throw dbErr;
             }
@@ -839,7 +845,7 @@ app.post('/api/register', async (req, res) => {
                 );
             } catch (dbErr) {
                 if (dbErr.message && dbErr.message.includes('UNIQUE constraint failed')) {
-                    return res.status(409).json({ success: false, message: 'This email is already registered.' });
+                    return res.status(409).json({ success: false, message: 'This email is already registered. Please use a different email.' });
                 }
                 throw dbErr;
             }
@@ -882,36 +888,50 @@ app.post('/api/contact', async (req, res) => {
     try {
         const { name, email, company, message } = req.body;
 
-        if (!name || !email || !message) {
+        if (!name || !name.trim() || !email || !email.trim() || !message || !message.trim()) {
             return res.status(400).json({ success: false, message: 'Name, email, and message are required.' });
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
+        if (!emailRegex.test(email.trim())) {
             return res.status(400).json({ success: false, message: 'Invalid email address.' });
         }
 
         // Save to database (Postgres on Vercel, SQLite locally)
         if (HAS_POSTGRES) {
             await ensurePostgresSchema();
-            await pgQuery(
-                `
-                INSERT INTO contact_messages (name, email, company, message)
-                VALUES ($1, $2, $3, $4)
-                `,
-                [
-                    name.trim(),
-                    email.trim().toLowerCase(),
-                    (company || '').trim(),
-                    message.trim()
-                ]
-            );
+            try {
+                await pgQuery(
+                    `
+                    INSERT INTO contact_messages (name, email, company, message)
+                    VALUES ($1, $2, $3, $4)
+                    `,
+                    [
+                        name.trim(),
+                        email.trim().toLowerCase(),
+                        (company || '').trim(),
+                        message.trim()
+                    ]
+                );
+            } catch (dbErr) {
+                if (dbErr.code === '23505') {
+                    return res.status(409).json({ success: false, message: 'This email is already registered. Please use a different email.' });
+                }
+                throw dbErr;
+            }
         } else if (db) {
             const stmt = db.prepare(`
                 INSERT INTO contact_messages (name, email, company, message)
                 VALUES (?, ?, ?, ?)
             `);
-            stmt.run(name.trim(), email.trim().toLowerCase(), (company || '').trim(), message.trim());
+            try {
+                stmt.run(name.trim(), email.trim().toLowerCase(), (company || '').trim(), message.trim());
+            } catch (dbErr) {
+                if (dbErr.message && dbErr.message.includes('UNIQUE constraint failed')) {
+                    return res.status(409).json({ success: false, message: 'This email is already registered. Please use a different email.' });
+                }
+                throw dbErr;
+            }
         }
 
         // Send both emails immediately before returning success
@@ -983,12 +1003,12 @@ app.post('/api/careers/apply', async (req, res) => {
             coverLetter
         } = req.body;
 
-        if (!firstName || !lastName || !email || !phone || !roleApplied || !location || !university || !degree || !graduationYear || !availability || !resumeUrl || !coverLetter) {
+        if (!firstName || !firstName.trim() || !lastName || !lastName.trim() || !email || !email.trim() || !phone || !phone.trim() || !roleApplied || !roleApplied.trim() || !location || !location.trim() || !university || !university.trim() || !degree || !degree.trim() || !graduationYear || !availability || !availability.trim() || !resumeUrl || !resumeUrl.trim() || !coverLetter || !coverLetter.trim()) {
             return res.status(400).json({ success: false, message: 'Please provide all required application details.' });
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
+        if (!emailRegex.test(email.trim())) {
             return res.status(400).json({ success: false, message: 'Invalid email address.' });
         }
 
@@ -999,6 +1019,7 @@ app.post('/api/careers/apply', async (req, res) => {
 
         if (HAS_POSTGRES) {
             await ensurePostgresSchema();
+            try {
             await pgQuery(
                 `
                 INSERT INTO career_applications (
@@ -1027,6 +1048,12 @@ app.post('/api/careers/apply', async (req, res) => {
                     coverLetter.trim()
                 ]
             );
+            } catch (dbErr) {
+                if (dbErr.code === '23505') {
+                    return res.status(409).json({ success: false, message: 'This email is already registered. Please use a different email.' });
+                }
+                throw dbErr;
+            }
         } else if (db) {
             const stmt = db.prepare(`
                 INSERT INTO career_applications (
@@ -1037,24 +1064,31 @@ app.post('/api/careers/apply', async (req, res) => {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `);
 
-            stmt.run(
-                firstName.trim(),
-                lastName.trim(),
-                email.trim().toLowerCase(),
-                phone.trim(),
-                roleApplied.trim(),
-                0,
-                location.trim(),
-                '',
-                university.trim(),
-                degree.trim(),
-                safeGraduationYear,
-                availability.trim(),
-                (linkedinUrl || '').trim(),
-                (portfolioUrl || '').trim(),
-                resumeUrl.trim(),
-                coverLetter.trim()
-            );
+            try {
+                stmt.run(
+                    firstName.trim(),
+                    lastName.trim(),
+                    email.trim().toLowerCase(),
+                    phone.trim(),
+                    roleApplied.trim(),
+                    0,
+                    location.trim(),
+                    '',
+                    university.trim(),
+                    degree.trim(),
+                    safeGraduationYear,
+                    availability.trim(),
+                    (linkedinUrl || '').trim(),
+                    (portfolioUrl || '').trim(),
+                    resumeUrl.trim(),
+                    coverLetter.trim()
+                );
+            } catch (dbErr) {
+                if (dbErr.message && dbErr.message.includes('UNIQUE constraint failed')) {
+                    return res.status(409).json({ success: false, message: 'This email is already registered. Please use a different email.' });
+                }
+                throw dbErr;
+            }
         }
 
         if (transporter) {

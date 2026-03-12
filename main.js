@@ -605,8 +605,15 @@
             })
             .then(function (res) { return res.json(); })
             .then(function (data) {
-                btn.textContent = data.success ? 'Message Sent' : 'Failed — Try Again';
-                if (data.success) form.reset();
+                if (data.success) {
+                    btn.textContent = 'Message Sent';
+                    form.reset();
+                } else {
+                    btn.textContent = 'Send Message';
+                    btn.disabled = false;
+                    alert(data.message || 'Failed to send message. Please try again.');
+                    return;
+                }
                 setTimeout(function () {
                     btn.textContent = 'Send Message';
                     btn.disabled = false;
