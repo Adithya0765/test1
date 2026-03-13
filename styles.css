@@ -1876,6 +1876,10 @@ img { max-width: 100%; display: block; }
     cursor: pointer;
 }
 
+.iti {
+    width: 100%;
+}
+
 .register-form select:focus {
     border-color: var(--color-accent);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);

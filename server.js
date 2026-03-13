@@ -26,6 +26,9 @@ const ADMIN_APP_ORIGIN = process.env.ADMIN_APP_ORIGIN || 'https://admin.qauliuma
 const ADMIN_LOGIN_EMAIL = process.env.ADMIN_LOGIN_EMAIL || 'admin@qauliumai.in';
 const ADMIN_LOGIN_PASSWORD = process.env.ADMIN_LOGIN_PASSWORD || '';
 const ADMIN_TOKEN_SECRET = process.env.ADMIN_TOKEN_SECRET || '';
+const ADMIN_OTP_TTL_MS = parseInt(process.env.ADMIN_OTP_TTL_MS || '300000', 10); // 5 min
+
+const pendingAdminOtps = new Map();
 
 // Trust the first proxy (Vercel, etc.) so express-rate-limit reads X-Forwarded-For correctly
 app.set('trust proxy', 1);
@@ -892,6 +895,51 @@ function normalizeRegistrationSource(source) {
     return allowed.has(value) ? value : 'unknown';
 }
 
+function generateOtpCode() {
+    return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+function buildAdminOtpEmail(otpCode) {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin Login OTP</title></head>
+<body style="margin:0;padding:0;background-color:#f5f5f5;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;padding:40px 0;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+<tr><td style="background-color:#0A0A0A;padding:28px 40px;border-radius:12px 12px 0 0;">
+<img src="https://qauliumai.in/logo-white.png" alt="Qaulium AI" height="36" style="display:block;height:36px;width:auto;border:0;">
+</td></tr>
+<tr><td style="background-color:#ffffff;padding:40px;">
+<h2 style="margin:0 0 12px;font-size:24px;color:#0A0A0A;">Admin Login Verification</h2>
+<p style="margin:0 0 20px;font-size:14px;color:#4B5563;line-height:1.6;">Use the one-time password below to complete your admin login:</p>
+<div style="margin:0 0 20px;padding:14px 18px;background:#F3F4F6;border:1px solid #E5E7EB;border-radius:8px;font-size:28px;font-weight:700;letter-spacing:0.16em;color:#111827;text-align:center;">${otpCode}</div>
+<p style="margin:0;font-size:13px;color:#6B7280;line-height:1.6;">This code expires in 5 minutes. If you did not request this login, ignore this message.</p>
+</td></tr>
+<tr><td style="background-color:#0A0A0A;padding:18px 40px;border-radius:0 0 12px 12px;color:#9CA3AF;font-size:12px;">&copy; 2026 Qaulium AI</td></tr>
+</table>
+</td></tr></table>
+</body>
+</html>`;
+}
+
+function buildCareerStatusEmail(firstName, roleApplied, statusType) {
+    const safeName = escapeHtml(firstName || 'Candidate');
+    const safeRole = escapeHtml(roleApplied || 'Intern Role');
+
+    if (statusType === 'accepted') {
+        return {
+            subject: `Application Update — ${safeRole} | Qaulium AI`,
+            html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,sans-serif;"><table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 0;"><tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border-radius:12px;overflow:hidden;"><tr><td style="background:#0A0A0A;padding:24px 32px;"><img src="https://qauliumai.in/logo-white.png" alt="Qaulium AI" height="32"></td></tr><tr><td style="padding:32px;"><h2 style="margin:0 0 12px;color:#111;">Congratulations, ${safeName}.</h2><p style="margin:0 0 14px;color:#374151;line-height:1.7;">We are pleased to inform you that your application for the <strong>${safeRole}</strong> role has been accepted.</p><p style="margin:0;color:#374151;line-height:1.7;">Our team will share onboarding details and next steps shortly.</p></td></tr></table></td></tr></table></body></html>`
+        };
+    }
+
+    return {
+        subject: `Interview Schedule — ${safeRole} | Qaulium AI`,
+        html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,sans-serif;"><table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 0;"><tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border-radius:12px;overflow:hidden;"><tr><td style="background:#0A0A0A;padding:24px 32px;"><img src="https://qauliumai.in/logo-white.png" alt="Qaulium AI" height="32"></td></tr><tr><td style="padding:32px;"><h2 style="margin:0 0 12px;color:#111;">Interview Invitation, ${safeName}.</h2><p style="margin:0 0 14px;color:#374151;line-height:1.7;">You have been shortlisted for the <strong>${safeRole}</strong> role.</p><p style="margin:0;color:#374151;line-height:1.7;">Our team will contact you shortly with interview timing and details.</p></td></tr></table></td></tr></table></body></html>`
+    };
+}
+
 // --- API Routes ---
 
 // POST /api/register
@@ -968,12 +1016,7 @@ app.post('/api/register', async (req, res) => {
                     from: SMTP_FROM,
                     to: normalizedEmail,
                     subject: 'Welcome to Qaulium AI — Registration Confirmed',
-                    html: buildConfirmationEmail(safeFirstName),
-                    attachments: [{
-                        filename: 'logo-white.png',
-                        content: Buffer.from(LOGO_BASE64, 'base64'),
-                        cid: 'qualium-logo'
-                    }]
+                    html: buildConfirmationEmail(safeFirstName)
                 });
             } catch (emailErr) {
                 console.error('Failed to send confirmation email:', emailErr.message);
@@ -1070,23 +1113,13 @@ app.post('/api/contact', async (req, res) => {
                         from: SMTP_FROM,
                         to: process.env.CONTACT_EMAIL || 'admin@qauliumai.in',
                         subject: `Contact Form: ${safeName} — Qaulium AI`,
-                        html: buildContactNotificationEmail(safeName, safeEmail, safeCompany, safeMessage),
-                        attachments: [{
-                            filename: 'logo-white.png',
-                            content: Buffer.from(LOGO_BASE64, 'base64'),
-                            cid: 'qualium-logo'
-                        }]
+                        html: buildContactNotificationEmail(safeName, safeEmail, safeCompany, safeMessage)
                     }),
                     transporter.sendMail({
                         from: SMTP_FROM,
                         to: normalizedEmail,
                         subject: 'We received your message — Qaulium AI',
-                        html: buildContactConfirmationEmail(safeName),
-                        attachments: [{
-                            filename: 'logo-white.png',
-                            content: Buffer.from(LOGO_BASE64, 'base64'),
-                            cid: 'qualium-logo'
-                        }]
+                        html: buildContactConfirmationEmail(safeName)
                     })
                 ]);
             } catch (emailErr) {
@@ -1238,23 +1271,13 @@ app.post('/api/careers/apply', async (req, res) => {
                         from: SMTP_FROM,
                         to: process.env.CONTACT_EMAIL || 'admin@qauliumai.in',
                         subject: `Career Application: ${safeData.firstName} ${safeData.lastName} — ${safeData.roleApplied}`,
-                        html: buildCareerApplicationNotificationEmail(safeData),
-                        attachments: [{
-                            filename: 'logo-white.png',
-                            content: Buffer.from(LOGO_BASE64, 'base64'),
-                            cid: 'qualium-logo'
-                        }]
+                        html: buildCareerApplicationNotificationEmail(safeData)
                     }),
                     transporter.sendMail({
                         from: SMTP_FROM,
                         to: email.trim().toLowerCase(),
                         subject: `Application Received — ${safeData.roleApplied} | Qaulium AI`,
-                        html: buildCareerApplicationConfirmationEmail(safeData.firstName, safeData.roleApplied),
-                        attachments: [{
-                            filename: 'logo-white.png',
-                            content: Buffer.from(LOGO_BASE64, 'base64'),
-                            cid: 'qualium-logo'
-                        }]
+                        html: buildCareerApplicationConfirmationEmail(safeData.firstName, safeData.roleApplied)
                     })
                 ]);
             } catch (emailErr) {
@@ -1332,7 +1355,7 @@ async function getAudienceEmails(audience, customEmails) {
 
 // --- Admin Auth + Admin APIs (for separate admin subdomain) ---
 app.post('/api/admin/login', (req, res) => {
-    const { email, password } = req.body || {};
+    const { email, password, requestId, otp } = req.body || {};
 
     if (!ADMIN_TOKEN_SECRET) {
         return res.status(500).json({ success: false, message: 'Admin auth is not configured.' });
@@ -1342,9 +1365,67 @@ app.post('/api/admin/login', (req, res) => {
         return res.status(500).json({ success: false, message: 'Admin login password not configured.' });
     }
 
-    if ((email || '').trim().toLowerCase() !== ADMIN_LOGIN_EMAIL.toLowerCase() || (password || '') !== ADMIN_LOGIN_PASSWORD) {
+    const normalizedEmail = (email || '').trim().toLowerCase();
+
+    if (normalizedEmail !== ADMIN_LOGIN_EMAIL.toLowerCase() || (password || '') !== ADMIN_LOGIN_PASSWORD) {
         return res.status(401).json({ success: false, message: 'Invalid credentials.' });
     }
+
+    // Step 1: password accepted -> send OTP
+    if (!requestId || !otp) {
+        const generatedOtp = generateOtpCode();
+        const loginRequestId = crypto.randomUUID();
+        const otpHash = crypto.createHash('sha256').update(generatedOtp).digest('hex');
+
+        pendingAdminOtps.set(loginRequestId, {
+            email: normalizedEmail,
+            otpHash: otpHash,
+            expiresAt: Date.now() + ADMIN_OTP_TTL_MS,
+            attempts: 0
+        });
+
+        if (transporter) {
+            transporter.sendMail({
+                from: SMTP_FROM,
+                to: ADMIN_LOGIN_EMAIL,
+                subject: 'Qaulium Admin Login OTP',
+                html: buildAdminOtpEmail(generatedOtp)
+            }).catch((e) => {
+                console.error('Admin OTP email error:', e.message);
+            });
+        }
+
+        return res.json({
+            success: true,
+            requiresOtp: true,
+            requestId: loginRequestId,
+            message: 'OTP sent to admin email.'
+        });
+    }
+
+    // Step 2: verify OTP
+    const otpRecord = pendingAdminOtps.get(String(requestId));
+    if (!otpRecord || otpRecord.email !== normalizedEmail) {
+        return res.status(401).json({ success: false, message: 'Invalid or expired OTP session.' });
+    }
+
+    if (Date.now() > otpRecord.expiresAt) {
+        pendingAdminOtps.delete(String(requestId));
+        return res.status(401).json({ success: false, message: 'OTP expired. Please login again.' });
+    }
+
+    otpRecord.attempts += 1;
+    if (otpRecord.attempts > 5) {
+        pendingAdminOtps.delete(String(requestId));
+        return res.status(429).json({ success: false, message: 'Too many OTP attempts. Please login again.' });
+    }
+
+    const otpHash = crypto.createHash('sha256').update(String(otp).trim()).digest('hex');
+    if (otpHash !== otpRecord.otpHash) {
+        return res.status(401).json({ success: false, message: 'Invalid OTP.' });
+    }
+
+    pendingAdminOtps.delete(String(requestId));
 
     const token = signAdminToken({
         email: ADMIN_LOGIN_EMAIL,
@@ -1658,6 +1739,48 @@ app.delete('/api/admin/careers/:id', requireAdminAuth, async (req, res) => {
         return res.json({ success: true, message: 'Career application deleted.' });
     } catch (err) {
         console.error('Admin careers delete error:', err.message);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+});
+
+app.post('/api/admin/careers/:id/action', requireAdminAuth, async (req, res) => {
+    try {
+        const id = parseAdminId(req, res);
+        if (!id) return;
+
+        const action = String((req.body || {}).action || '').trim().toLowerCase();
+        if (!['interview', 'accepted'].includes(action)) {
+            return res.status(400).json({ success: false, message: 'Invalid action.' });
+        }
+
+        let row = null;
+        if (HAS_POSTGRES) {
+            await ensurePostgresSchema();
+            const result = await pgQuery('SELECT * FROM career_applications WHERE id = $1 LIMIT 1', [id]);
+            row = result.rows[0] || null;
+        } else if (db) {
+            row = db.prepare('SELECT * FROM career_applications WHERE id = ? LIMIT 1').get(id) || null;
+        }
+
+        if (!row) {
+            return res.status(404).json({ success: false, message: 'Career application not found.' });
+        }
+
+        if (!transporter) {
+            return res.status(500).json({ success: false, message: 'Email service not configured.' });
+        }
+
+        const template = buildCareerStatusEmail(row.first_name, row.role_applied, action);
+        await transporter.sendMail({
+            from: SMTP_FROM,
+            to: String(row.email || '').trim().toLowerCase(),
+            subject: template.subject,
+            html: template.html
+        });
+
+        return res.json({ success: true, message: `${action} email sent.` });
+    } catch (err) {
+        console.error('Admin career action error:', err.message);
         return res.status(500).json({ success: false, message: 'Internal server error.' });
     }
 });
@@ -2019,6 +2142,8 @@ app.post('/api/admin/email/send', requireAdminAuth, async (req, res) => {
             return res.status(400).json({ success: false, message: 'No recipients found for selected audience.' });
         }
 
+        const htmlBody = String(body || '').replace(/cid:qualium-logo/g, 'https://qauliumai.in/logo-white.png');
+
         const chunks = chunkArray(recipients, 50);
         for (const chunk of chunks) {
             await transporter.sendMail({
@@ -2026,12 +2151,7 @@ app.post('/api/admin/email/send', requireAdminAuth, async (req, res) => {
                 to: process.env.CONTACT_EMAIL || 'admin@qauliumai.in',
                 bcc: chunk,
                 subject: String(subject).trim(),
-                html: String(body),
-                attachments: [{
-                    filename: 'logo-white.png',
-                    content: Buffer.from(LOGO_BASE64, 'base64'),
-                    cid: 'qualium-logo'
-                }]
+                html: htmlBody
             });
         }
 

@@ -371,6 +371,31 @@
     var formStatus = document.getElementById('formStatus');
     var portalRegisterBtn = document.getElementById('portalRegisterBtn');
 
+    var itiRegPhone = null;
+    var itiCareerPhone = null;
+
+    function initIntlPhoneInput(inputId) {
+        var input = document.getElementById(inputId);
+        if (!input || typeof window.intlTelInput !== 'function') return null;
+        return window.intlTelInput(input, {
+            initialCountry: 'auto',
+            strictMode: true,
+            nationalMode: false,
+            autoPlaceholder: 'polite',
+            separateDialCode: true,
+            utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/utils.js',
+            geoIpLookup: function (callback) {
+                fetch('https://ipapi.co/json/')
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) { callback((data && data.country_code) ? data.country_code : 'us'); })
+                    .catch(function () { callback('us'); });
+            }
+        });
+    }
+
+    itiRegPhone = initIntlPhoneInput('regPhone');
+    itiCareerPhone = initIntlPhoneInput('careerPhone');
+
     function openModal() {
         if (!registerModal) return;
         registerModal.classList.add('open');
@@ -471,6 +496,14 @@
             if (!emailPattern.test(email)) {
                 showStatus('Please enter a valid email address.', 'error');
                 return;
+            }
+
+            if (itiRegPhone) {
+                if (!itiRegPhone.isValidNumber()) {
+                    showStatus('Please enter a valid international phone number.', 'error');
+                    return;
+                }
+                phone = itiRegPhone.getNumber();
             }
 
             var btn = document.getElementById('registerBtn');
@@ -584,6 +617,14 @@
             if (!emailPattern.test(payload.email)) {
                 showCareerStatus('Please enter a valid email address.', 'error');
                 return;
+            }
+
+            if (itiCareerPhone) {
+                if (!itiCareerPhone.isValidNumber()) {
+                    showCareerStatus('Please enter a valid international phone number.', 'error');
+                    return;
+                }
+                payload.phone = itiCareerPhone.getNumber();
             }
 
             if (careerApplyBtn) {

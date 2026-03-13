@@ -6,6 +6,7 @@
   const state = {
     apiBase: localStorage.getItem('qaulium_admin_api_base') || 'https://qauliumai.in',
     token: localStorage.getItem('qaulium_admin_token') || '',
+    loginOtpRequestId: '',
     tables: {
       registrations: { rows: [], page: 1 },
       contacts: { rows: [], page: 1 },
@@ -214,7 +215,21 @@
 </table></td></tr>
 </table>
 </body></html>`
+    },
+    'intern-confirmation': {
+      subject: 'Internship Confirmation - Qaulium AI',
+      body: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Internship Confirmation</title></head><body style="margin:0;padding:0;background-color:#f5f5f5;font-family:Arial,sans-serif;"><table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 0;"><tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border-radius:12px;overflow:hidden;"><tr><td style="background:#0A0A0A;padding:24px 32px;"><img src="https://qauliumai.in/logo-white.png" alt="Qaulium AI" height="32"></td></tr><tr><td style="padding:32px;"><h2 style="margin:0 0 12px;color:#111;">Internship Confirmation</h2><p style="margin:0;color:#374151;line-height:1.7;">{{CONTENT}}</p></td></tr></table></td></tr></table></body></html>`
     }
+  };
+
+  const internRoleMessages = {
+    'AI Intern': 'Congratulations. You have been selected as an AI Intern. Please keep your Python and ML projects ready for onboarding.',
+    'Frontend Intern': 'Congratulations. You have been selected as a Frontend Intern. Please keep your React/UI projects ready for onboarding.',
+    'Backend Intern': 'Congratulations. You have been selected as a Backend Intern. Please keep your API and database projects ready for onboarding.',
+    'UI/UX Intern': 'Congratulations. You have been selected as a UI/UX Intern. Please keep your design case studies ready for onboarding.',
+    'Testing Intern': 'Congratulations. You have been selected as a Testing Intern. Please keep your QA/automation experience notes ready for onboarding.',
+    'Marketing Intern': 'Congratulations. You have been selected as a Marketing Intern. Please keep your campaign/content samples ready for onboarding.',
+    'Research Intern': 'Congratulations. You have been selected as a Research Intern. Please keep your research/technical portfolio ready for onboarding.'
   };
 
   const loginView = document.getElementById('loginView');
@@ -224,6 +239,12 @@
   const apiBaseInput = document.getElementById('apiBase');
   const adminEmailInput = document.getElementById('adminEmail');
   const adminPasswordInput = document.getElementById('adminPassword');
+  const adminOtpWrap = document.getElementById('adminOtpWrap');
+  const adminOtpInput = document.getElementById('adminOtp');
+  const loginBtn = document.getElementById('loginBtn');
+  const appShell = document.querySelector('.app-shell');
+  const adminMenuToggle = document.getElementById('adminMenuToggle');
+  const adminSidebarBackdrop = document.getElementById('adminSidebarBackdrop');
 
   const pageTitle = document.getElementById('pageTitle');
   const pageSubtitle = document.getElementById('pageSubtitle');
@@ -273,6 +294,8 @@
   const saveDraftBtn = document.getElementById('saveDraftBtn');
   const composerForm = document.getElementById('composerForm');
   const composerStatus = document.getElementById('composerStatus');
+  const internRoleWrap = document.getElementById('internRoleWrap');
+  const internRoleSelect = document.getElementById('internRoleSelect');
 
   const recordModal = document.getElementById('recordModal');
   const recordModalTitle = document.getElementById('recordModalTitle');
@@ -344,6 +367,11 @@
     return '"' + text.replace(/"/g, '""') + '"';
   }
 
+  function excelTextValue(value) {
+    const text = String(value || '').trim();
+    return text ? '="' + text.replace(/"/g, '""') + '"' : '';
+  }
+
   function downloadCsv(filename, headers, rows) {
     const lines = [headers.map(csvEscape).join(',')];
     rows.forEach(function (row) {
@@ -372,6 +400,15 @@
   function applyTemplate() {
     const templateValue = document.querySelector('input[name="template"]:checked')?.value || 'blank';
     const def = templates[templateValue] || templates.blank;
+
+    if (internRoleWrap) {
+      internRoleWrap.classList.toggle('hidden', templateValue !== 'intern-confirmation');
+    }
+
+    if (templateValue === 'intern-confirmation' && internRoleSelect && internRoleSelect.value) {
+      middleContent.value = internRoleMessages[internRoleSelect.value] || middleContent.value;
+    }
+
     const existingSubject = (emailSubject.value || '').trim();
     if (!existingSubject) {
       emailSubject.value = def.subject;
@@ -427,6 +464,13 @@
       '<button class="row-icon-btn danger" type="button" title="Delete" aria-label="Delete" data-action="delete" data-type="' + type + '" data-id="' + id + '">' +
         '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 7h12l-1 14H7L6 7zm3-3h6l1 2h4v2H4V6h4l1-2z"></path></svg>' +
       '</button>' +
+      '</div>';
+  }
+
+  function careerStatusActions(id) {
+    return '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">' +
+      '<button class="career-action-btn interview" type="button" data-action="interview" data-type="careers" data-id="' + id + '">Interview Schedule</button>' +
+      '<button class="career-action-btn accepted" type="button" data-action="accepted" data-type="careers" data-id="' + id + '">Accepted</button>' +
       '</div>';
   }
 
@@ -541,7 +585,7 @@
           '<td>' + escapeHtml(row.degree || '-') + '</td>' +
           '<td>' + escapeHtml(row.graduation_year || '-') + '</td>' +
           '<td>' + escapeHtml(formatDate(row.applied_at)) + '</td>' +
-          '<td>' + rowActions('careers', row.id) + '</td>' +
+          '<td>' + careerStatusActions(row.id) + rowActions('careers', row.id) + '</td>' +
         '</tr>';
       }).join('');
     }
@@ -706,6 +750,19 @@
     });
   }
 
+  async function sendCareerActionEmail(id, action) {
+    try {
+      const data = await request('/api/admin/careers/' + id + '/action', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ action: action })
+      });
+      setStatus(composerStatus, data.message || 'Status email sent.', 'ok');
+    } catch (err) {
+      setStatus(composerStatus, err.message || 'Failed to send status email.', 'err');
+    }
+  }
+
   async function loadDashboard() {
     const [stats, registrations, contacts, careers, formsData] = await Promise.all([
       request('/api/admin/stats', { headers: authHeaders() }),
@@ -816,22 +873,43 @@
       state.apiBase = apiBaseInput.value.replace(/\/$/, '');
       localStorage.setItem('qaulium_admin_api_base', state.apiBase);
 
+      if (loginBtn) loginBtn.disabled = true;
+
       const data = await request('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: adminEmailInput.value.trim(),
-          password: adminPasswordInput.value
+          password: adminPasswordInput.value,
+          requestId: state.loginOtpRequestId || undefined,
+          otp: adminOtpInput ? adminOtpInput.value.trim() : undefined
         })
       });
 
+      if (data.requiresOtp) {
+        state.loginOtpRequestId = data.requestId || '';
+        if (adminOtpWrap) adminOtpWrap.classList.remove('hidden');
+        if (adminOtpInput) {
+          adminOtpInput.required = true;
+          adminOtpInput.value = '';
+          adminOtpInput.focus();
+        }
+        if (loginBtn) loginBtn.textContent = 'Verify OTP';
+        setStatus(loginStatus, data.message || 'OTP sent.', 'ok');
+        if (loginBtn) loginBtn.disabled = false;
+        return;
+      }
+
       state.token = data.token;
+      state.loginOtpRequestId = '';
       localStorage.setItem('qaulium_admin_token', data.token);
       setStatus(loginStatus, 'Login successful.', 'ok');
       showApp();
       await loadDashboard();
     } catch (err) {
       setStatus(loginStatus, err.message, 'err');
+    } finally {
+      if (loginBtn) loginBtn.disabled = false;
     }
   });
 
@@ -844,8 +922,27 @@
   document.querySelectorAll('.menu-item').forEach(function (item) {
     item.addEventListener('click', function () {
       switchTab(item.getAttribute('data-tab'));
+      if (appShell) appShell.classList.remove('sidebar-open');
+      if (adminSidebarBackdrop) adminSidebarBackdrop.classList.add('hidden');
     });
   });
+
+  if (adminMenuToggle) {
+    adminMenuToggle.addEventListener('click', function () {
+      if (!appShell) return;
+      appShell.classList.toggle('sidebar-open');
+      if (adminSidebarBackdrop) {
+        adminSidebarBackdrop.classList.toggle('hidden', !appShell.classList.contains('sidebar-open'));
+      }
+    });
+  }
+
+  if (adminSidebarBackdrop) {
+    adminSidebarBackdrop.addEventListener('click', function () {
+      if (appShell) appShell.classList.remove('sidebar-open');
+      adminSidebarBackdrop.classList.add('hidden');
+    });
+  }
 
   if (refreshBtn) {
     refreshBtn.addEventListener('click', async function () {
@@ -915,7 +1012,7 @@
     const rows = getFilteredRegistrations();
     downloadCsv('registrations.csv',
       ['First Name', 'Last Name', 'Email', 'Phone', 'Company', 'Role', 'Use Case', 'Source', 'Registered At'],
-      rows.map(function (r) { return [r.first_name, r.last_name, r.email, r.phone, r.company, r.role, r.use_case, r.source || 'unknown', r.registered_at]; })
+      rows.map(function (r) { return [r.first_name, r.last_name, r.email, excelTextValue(r.phone), r.company, r.role, r.use_case, r.source || 'unknown', r.registered_at]; })
     );
   });
 
@@ -932,7 +1029,7 @@
     downloadCsv('careers.csv',
       ['First Name', 'Last Name', 'Email', 'Phone', 'Role', 'Location', 'University', 'Degree', 'Graduation Year', 'Availability', 'LinkedIn', 'Portfolio', 'Resume URL', 'Applied At'],
       rows.map(function (r) {
-        return [r.first_name, r.last_name, r.email, r.phone, r.role_applied, r.location, r.university, r.degree, r.graduation_year, r.availability, r.linkedin_url, r.portfolio_url, r.resume_url, r.applied_at];
+        return [r.first_name, r.last_name, r.email, excelTextValue(r.phone), r.role_applied, r.location, r.university, r.degree, r.graduation_year, r.availability, r.linkedin_url, r.portfolio_url, r.resume_url, r.applied_at];
       })
     );
   });
@@ -950,6 +1047,8 @@
         editRecord(type, id);
       } else if (action === 'delete') {
         deleteRecord(type, id);
+      } else if (type === 'careers' && (action === 'interview' || action === 'accepted')) {
+        sendCareerActionEmail(id, action);
       }
     });
   });
@@ -1074,6 +1173,14 @@
   document.querySelectorAll('input[name="template"]').forEach(function (radio) {
     radio.addEventListener('change', applyTemplate);
   });
+
+  if (internRoleSelect) {
+    internRoleSelect.addEventListener('change', function () {
+      if ((document.querySelector('input[name="template"]:checked')?.value || 'blank') !== 'intern-confirmation') return;
+      middleContent.value = internRoleMessages[this.value] || '';
+      applyTemplate();
+    });
+  }
   
   if (regenerateTemplate) regenerateTemplate.addEventListener('click', applyTemplate);
 
@@ -1158,10 +1265,22 @@
     e.preventDefault();
     try {
       const audienceValue = document.querySelector('input[name="audience"]:checked')?.value || 'all';
+      const templateValue = document.querySelector('input[name="template"]:checked')?.value || 'blank';
       const customList = customEmails.value
         .split(',')
         .map(function (v) { return v.trim(); })
         .filter(Boolean);
+
+      if (templateValue === 'intern-confirmation' && internRoleSelect && !internRoleSelect.value) {
+        setStatus(composerStatus, 'Please select intern role.', 'err');
+        return;
+      }
+
+      const resolvedBody = (emailBody.value || '').trim() || renderTemplateHtml(templates[templateValue] || templates.blank, middleContent.value || '', emailSubject.value.trim());
+      if (!resolvedBody) {
+        setStatus(composerStatus, 'Email body is required.', 'err');
+        return;
+      }
 
       const data = await request('/api/admin/email/send', {
         method: 'POST',
@@ -1169,7 +1288,7 @@
         body: JSON.stringify({
           audience: audienceValue,
           subject: emailSubject.value.trim(),
-          body: emailBody.value,
+          body: resolvedBody,
           customEmails: customList
         })
       });

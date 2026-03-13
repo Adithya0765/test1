@@ -30,6 +30,10 @@
           Password
           <input type="password" id="adminPassword" required>
         </label>
+        <label id="adminOtpWrap" class="hidden">
+          OTP (sent to admin email)
+          <input type="text" id="adminOtp" inputmode="numeric" pattern="[0-9]{6}" placeholder="Enter 6-digit OTP">
+        </label>
         <button type="submit" class="btn btn-primary" id="loginBtn">Access Console</button>
       </form>
       <div id="loginStatus" class="status"></div>
@@ -37,6 +41,11 @@
   </div>
 
   <div id="appView" class="app-shell hidden">
+    <div class="mobile-admin-topbar">
+      <button id="adminMenuToggle" class="mobile-menu-toggle" aria-label="Toggle admin menu">☰</button>
+      <span>Admin Console</span>
+    </div>
+    <div id="adminSidebarBackdrop" class="sidebar-backdrop hidden"></div>
     <aside class="sidebar">
       <div class="brand-row sidebar-brand">
         <img src="https://qauliumai.in/logo-white.png" alt="Qaulium AI" height="28" class="admin-logo" style="display:block;height:28px;width:auto;">
@@ -180,6 +189,14 @@
                     </div>
                   </label>
                   <label class="template-option">
+                    <input type="radio" name="template" value="intern-confirmation">
+                    <div class="template-card">
+                      <div class="template-icon">🎓</div>
+                      <div class="template-name">Intern Confirmation</div>
+                      <div class="template-desc">Role-based intern confirmation email</div>
+                    </div>
+                  </label>
+                  <label class="template-option">
                     <input type="radio" name="template" value="contact-response">
                     <div class="template-card">
                       <div class="template-icon">💬</div>
@@ -270,9 +287,22 @@
                 </label>
 
                 <label>Email Body
-                  <textarea id="middleContent" rows="10" placeholder="Write the main body of your email here..." required spellcheck="true"></textarea>
+                    <textarea id="middleContent" rows="10" placeholder="Write the main body of your email here..." spellcheck="true"></textarea>
                   <div class="input-hint" id="bodyHint"></div>
                 </label>
+
+                  <label id="internRoleWrap" class="hidden">Intern Role
+                    <select id="internRoleSelect">
+                      <option value="">Select role</option>
+                      <option value="AI Intern">AI Intern</option>
+                      <option value="Frontend Intern">Frontend Intern</option>
+                      <option value="Backend Intern">Backend Intern</option>
+                      <option value="UI/UX Intern">UI/UX Intern</option>
+                      <option value="Testing Intern">Testing Intern</option>
+                      <option value="Marketing Intern">Marketing Intern</option>
+                      <option value="Research Intern">Research Intern</option>
+                    </select>
+                  </label>
 
                 <!-- HTML Source Code Editor -->
                 <div id="htmlEditorWrap" class="html-editor-wrap">
