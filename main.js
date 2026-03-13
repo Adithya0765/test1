@@ -415,6 +415,14 @@
         });
     }
 
+    // Wire up Pre-Register Now button in CTA section
+    var ctaRegisterBtn = document.getElementById('ctaRegisterBtn');
+    if (ctaRegisterBtn && registerModal) {
+        ctaRegisterBtn.addEventListener('click', function () {
+            openModal();
+        });
+    }
+
     // --- Registration form submission ---
     if (registerForm) {
         registerForm.addEventListener('submit', function (e) {
