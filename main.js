@@ -429,8 +429,8 @@
             var useCase = document.getElementById('regUseCase').value;
 
             // Basic validation
-            if (!firstName || !lastName || !email) {
-                showStatus('Please fill in all required fields (First Name, Last Name, Email).', 'error');
+            if (!firstName || !lastName || !email || !phone || !company || !role || !useCase) {
+                showStatus('Please fill in all required fields.', 'error');
                 return;
             }
 
@@ -582,13 +582,34 @@
             var name = document.getElementById('name').value.trim();
             var email = document.getElementById('email').value.trim();
             var message = document.getElementById('message').value.trim();
+            var company = document.getElementById('company').value.trim();
 
-            if (!name || !email || !message) {
+            if (!name || !email || !message || !company) {
+                var btn2 = form.querySelector('button[type="submit"]');
+                btn2.textContent = 'Send Message';
+                btn2.disabled = false;
+                var statusEl = form.querySelector('.contact-form-status') || (function() {
+                    var s = document.createElement('div');
+                    s.className = 'form-status error contact-form-status';
+                    form.appendChild(s);
+                    return s;
+                }());
+                statusEl.className = 'form-status error contact-form-status';
+                statusEl.textContent = 'Please fill in all required fields.';
                 return;
             }
 
             var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailPattern.test(email)) {
+                var btn3 = form.querySelector('button[type="submit"]');
+                var statusEl2 = form.querySelector('.contact-form-status') || (function() {
+                    var s = document.createElement('div');
+                    s.className = 'form-status error contact-form-status';
+                    form.appendChild(s);
+                    return s;
+                }());
+                statusEl2.className = 'form-status error contact-form-status';
+                statusEl2.textContent = 'Please enter a valid email address.';
                 return;
             }
 
@@ -596,7 +617,9 @@
             btn.textContent = 'Sending...';
             btn.disabled = true;
 
-            var company = document.getElementById('company').value.trim();
+            // Clear any validation status
+            var existingStatus = form.querySelector('.contact-form-status');
+            if (existingStatus) existingStatus.textContent = '';
 
             fetch('/api/contact', {
                 method: 'POST',
