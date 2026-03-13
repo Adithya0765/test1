@@ -878,19 +878,33 @@ app.post('/api/register', async (req, res) => {
     try {
         const { firstName, lastName, email, phone, company, role, useCase, source } = req.body;
         const normalizedSource = normalizeRegistrationSource(source);
+        const normalizedEmail = String(email || '').trim().toLowerCase();
 
-        if (!firstName || !firstName.trim() || !lastName || !lastName.trim() || !email || !email.trim()) {
+        if (!firstName || !firstName.trim() || !lastName || !lastName.trim() || !normalizedEmail) {
             return res.status(400).json({ success: false, message: 'First name, last name, and email are required.' });
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
+        if (!emailRegex.test(normalizedEmail)) {
             return res.status(400).json({ success: false, message: 'Invalid email address.' });
+        }
+
+        // Enforce unique registration email at API level.
+        if (HAS_POSTGRES) {
+            await ensurePostgresSchema();
+            const existsResult = await pgQuery('SELECT 1 FROM registrations WHERE email = $1 LIMIT 1', [normalizedEmail]);
+            if ((existsResult.rows || []).length) {
+                return res.status(409).json({ success: false, message: 'This email is already registered.' });
+            }
+        } else if (db) {
+            const exists = db.prepare('SELECT 1 FROM registrations WHERE email = ? LIMIT 1').get(normalizedEmail);
+            if (exists) {
+                return res.status(409).json({ success: false, message: 'This email is already registered.' });
+            }
         }
 
         // Insert into database (Postgres on Vercel, SQLite locally)
         if (HAS_POSTGRES) {
-            await ensurePostgresSchema();
             await pgQuery(
                 `
                 INSERT INTO registrations (first_name, last_name, email, phone, company, role, use_case, source)
@@ -899,7 +913,7 @@ app.post('/api/register', async (req, res) => {
                 [
                     firstName.trim(),
                     lastName.trim(),
-                    email.trim().toLowerCase(),
+                    normalizedEmail,
                     (phone || '').trim(),
                     (company || '').trim(),
                     (role || '').trim(),
@@ -916,7 +930,7 @@ app.post('/api/register', async (req, res) => {
             stmt.run(
                 firstName.trim(),
                 lastName.trim(),
-                email.trim().toLowerCase(),
+                normalizedEmail,
                 (phone || '').trim(),
                 (company || '').trim(),
                 (role || '').trim(),
@@ -931,7 +945,7 @@ app.post('/api/register', async (req, res) => {
             try {
                 await transporter.sendMail({
                     from: SMTP_FROM,
-                    to: email.trim().toLowerCase(),
+                    to: normalizedEmail,
                     subject: 'Welcome to Qaulium AI — Registration Confirmed',
                     html: buildConfirmationEmail(safeFirstName),
                     attachments: [{
@@ -961,19 +975,33 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/contact', async (req, res) => {
     try {
         const { name, email, company, message } = req.body;
+        const normalizedEmail = String(email || '').trim().toLowerCase();
 
-        if (!name || !name.trim() || !email || !email.trim() || !message || !message.trim()) {
+        if (!name || !name.trim() || !normalizedEmail || !message || !message.trim()) {
             return res.status(400).json({ success: false, message: 'Name, email, and message are required.' });
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email.trim())) {
+        if (!emailRegex.test(normalizedEmail)) {
             return res.status(400).json({ success: false, message: 'Invalid email address.' });
+        }
+
+        // Enforce unique contact email at API level.
+        if (HAS_POSTGRES) {
+            await ensurePostgresSchema();
+            const existsResult = await pgQuery('SELECT 1 FROM contact_messages WHERE email = $1 LIMIT 1', [normalizedEmail]);
+            if ((existsResult.rows || []).length) {
+                return res.status(409).json({ success: false, message: 'This email has already submitted a contact request.' });
+            }
+        } else if (db) {
+            const exists = db.prepare('SELECT 1 FROM contact_messages WHERE email = ? LIMIT 1').get(normalizedEmail);
+            if (exists) {
+                return res.status(409).json({ success: false, message: 'This email has already submitted a contact request.' });
+            }
         }
 
         // Save to database (Postgres on Vercel, SQLite locally)
         if (HAS_POSTGRES) {
-            await ensurePostgresSchema();
             try {
                 await pgQuery(
                     `
@@ -982,7 +1010,7 @@ app.post('/api/contact', async (req, res) => {
                     `,
                     [
                         name.trim(),
-                        email.trim().toLowerCase(),
+                        normalizedEmail,
                         (company || '').trim(),
                         message.trim()
                     ]
@@ -999,7 +1027,7 @@ app.post('/api/contact', async (req, res) => {
                 VALUES (?, ?, ?, ?)
             `);
             try {
-                stmt.run(name.trim(), email.trim().toLowerCase(), (company || '').trim(), message.trim());
+                stmt.run(name.trim(), normalizedEmail, (company || '').trim(), message.trim());
             } catch (dbErr) {
                 if (dbErr.message && dbErr.message.includes('UNIQUE constraint failed')) {
                     return res.status(409).json({ success: false, message: 'This email is already registered. Please use a different email.' });
@@ -1030,7 +1058,7 @@ app.post('/api/contact', async (req, res) => {
                     }),
                     transporter.sendMail({
                         from: SMTP_FROM,
-                        to: email.trim().toLowerCase(),
+                        to: normalizedEmail,
                         subject: 'We received your message — Qaulium AI',
                         html: buildContactConfirmationEmail(safeName),
                         attachments: [{
