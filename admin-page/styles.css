@@ -242,6 +242,12 @@ textarea { resize: vertical; }
   border-color: #bfdbfe;
 }
 
+.source-studio {
+  color: #7c2d12;
+  background: #ffedd5;
+  border-color: #fed7aa;
+}
+
 .source-unknown {
   color: #475467;
   background: #f2f4f7;
@@ -258,6 +264,12 @@ textarea { resize: vertical; }
   color: #93c5fd;
   background: rgba(59, 130, 246, 0.2);
   border-color: rgba(96, 165, 250, 0.35);
+}
+
+[data-theme="dark"] .source-studio {
+  color: #fdba74;
+  background: rgba(249, 115, 22, 0.18);
+  border-color: rgba(251, 146, 60, 0.35);
 }
 
 [data-theme="dark"] .source-unknown {

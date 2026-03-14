@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qaulium Studio</title>
+    <meta name="description" content="Qaulium Studio is the unified development platform for quantum programming, simulation, debugging, and hardware execution.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="site-header" id="siteHeader">
+        <nav class="nav-container">
+            <a href="#" class="nav-logo">
+                <img class="header-logo" src="../logo-white.png" alt="Qaulium" height="34">
+            </a>
+            <ul class="nav-links">
+                <li><a href="#architecture">Platform</a></li>
+                <li><a href="#developer">Developer</a></li>
+                <li><a href="#workflows">Workflows</a></li>
+                <li><a href="#research">Research</a></li>
+                <li><a href="#integrations">Integrations</a></li>
+                <li><a href="#contact" class="nav-cta">Get Access</a></li>
+            </ul>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                <svg class="theme-icon theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+                <svg class="theme-icon theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+            </button>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu">
+                <span></span><span></span>
+            </button>
+        </nav>
+    </header>
+
+    <div class="mobile-nav" id="mobileNav">
+        <ul class="mobile-nav-links">
+            <li><a href="#architecture">Platform</a></li>
+            <li><a href="#developer">Developer</a></li>
+            <li><a href="#workflows">Workflows</a></li>
+            <li><a href="#research">Research</a></li>
+            <li><a href="#integrations">Integrations</a></li>
+            <li><a href="#contact">Get Access</a></li>
+        </ul>
+    </div>
+
+    <main>
+        <section class="hero" id="hero">
+            <div class="container">
+                <div class="hero-split">
+                    <div class="hero-content">
+                        <p class="hero-eyebrow">Unified Quantum Development Platform</p>
+                        <h1 class="hero-headline">Build, Simulate, Deploy<br>With Qaulium Studio.</h1>
+                        <p class="hero-sub">One browser-based workspace for circuit design, hybrid algorithm coding, digital twin simulation, and production hardware execution.</p>
+                        <div class="hero-actions">
+                            <a href="#architecture" class="btn btn-primary">Explore Platform <span class="btn-icon">&rarr;</span></a>
+                            <button class="btn btn-secondary" type="button" data-open-modal="accessModal">Request Early Access</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-architecture" id="architecture">
+            <div class="container">
+                <div class="section-label">Platform Architecture</div>
+                <h2 class="section-heading">Qaulium Studio</h2>
+                <p class="section-intro">A modular platform engineered for quantum teams to prototype faster, debug deeply, and deploy reliably across simulators and hardware providers.</p>
+
+                <div class="architecture-grid">
+                    <div class="arch-block">
+                        <div class="arch-content">
+                            <span class="arch-number">01</span>
+                            <h3>Visual Composer + Pro IDE</h3>
+                            <p>Design circuits with drag-and-drop or code-first workflows. Bi-directional sync keeps visual and code views always aligned.</p>
+                        </div>
+                    </div>
+                    <div class="arch-block">
+                        <div class="arch-content">
+                            <span class="arch-number">02</span>
+                            <h3>Digital Twin Simulation</h3>
+                            <p>Evaluate workloads on realistic virtual devices with noise profiles, calibration-aware behavior, and performance telemetry.</p>
+                        </div>
+                    </div>
+                    <div class="arch-block">
+                        <div class="arch-content">
+                            <span class="arch-number">03</span>
+                            <h3>AI Co-Scientist</h3>
+                            <p>Generate circuits from intent, optimize gate paths, and receive debugging suggestions with context from your project workspace.</p>
+                        </div>
+                    </div>
+                    <div class="arch-block">
+                        <div class="arch-content">
+                            <span class="arch-number">04</span>
+                            <h3>Time-Travel Debugger</h3>
+                            <p>Step backward and forward through execution states, compare branches, and isolate fidelity drops at gate-level precision.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-developer" id="developer">
+            <div class="container">
+                <div class="section-label">Developer Experience</div>
+                <h2 class="section-heading">Everything needed for modern quantum teams</h2>
+                <p class="section-intro">From onboarding to deployment, Qaulium Studio gives engineering teams one consistent and production-ready developer lifecycle.</p>
+
+                <div class="dev-platform-grid">
+                    <div class="dev-card">
+                        <span class="dev-card-tag">Code + Visual</span>
+                        <h3>Hybrid Workflow Builder</h3>
+                        <p>Compose workloads that combine classical orchestration, quantum circuits, and runtime policies in one flow.</p>
+                        <ul class="dev-features">
+                            <li>Code and visual editor sync</li>
+                            <li>Reusable templates and snippets</li>
+                            <li>Versioned workflow graph</li>
+                        </ul>
+                    </div>
+                    <div class="dev-card">
+                        <span class="dev-card-tag">Simulation</span>
+                        <h3>vQPU Runtime</h3>
+                        <p>Scale experiments from local test shots to large simulation campaigns with queue-aware execution controls.</p>
+                        <ul class="dev-features">
+                            <li>State vector and density matrix backends</li>
+                            <li>Device calibration overlays</li>
+                            <li>Cost and shot estimator</li>
+                        </ul>
+                    </div>
+                    <div class="dev-card">
+                        <span class="dev-card-tag">AI Assistance</span>
+                        <h3>Quantum Copilot</h3>
+                        <p>Use natural language prompts to create experiments, review circuits, and produce implementation-ready code.</p>
+                        <ul class="dev-features">
+                            <li>Prompt-to-circuit generation</li>
+                            <li>Optimization recommendations</li>
+                            <li>Inline explainability reports</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-workflows" id="workflows">
+            <div class="container">
+                <div class="section-label">Workflow Engine</div>
+                <h2 class="section-heading">From idea to production, in four steps</h2>
+                <div class="workflow-steps">
+                    <article class="workflow-card">
+                        <span>Step 1</span>
+                        <h3>Design</h3>
+                        <p>Model circuit logic visually or in code and attach reusable runtime presets.</p>
+                    </article>
+                    <article class="workflow-card">
+                        <span>Step 2</span>
+                        <h3>Validate</h3>
+                        <p>Run simulation sweeps, inspect state transitions, and benchmark candidate strategies.</p>
+                    </article>
+                    <article class="workflow-card">
+                        <span>Step 3</span>
+                        <h3>Optimize</h3>
+                        <p>Apply AI-assisted transpilation and error-mitigation plans tuned to target hardware.</p>
+                    </article>
+                    <article class="workflow-card">
+                        <span>Step 4</span>
+                        <h3>Deploy</h3>
+                        <p>Launch on production backends with observability dashboards and team access controls.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-research" id="research">
+            <div class="container">
+                <div class="section-label">Research Programs</div>
+                <h2 class="section-heading">Built for continuous innovation</h2>
+                <div class="research-grid">
+                    <div class="research-card">
+                        <span class="research-number">01</span>
+                        <h3>Quantum Error Intelligence</h3>
+                        <p>Analyze noise signatures and generate mitigation policies from historical execution data.</p>
+                    </div>
+                    <div class="research-card">
+                        <span class="research-number">02</span>
+                        <h3>AI-guided Compilation</h3>
+                        <p>Use learned transpilation strategies to reduce depth and improve hardware compatibility.</p>
+                    </div>
+                    <div class="research-card">
+                        <span class="research-number">03</span>
+                        <h3>Hybrid Algorithm Design</h3>
+                        <p>Experiment with co-optimization loops that combine classical solvers with quantum kernels.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-integrations" id="integrations">
+            <div class="container">
+                <div class="section-label">Integrations</div>
+                <h2 class="section-heading">Works with your existing quantum stack</h2>
+                <p class="section-intro">Connect Qaulium Studio to your current tools, data pipelines, and hardware providers without changing your development workflow.</p>
+                <div class="integrations-grid">
+                    <article class="integration-card">
+                        <h3>SDK + Framework Layer</h3>
+                        <p>Use Qiskit, Cirq, PennyLane, and OpenQASM projects natively with shared workspace settings and templates.</p>
+                    </article>
+                    <article class="integration-card">
+                        <h3>Hardware Connectors</h3>
+                        <p>Route jobs across multiple providers with queue telemetry, cost controls, and backend-specific optimization profiles.</p>
+                    </article>
+                    <article class="integration-card">
+                        <h3>Enterprise Data Flow</h3>
+                        <p>Integrate experiment results with internal observability, analytics, and governance systems through secure APIs.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-cta" id="contact">
+            <div class="container">
+                <div class="cta-box">
+                    <h2>Ready to launch your quantum product?</h2>
+                    <p>Get priority onboarding, dedicated support, and early feature access with Qaulium Studio.</p>
+                    <button class="btn btn-primary" type="button" data-open-modal="accessModal">Join Early Access</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2026 Qaulium Studio. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <div class="modal" id="accessModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="accessTitle">
+        <div class="modal-backdrop" data-close-modal="accessModal"></div>
+        <div class="modal-card">
+            <button class="modal-close" type="button" data-close-modal="accessModal" aria-label="Close modal">&times;</button>
+            <h3 id="accessTitle">Request Early Access</h3>
+            <p>Submit your details and our team will contact you with onboarding details.</p>
+            <form id="accessForm" class="modal-form">
+                <label>Full Name
+                    <input type="text" name="name" required>
+                </label>
+                <label>Work Email
+                    <input type="email" name="email" required>
+                </label>
+                <label>Organization
+                    <input type="text" name="org" required>
+                </label>
+                <label>Primary Use Case
+                    <textarea name="useCase" rows="3" placeholder="Example: quantum optimization for logistics"></textarea>
+                </label>
+                <button class="btn btn-primary" type="submit">Submit</button>
+                <p class="modal-status" id="modalStatus"></p>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

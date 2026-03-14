@@ -889,6 +889,7 @@ function normalizeRegistrationSource(source) {
 
     const allowed = new Set([
         'landing_modal',
+        'qstudio_landing',
         'public_registration_portal',
         'unknown'
     ]);

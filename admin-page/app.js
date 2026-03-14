@@ -479,6 +479,9 @@
     if (value === 'public_registration_portal') {
       return { text: 'Pre-Registration Link', className: 'source-badge source-pre' };
     }
+    if (value === 'qstudio_landing') {
+      return { text: 'QStudio Landing', className: 'source-badge source-studio' };
+    }
     if (value === 'landing_modal') {
       return { text: 'Landing Page', className: 'source-badge source-landing' };
     }
