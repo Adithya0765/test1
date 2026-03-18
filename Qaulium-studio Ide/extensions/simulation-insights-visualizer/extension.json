@@ -1,0 +1,31 @@
+{
+  "name": "simulation-insights-visualizer",
+  "displayName": "Simulation Insights Visualizer",
+  "version": "1.0.0",
+  "publisher": "qaulium-research",
+  "activationEvents": [
+    "onSimulation:tensor-network",
+    "onCommand:qaulium.visualization.insights.open"
+  ],
+  "main": "index.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "qaulium.visualization.insights.open",
+        "title": "Open Simulation Insights"
+      }
+    ],
+    "views": [
+      {
+        "id": "simulationInsightsPanel",
+        "name": "Simulation Insights",
+        "location": "sidebar"
+      },
+      {
+        "id": "observablesHeatmapPanel",
+        "name": "Observables Heatmap",
+        "location": "sidebar"
+      }
+    ]
+  }
+}

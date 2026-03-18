@@ -1,0 +1,25 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "vqe-workbench",
+    "publisher":  "qaulium-algo",
+    "activationEvents":  [
+                             "onCommand:qaulium.vqe.workbench.open"
+                         ],
+    "contributes":  {
+                        "views":  [
+                                      {
+                                          "name":  "VQE Workbench",
+                                          "id":  "vqeWorkbenchPanel",
+                                          "location":  "sidebar"
+                                      }
+                                  ],
+                        "commands":  [
+                                         {
+                                             "command":  "qaulium.vqe.workbench.open",
+                                             "title":  "VQE Workbench: Open"
+                                         }
+                                     ]
+                    },
+    "displayName":  "VQE Workbench",
+    "main":  "index.js"
+}

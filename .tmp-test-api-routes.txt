@@ -1,0 +1,5 @@
+
+> qualium-ai-landing@1.0.0 test:api-routes
+> node tests/api-route-smoke.test.js
+
+PASS: route smoke + auth flow + forms flow + security headers validated.

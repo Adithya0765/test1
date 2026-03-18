@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cloud Credit Platform - Client Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="background-layer" aria-hidden="true"></div>
+    <header class="hero">
+      <div class="hero__tag">Cloud Credit System - Demo Build</div>
+      <h1>Usage, balance, and settlement in one view</h1>
+      <p>
+        This frontend uses mock data based on your architecture docs so you can validate business flow with the client before
+        full backend implementation.
+      </p>
+      <div class="hero__meta">
+        <span id="orgName"></span>
+        <span id="planName"></span>
+        <span id="renewalDate"></span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel" id="kpiPanel">
+        <h2>Credit Snapshot</h2>
+        <div class="kpi-grid" id="kpiGrid"></div>
+      </section>
+
+      <section class="panel" id="bucketPanel">
+        <h2>Credit Buckets</h2>
+        <p class="panel-subtitle">Consumption priority follows expiry and policy order.</p>
+        <div class="bucket-list" id="bucketList"></div>
+      </section>
+
+      <section class="panel" id="usagePanel">
+        <h2>Usage Trend</h2>
+        <div class="chart-wrap">
+          <svg id="usageChart" viewBox="0 0 760 220" preserveAspectRatio="none" aria-label="Usage chart"></svg>
+        </div>
+      </section>
+
+      <section class="panel" id="servicePanel">
+        <h2>Resource Cost Mix</h2>
+        <div class="service-bars" id="serviceBars"></div>
+      </section>
+
+      <section class="panel panel--wide" id="estimatePanel">
+        <h2>Cost Estimate Simulator</h2>
+        <p class="panel-subtitle">Model: base + units * rate * region * priority * plan discount</p>
+        <form class="estimate-form" id="estimateForm">
+          <label>
+            Service
+            <select name="service" id="serviceSelect"></select>
+          </label>
+          <label>
+            Unit Count
+            <input type="number" name="units" min="1" value="12000" />
+          </label>
+          <label>
+            Priority
+            <select name="priority" id="prioritySelect"></select>
+          </label>
+          <label>
+            Region
+            <select name="region" id="regionSelect"></select>
+          </label>
+          <button type="submit">Recalculate Estimate</button>
+        </form>
+
+        <div class="estimate-results" id="estimateResults"></div>
+
+        <div class="workflow">
+          <h3>Reserve -> Run -> Settle Workflow Preview</h3>
+          <button id="simulateRun" type="button">Simulate Job Lifecycle</button>
+          <ul id="workflowFeed" class="workflow-feed"></ul>
+        </div>
+      </section>
+
+      <section class="panel panel--wide" id="transactionPanel">
+        <h2>Recent Ledger Transactions</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Type</th>
+              <th>Project</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Idempotency Key</th>
+            </tr>
+          </thead>
+          <tbody id="transactionRows"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <footer class="footer-note">
+      Demo-only mock frontend. Next step after client approval: connect to real endpoints in
+      Cloud Credit System/04-api-endpoints.md.
+    </footer>
+
+    <script src="./mock-data.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

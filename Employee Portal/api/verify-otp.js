@@ -1,6 +1,10 @@
 // Vercel Serverless API: Verify OTP
 // POST /api/verify-otp
-// Verifies the 6-digit email OTP during onboarding
+// Verifies the 6-digit email OTP during onboarding using stateless validation
+
+const crypto = require('crypto');
+
+const OTP_SECRET = process.env.OTP_SECRET || 'qualium-ai-secure-otp-fallback';
 
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,26 +14,32 @@ module.exports = async (req, res) => {
     if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Method not allowed' });
 
     try {
-        const { inviteId, code } = req.body;
+        const { email, code, otpHash } = req.body;
 
-        if (!inviteId || !code) {
-            return res.status(400).json({ success: false, message: 'Invite ID and code are required' });
+        if (!email || !code || !otpHash) {
+            return res.status(400).json({ success: false, message: 'Email, code, and hash token are required' });
         }
 
-        // In production: check against persistent store (Firestore, Redis, etc.)
-        // For serverless, the in-memory store may not persist across invocations
-        // A more robust approach: store OTP hash in Firestore during send-otp
+        const [hash, expiresAt] = otpHash.split('.');
+        if (!hash || !expiresAt) {
+            return res.status(400).json({ success: false, message: 'Invalid hash token format' });
+        }
 
-        // For now, accept any valid 6-digit code in development
-        // TODO: Implement persistent OTP verification
-        if (code.length === 6 && /^\d{6}$/.test(code)) {
+        if (Date.now() > parseInt(expiresAt, 10)) {
+            return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new one.' });
+        }
+
+        const payload = `${email}:${code}:${expiresAt}`;
+        const expectedHash = crypto.createHmac('sha256', OTP_SECRET).update(payload).digest('hex');
+
+        if (hash === expectedHash) {
             return res.status(200).json({
                 success: true,
                 message: 'OTP verified successfully'
             });
         }
 
-        return res.status(200).json({
+        return res.status(400).json({
             success: false,
             message: 'Invalid verification code'
         });

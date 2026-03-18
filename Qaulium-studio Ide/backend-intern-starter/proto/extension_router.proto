@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package qaulium.router.v1;
+
+service ExtensionSimulationRouter {
+  rpc RunSimulation (RunSimulationRequest) returns (RunSimulationResponse);
+}
+
+message RunSimulationRequest {
+  string extension_id = 1;
+  string run_id = 2;
+  string backend_id = 3;
+  string mode = 4;
+  string circuit_json = 5;
+  string config_json = 6;
+}
+
+message RunSimulationResponse {
+  bool ok = 1;
+  string message = 2;
+  string result_json = 3;
+}

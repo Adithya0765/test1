@@ -144,21 +144,20 @@
 
     async function sendOtp() {
         try {
-            const res = await fetch('../api/send-otp', {
+            const res = await fetch(`${API_BASE}/api/send-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ inviteId: inviteId, email: inviteData.email })
             });
             const data = await res.json();
             if (data.success) {
+                inviteData._otpHash = data.otpHash;
                 renderStep(2);
             } else {
-                // Fallback: proceed anyway (for demo/dev)
-                renderStep(2);
+                renderError(data.message || 'Failed to send OTP.');
             }
         } catch (e) {
-            // Proceed anyway for robustness
-            renderStep(2);
+            renderError('An error occurred while sending OTP.');
         }
     }
 
@@ -204,10 +203,10 @@
             btn.textContent = 'Verifying...';
 
             try {
-                const res = await fetch('../api/verify-otp', {
+                const res = await fetch(`${API_BASE}/api/verify-otp`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ inviteId, code })
+                    body: JSON.stringify({ inviteId, email: inviteData.email, code, otpHash: inviteData._otpHash })
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -218,8 +217,9 @@
                     btn.textContent = 'Verify Code';
                 }
             } catch (e) {
-                // Allow proceeding for robustness
-                renderStep(3);
+                showEl('otpError', 'An error occurred during verification.');
+                btn.disabled = false;
+                btn.textContent = 'Verify Code';
             }
         });
 
@@ -395,7 +395,7 @@
         `;
 
         try {
-            const res = await fetch('../api/setup-totp', {
+            const res = await fetch(`${API_BASE}/api/setup-totp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: inviteData.email, name: `${inviteData.firstName} ${inviteData.lastName}` })
@@ -468,7 +468,7 @@
             btn.textContent = 'Verifying...';
 
             try {
-                const res = await fetch('../api/verify-totp', {
+                const res = await fetch(`${API_BASE}/api/verify-totp`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ code, secret: inviteData._totpSecret })

@@ -1,0 +1,38 @@
+{
+  "name": "basic-integration-extension",
+  "displayName": "Basic Integration Extension",
+  "version": "1.0.0",
+  "publisher": "qaulium-core",
+  "activationEvents": [
+    "onCommand:qaulium.basic.ping",
+    "onCommand:qaulium.basic.healthCheck",
+    "onSimulation:basic-statevector"
+  ],
+  "main": "index.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "qaulium.basic.ping",
+        "title": "Basic Extension: Ping"
+      },
+      {
+        "command": "qaulium.basic.healthCheck",
+        "title": "Basic Extension: Health Check"
+      }
+    ],
+    "views": [
+      {
+        "id": "basicIntegrationPanel",
+        "name": "Basic Integration",
+        "location": "sidebar"
+      }
+    ],
+    "simulationBackends": [
+      {
+        "id": "basic-statevector",
+        "label": "Basic Statevector",
+        "modes": ["wasm", "cloud"]
+      }
+    ]
+  }
+}

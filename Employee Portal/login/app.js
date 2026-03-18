@@ -107,7 +107,7 @@
 
         try {
             const token = await pendingUser.getIdToken();
-            const res = await fetch('../api/verify-totp', {
+            const res = await fetch(`${API_BASE}/api/verify-totp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ code, uid: pendingUser.uid })

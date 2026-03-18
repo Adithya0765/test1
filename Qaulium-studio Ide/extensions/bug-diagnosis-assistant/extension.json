@@ -1,0 +1,25 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "bug-diagnosis-assistant",
+    "publisher":  "qaulium-ai",
+    "activationEvents":  [
+                             "onCommand:qaulium.bug.diagnosis.assistant.open"
+                         ],
+    "contributes":  {
+                        "views":  [
+                                      {
+                                          "name":  "Bug Diagnosis Assistant",
+                                          "id":  "bugDiagnosisPanel",
+                                          "location":  "sidebar"
+                                      }
+                                  ],
+                        "commands":  [
+                                         {
+                                             "command":  "qaulium.bug.diagnosis.assistant.open",
+                                             "title":  "Bug Diagnosis Assistant: Open"
+                                         }
+                                     ]
+                    },
+    "displayName":  "Bug Diagnosis Assistant",
+    "main":  "index.js"
+}

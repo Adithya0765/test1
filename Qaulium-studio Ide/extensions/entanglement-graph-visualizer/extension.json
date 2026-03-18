@@ -1,0 +1,25 @@
+﻿{
+    "version":  "1.0.0",
+    "name":  "entanglement-graph-visualizer",
+    "publisher":  "qaulium-viz",
+    "activationEvents":  [
+                             "onCommand:qaulium.entanglement.graph.visualizer.open"
+                         ],
+    "contributes":  {
+                        "views":  [
+                                      {
+                                          "name":  "Entanglement Graph Visualizer",
+                                          "id":  "entanglementGraphPanel",
+                                          "location":  "sidebar"
+                                      }
+                                  ],
+                        "commands":  [
+                                         {
+                                             "command":  "qaulium.entanglement.graph.visualizer.open",
+                                             "title":  "Entanglement Graph Visualizer: Open"
+                                         }
+                                     ]
+                    },
+    "displayName":  "Entanglement Graph Visualizer",
+    "main":  "index.js"
+}

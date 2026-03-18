@@ -20,7 +20,7 @@
       <form id="loginForm" class="stack">
         <label>
           API Base URL
-          <input type="url" id="apiBase" placeholder="https://qauliumai.in" required>
+          <input type="text" id="apiBase" placeholder="Use current origin or https://qauliumai.in" required>
         </label>
         <label>
           Admin Email
@@ -53,6 +53,17 @@
       </div>
       <nav class="menu">
         <button class="menu-item active" data-tab="overview">Overview</button>
+        <button class="menu-item" data-tab="users">Users</button>
+        <button class="menu-item" data-tab="roles">Roles</button>
+        <button class="menu-item" data-tab="organization">Organization</button>
+        <button class="menu-item" data-tab="projects">Tasks & Projects</button>
+        <button class="menu-item" data-tab="api-access">API Access</button>
+        <button class="menu-item" data-tab="monitoring">Monitoring</button>
+        <button class="menu-item" data-tab="billing">Billing</button>
+        <button class="menu-item" data-tab="analytics">Analytics</button>
+        <button class="menu-item" data-tab="audit">Audit Logs</button>
+        <button class="menu-item" data-tab="security">Security</button>
+        <button class="menu-item" data-tab="notifications">Notifications</button>
         <button class="menu-item" data-tab="registrations">Registrations</button>
         <button class="menu-item" data-tab="contacts">Contacts</button>
         <button class="menu-item" data-tab="careers">Careers</button>
@@ -72,6 +83,10 @@
           <h1 id="pageTitle">Overview</h1>
           <p class="muted" id="pageSubtitle">Monitor submissions and send communication.</p>
         </div>
+        <div class="topbar-controls">
+          <span id="wsStatusDot" class="ws-status-dot ws-disconnected" title="WebSocket: disconnected"></span>
+          <button class="btn btn-secondary" id="realtimeToggleBtn">Realtime: On</button>
+        </div>
       </header>
 
       <section class="tab-panel" id="panel-overview">
@@ -81,10 +96,323 @@
           <div class="stat-card"><h3>Careers</h3><p id="statCareers">0</p></div>
           <div class="stat-card"><h3>Forms</h3><p id="statForms">0</p></div>
           <div class="stat-card"><h3>Total Requests</h3><p id="statAll">0</p></div>
+          <div class="stat-card"><h3>Active Employees</h3><p id="statActiveEmployees">0</p></div>
+          <div class="stat-card"><h3>Open Tasks</h3><p id="statOpenTasks">0</p></div>
         </div>
+        <div class="overview-hero-grid">
+          <article class="overview-hero-card overview-hero-primary">
+            <span class="overview-kicker">Operational Pulse</span>
+            <h3 id="overviewHealthTitle">Waiting for live admin data</h3>
+            <p id="overviewHealthCopy">The overview updates from the backend dashboard payload and reflects current intake, queue health, and runtime signals.</p>
+            <div class="overview-pill-row">
+              <span class="overview-pill" id="overviewLatestActivity">Latest activity: --</span>
+              <span class="overview-pill" id="overviewQueueDepth">Queued notifications: 0</span>
+              <span class="overview-pill" id="overviewOpenIncidents">Open incidents: 0</span>
+            </div>
+          </article>
+          <article class="overview-hero-card">
+            <span class="overview-kicker">Lead Sources</span>
+            <div id="overviewLeadSources" class="overview-source-list"></div>
+          </article>
+        </div>
+        <div class="overview-secondary-grid">
+          <div class="overview-note">
+            <h3>Operational Summary</h3>
+            <ul id="overviewInsights" class="insight-list"></ul>
+          </div>
+          <div class="overview-note">
+            <h3>Immediate Actions</h3>
+            <div id="overviewActionItems" class="overview-action-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-organization">
         <div class="overview-note">
-          <h3>Operational Summary</h3>
-          <p>Use this dashboard to monitor lead flow across registrations, contact inquiries, and internship applications. Move to Email Composer for offer letters, updates, and professional communication.</p>
+          <h3>Department and Team Hierarchy</h3>
+          <div class="panel-toolbar enterprise-toolbar-3" style="margin-top:10px;">
+            <input type="text" id="deptNameInput" placeholder="Department name (e.g., Platform Engineering)">
+            <input type="text" id="deptLeadInput" placeholder="Department lead">
+            <button class="btn btn-primary" id="addDepartmentBtn">Add Department</button>
+          </div>
+          <div class="table-wrap" style="margin-top:10px;">
+            <table>
+              <thead><tr><th>Department</th><th>Lead</th><th>Parent</th><th>Members</th><th>Region</th><th>Actions</th></tr></thead>
+              <tbody id="departmentsBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="overview-note" style="margin-top:12px;">
+          <h3>Employee Directory</h3>
+          <div class="panel-toolbar enterprise-toolbar-3" style="margin-top:10px;">
+            <input type="text" id="employeeSearch" placeholder="Search employee, email, manager...">
+            <select id="employeeDeptFilter"><option value="all">All Departments</option></select>
+            <button class="btn btn-secondary" id="orgExportBtn">Export Org CSV</button>
+          </div>
+          <div class="table-wrap" style="margin-top:10px;">
+            <table>
+              <thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Manager</th><th>Country</th><th>Phone</th></tr></thead>
+              <tbody id="employeesBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-projects">
+        <div class="panel-toolbar enterprise-toolbar-3">
+          <input type="text" id="projectNameInput" placeholder="Project name">
+          <input type="date" id="projectDeadlineInput">
+          <button class="btn btn-primary" id="addProjectBtn">Create Project</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Project</th><th>Owner</th><th>Status</th><th>Deadline</th><th>Progress</th></tr></thead>
+            <tbody id="projectsBody"></tbody>
+          </table>
+        </div>
+        <div class="overview-note" style="margin-top:12px;">
+          <h3>Task Board</h3>
+          <div class="panel-toolbar enterprise-toolbar-4">
+            <input type="text" id="taskTitleInput" placeholder="Task title">
+            <select id="taskProjectFilter"><option value="all">All Projects</option></select>
+            <select id="taskStatusFilter">
+              <option value="todo">To Do</option>
+              <option value="in_progress">In Progress</option>
+              <option value="review">Review</option>
+              <option value="done">Done</option>
+            </select>
+            <button class="btn btn-primary" id="addTaskBtn">Add Task</button>
+          </div>
+          <div class="table-wrap" style="margin-top:10px;">
+            <table>
+              <thead><tr><th>Task</th><th>Project</th><th>Assignee</th><th>Priority</th><th>Status</th><th>Due Date</th><th>Actions</th></tr></thead>
+              <tbody id="tasksBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-users">
+        <div class="panel-toolbar enterprise-toolbar-3">
+          <input type="text" id="usersSearch" placeholder="Search user name, email, role...">
+          <select id="usersStatusFilter">
+            <option value="all">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="suspended">Suspended</option>
+            <option value="invited">Invited</option>
+          </select>
+          <button class="btn btn-primary" id="usersAddBtn">+ Add User</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>MFA</th><th>Last Login</th><th>Actions</th></tr></thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-roles">
+        <div class="panel-toolbar enterprise-toolbar-2">
+          <input type="text" id="roleNameInput" placeholder="Create role name (e.g., Support Manager)">
+          <button class="btn btn-primary" id="roleCreateBtn">Create Role</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Role</th><th>Permissions</th><th>Members</th><th>Actions</th></tr></thead>
+            <tbody id="rolesBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-api-access">
+        <div class="panel-toolbar enterprise-toolbar-3">
+          <input type="text" id="apiKeyLabel" placeholder="API key label (e.g., CI Deploy Key)">
+          <select id="apiKeyScope">
+            <option value="read">Read-only</option>
+            <option value="write">Read + Write</option>
+            <option value="admin">Full Admin</option>
+          </select>
+          <button class="btn btn-primary" id="createApiKeyBtn">Generate Key</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Label</th><th>Scope</th><th>Prefix</th><th>Created</th><th>Last Used</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="apiKeysBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-monitoring">
+        <div class="stats-grid monitoring-grid">
+          <div class="stat-card"><h3>API Latency (P95)</h3><p id="monLatency">0 ms</p></div>
+          <div class="stat-card"><h3>Error Rate</h3><p id="monErrorRate">0%</p></div>
+          <div class="stat-card"><h3>Queue Depth</h3><p id="monQueueDepth">0</p></div>
+          <div class="stat-card"><h3>Uptime</h3><p id="monUptime">100%</p></div>
+        </div>
+        <div class="overview-note" style="margin-top:14px;">
+          <h3>Incident Feed</h3>
+          <div id="incidentFeed" class="incident-feed"></div>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-billing">
+        <div class="stats-grid billing-grid">
+          <div class="stat-card"><h3>MRR</h3><p id="billingMrr">$0</p></div>
+          <div class="stat-card"><h3>Active Subscriptions</h3><p id="billingActiveSubs">0</p></div>
+          <div class="stat-card"><h3>Churn (30d)</h3><p id="billingChurn">0%</p></div>
+          <div class="stat-card"><h3>Avg. Revenue / Account</h3><p id="billingArpa">$0</p></div>
+        </div>
+        <div class="table-wrap" style="margin-top:12px;">
+          <table>
+            <thead><tr><th>Plan</th><th>Price</th><th>Accounts</th><th>Monthly Value</th></tr></thead>
+            <tbody id="billingPlansBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-analytics">
+        <div class="panel-toolbar analytics-toolbar enterprise-toolbar-4">
+          <select id="analyticsCountryFilter">
+            <option value="all">All Countries</option>
+            <option value="IN">India</option>
+            <option value="US">United States</option>
+            <option value="DE">Germany</option>
+            <option value="GB">United Kingdom</option>
+          </select>
+          <select id="analyticsDepartmentFilter"><option value="all">All Departments</option></select>
+          <select id="analyticsRoleFilter"><option value="all">All Roles</option></select>
+          <select id="analyticsTimeFilter">
+            <option value="7d">Last 7 days</option>
+            <option value="30d" selected>Last 30 days</option>
+            <option value="90d">Last 90 days</option>
+          </select>
+          <button class="btn btn-secondary" id="analyticsExportBtn">Export Analytics CSV</button>
+        </div>
+        <div id="analyticsSummaryCards" class="analytics-summary-grid"></div>
+        <div class="overview-note analytics-card-shell">
+          <h3>Trend Snapshots</h3>
+          <div id="analyticsTrendCards" class="analytics-trend-grid"></div>
+        </div>
+        <div class="analytics-split-grid" style="margin-top:12px;">
+          <div class="overview-note analytics-card-shell">
+            <h3>Pipeline Funnel</h3>
+            <div id="analyticsFunnel" class="funnel-list"></div>
+          </div>
+          <div class="overview-note analytics-card-shell">
+            <h3>Delivery Health</h3>
+            <div id="analyticsDeliveryHealth" class="analytics-health-card"></div>
+          </div>
+        </div>
+        <div class="analytics-split-grid" style="margin-top:12px;">
+          <div class="overview-note analytics-card-shell">
+            <h3>Workforce Distribution</h3>
+            <div id="analyticsWorkforceBars" class="analytics-bar-list"></div>
+          </div>
+          <div class="overview-note analytics-card-shell">
+            <h3>Task Execution Flow</h3>
+            <div id="analyticsTaskStatusBars" class="analytics-bar-list"></div>
+          </div>
+        </div>
+        <div class="analytics-split-grid" style="margin-top:12px;">
+          <div class="overview-note analytics-card-shell">
+            <h3>Manager Performance</h3>
+            <div id="analyticsManagerPerformance" class="analytics-manager-list"></div>
+          </div>
+          <div class="overview-note analytics-card-shell">
+            <h3>Hiring Funnel</h3>
+            <div id="analyticsHiringFunnel" class="analytics-stage-grid"></div>
+          </div>
+        </div>
+        <div class="analytics-split-grid" style="margin-top:12px;">
+          <div class="overview-note analytics-card-shell">
+            <h3>Assignee Workload Balance</h3>
+            <div id="analyticsWorkloadBars" class="analytics-bar-list"></div>
+          </div>
+          <div class="overview-note analytics-card-shell">
+            <h3>Project Risk Radar</h3>
+            <div id="analyticsProjectRisks" class="analytics-risk-list"></div>
+          </div>
+        </div>
+        <div class="overview-note" style="margin-top:12px;">
+          <h3>Recommended Sections To Add</h3>
+          <div id="analyticsRecommendations" class="analytics-recommendation-list"></div>
+        </div>
+        <div class="overview-note" style="margin-top:12px;">
+          <h3>Operational Insights</h3>
+          <ul id="analyticsInsights" class="insight-list"></ul>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-audit">
+        <div class="panel-toolbar enterprise-toolbar-3">
+          <input type="text" id="auditSearch" placeholder="Search actor, action, entity...">
+          <select id="auditSeverityFilter">
+            <option value="all">All Severities</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+          <button class="btn btn-secondary" id="auditExportBtn">Export Audit CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Entity</th><th>Severity</th><th>Details</th></tr></thead>
+            <tbody id="auditBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-security">
+        <div class="security-grid">
+          <div class="overview-note">
+            <h3>Authentication Policy</h3>
+            <label class="security-toggle"><input type="checkbox" id="securityMfaRequired"> Require MFA for all admins</label>
+            <label class="security-toggle"><input type="checkbox" id="securitySsoRequired"> Enforce SSO login</label>
+            <label class="security-toggle"><input type="checkbox" id="securitySessionLock"> Auto-lock inactive sessions</label>
+          </div>
+          <div class="overview-note">
+            <h3>Data Protection</h3>
+            <label class="security-toggle"><input type="checkbox" id="securityPiiMasking"> Mask PII in exports</label>
+            <label class="security-toggle"><input type="checkbox" id="securityIpAllowlist"> Restrict by IP allowlist</label>
+            <label class="security-toggle"><input type="checkbox" id="securityImmutableAudit"> Immutable audit log mode</label>
+          </div>
+        </div>
+        <div class="panel-toolbar" style="margin-top:12px;grid-template-columns:auto;justify-content:flex-start;">
+          <button class="btn btn-primary" id="saveSecuritySettingsBtn">Save Security Settings</button>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-notifications">
+        <div class="panel-toolbar enterprise-toolbar-3">
+          <input type="text" id="notificationTitle" placeholder="Notification title">
+          <select id="notificationChannel">
+            <option value="email">Email</option>
+            <option value="sms">SMS</option>
+            <option value="push">Push</option>
+            <option value="webhook">Webhook</option>
+          </select>
+          <button class="btn btn-primary" id="queueNotificationBtn">Queue Notification</button>
+        </div>
+        <div class="panel-toolbar enterprise-toolbar-4" style="margin-top:10px;">
+          <input type="text" id="announcementTitle" placeholder="Announcement title">
+          <select id="announcementAudience">
+            <option value="all">All Employees</option>
+            <option value="engineering">Engineering</option>
+            <option value="marketing">Marketing</option>
+            <option value="support">Support</option>
+          </select>
+          <input type="datetime-local" id="meetingTime">
+          <button class="btn btn-secondary" id="generateMeetingBtn">Generate Meeting Link</button>
+        </div>
+        <div class="overview-note" style="margin-top:10px;">
+          <h3>Generated Meeting Link</h3>
+          <p id="meetingLinkOut" class="muted">No meeting link generated yet.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Time</th><th>Title</th><th>Channel</th><th>Status</th><th>Audience</th><th>Actions</th></tr></thead>
+            <tbody id="notificationsBody"></tbody>
+          </table>
         </div>
       </section>
 
@@ -458,6 +786,16 @@
         <button type="button" class="btn btn-secondary" id="confirmCancelBtn">Cancel</button>
         <button type="button" class="btn btn-secondary danger" id="confirmOkBtn">Delete</button>
       </div>
+    </div>
+  </div>
+
+  <div id="analyticsDetailModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-card modal-card-lg" role="dialog" aria-modal="true" aria-labelledby="analyticsDetailTitle">
+      <div class="modal-header">
+        <h3 id="analyticsDetailTitle">Analytics Detail</h3>
+        <button type="button" class="modal-close" id="analyticsDetailClose" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" id="analyticsDetailBody"></div>
     </div>
   </div>
 

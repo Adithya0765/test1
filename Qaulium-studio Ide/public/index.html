@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Qaulium Studio IDE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="bg-grid"></div>
+    <header class="hero">
+      <h1>Qaulium Studio</h1>
+      <p>Extension-first Quantum Development Platform</p>
+      <div class="hero-meta">
+        <span id="healthBadge" class="badge">Checking health...</span>
+        <span class="badge">400+ advanced features ready for extension packs</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel handoff-panel">
+        <h2>Intern Handoff Dashboard</h2>
+        <div id="handoffSummary" class="list compact"></div>
+        <div class="handoff-columns">
+          <div>
+            <h3>Frontend Tasks</h3>
+            <div id="frontendTasksList" class="list compact"></div>
+          </div>
+          <div>
+            <h3>Backend Tasks</h3>
+            <div id="backendTasksList" class="list compact"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Marketplace</h2>
+        <div id="marketplaceList" class="list"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Installed Extensions</h2>
+        <div id="installedList" class="list"></div>
+        <h3>Registered Simulators</h3>
+        <div id="simulatorsList" class="list compact"></div>
+        <h3>Active Views</h3>
+        <div id="viewsList" class="list compact"></div>
+      </section>
+
+      <section class="panel simulation-panel">
+        <h2>Simulation Runner</h2>
+        <label>Backend</label>
+        <select id="backendSelect"></select>
+        <label>Circuit JSON</label>
+        <textarea id="circuitInput" rows="8">{
+  "qubits": 8,
+  "operations": [
+    {"gate": "H", "target": 0},
+    {"gate": "CNOT", "control": 0, "target": 1},
+    {"gate": "RX", "target": 3, "theta": 1.57}
+  ]
+}</textarea>
+        <label>Config JSON</label>
+        <textarea id="configInput" rows="5">{
+  "mode": "webgpu",
+  "shots": 1024,
+  "noiseModel": "depolarizing"
+}</textarea>
+        <button id="runSimulationBtn">Run Simulation</button>
+
+        <div id="simViz" class="sim-viz hidden">
+          <div class="metric-grid" id="metricGrid"></div>
+
+          <div class="chart-block">
+            <h3>Observables</h3>
+            <div id="observableBars" class="bars"></div>
+          </div>
+
+          <div class="chart-block">
+            <h3>Fidelity Estimate</h3>
+            <div class="fidelity-wrap">
+              <div class="fidelity-track">
+                <div id="fidelityFill" class="fidelity-fill"></div>
+              </div>
+              <div id="fidelityLabel" class="fidelity-label">-</div>
+            </div>
+          </div>
+
+          <div class="chart-block">
+            <h3>Diagnostics</h3>
+            <div id="diagnosticsList" class="diag-list"></div>
+          </div>
+        </div>
+
+        <details class="raw-json-wrap">
+          <summary>Raw JSON Output</summary>
+          <pre id="simulationOutput">No simulation run yet.</pre>
+        </details>
+      </section>
+    </main>
+
+    <script src="/main.js"></script>
+  </body>
+</html>

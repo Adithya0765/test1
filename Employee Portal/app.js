@@ -22,7 +22,7 @@ const TASK_STATUS_LABELS = {
 };
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'];
 
-const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://emp-portal-rho.vercel.app';
 
 // ==================== Toast System ====================
 const ToastManager = {

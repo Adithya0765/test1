@@ -1,0 +1,28 @@
+{
+  "service": "extension-simulation-router",
+  "baseUrl": "http://localhost:9001",
+  "routes": [
+    {
+      "name": "health",
+      "method": "GET",
+      "path": "/health"
+    },
+    {
+      "name": "runSimulation",
+      "method": "POST",
+      "path": "/route/simulate",
+      "request": {
+        "extensionId": "string",
+        "runId": "string",
+        "backendId": "string",
+        "mode": "string",
+        "circuit": "object",
+        "config": "object"
+      },
+      "response": {
+        "ok": "boolean",
+        "result": "object"
+      }
+    }
+  ]
+}

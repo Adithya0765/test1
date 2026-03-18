@@ -533,7 +533,7 @@
 
                 // Send invitation email via API
                 try {
-                    await fetch('../api/invite', {
+                    await fetch(`${API_BASE}/api/invite`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
