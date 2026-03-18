@@ -4,6 +4,8 @@
   "description": "Qaulium AI Landing Page with Registration Backend",
   "main": "server.js",
   "scripts": {
+    "build": "node scripts/build-public.js",
+    "vercel-build": "npm run build",
     "start": "node server.js",
     "dev": "node server.js",
     "test:api-routes": "node tests/api-route-smoke.test.js",
