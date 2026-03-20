@@ -369,14 +369,25 @@ app.use((req, res, next) => {
 });
 
 // Rate limiting to prevent abuse
-const apiLimiter = rateLimit({
+const adminLoginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 20,
-    message: { success: false, message: 'Too many requests. Please try again later.' },
+    max: 30,
+    message: { success: false, message: 'Too many login attempts. Please wait and try again.' },
     standardHeaders: true,
     legacyHeaders: false
 });
 
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 120,
+    message: { success: false, message: 'Too many requests. Please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => `${req.ip}:${req.path}`,
+    skip: (req) => req.path === '/api/admin/login'
+});
+
+app.use('/api/admin/login', adminLoginLimiter);
 app.use('/api/', apiLimiter);
 
 function base64UrlEncode(value) {
