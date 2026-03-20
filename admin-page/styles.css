@@ -518,6 +518,10 @@ textarea {
   stroke-width: 2;
 }
 
+.nav-label {
+  display: none;
+}
+
 .sidebar-footer {
   display: flex;
   flex-direction: column;

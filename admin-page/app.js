@@ -402,25 +402,54 @@
 
   async function loadDashboardData() {
     try {
-      // Mock data - replace with real API calls
+      // Comprehensive Mock Data
       state.data.users = [
-        {
-          id: '1',
-          name: 'Alice Johnson',
-          email: 'alice@qaulium.ai',
-          role: 'Admin',
-          status: 'Active',
-          joined: '2024-01-15',
-        },
-        {
-          id: '2',
-          name: 'Bob Smith',
-          email: 'bob@qaulium.ai',
-          role: 'Manager',
-          status: 'Active',
-          joined: '2024-02-20',
-        },
+        { id: '1', name: 'Alice Johnson', email: 'alice@qaulium.ai', role: 'Admin', status: 'Active', joined: '2024-01-15' },
+        { id: '2', name: 'Bob Smith', email: 'bob@qaulium.ai', role: 'Manager', status: 'Active', joined: '2024-02-20' },
+        { id: '3', name: 'Carol Davis', email: 'carol@qaulium.ai', role: 'Developer', status: 'Active', joined: '2024-03-10' },
+        { id: '4', name: 'David Wilson', email: 'david@qaulium.ai', role: 'Designer', status: 'Inactive', joined: '2024-01-08' },
+        { id: '5', name: 'Eve Martinez', email: 'eve@qaulium.ai', role: 'Developer', status: 'Active', joined: '2024-02-14' },
       ];
+
+      state.data.registrations = [
+        { id: '101', name: 'John Doe', email: 'john@example.com', status: 'Pending', date: '2024-03-18', phone: '+1-555-0101' },
+        { id: '102', name: 'Jane Smith', email: 'jane@example.com', status: 'Approved', date: '2024-03-17', phone: '+1-555-0102' },
+        { id: '103', name: 'Mike Johnson', email: 'mike@example.com', status: 'Pending', date: '2024-03-16', phone: '+1-555-0103' },
+        { id: '104', name: 'Sarah Lee', email: 'sarah@example.com', status: 'Approved', date: '2024-03-15', phone: '+1-555-0104' },
+      ];
+
+      state.data.projects = [
+        { id: '1', name: 'AI Integration', status: 'In Progress', completion: 65, team: 4, dueDate: '2024-04-15' },
+        { id: '2', name: 'Mobile App', status: 'Planning', completion: 20, team: 3, dueDate: '2024-05-01' },
+        { id: '3', name: 'Analytics Platform', status: 'Completed', completion: 100, team: 5, dueDate: '2024-03-10' },
+      ];
+
+      state.data.notifications = [
+        { id: '1', type: 'info', title: 'New registration received', time: '2 hours ago' },
+        { id: '2', type: 'success', title: 'Project milestone completed', time: '4 hours ago' },
+        { id: '3', type: 'warning', title: 'Upcoming maintenance window', time: '1 day ago' },
+      ];
+
+      state.data.contacts = [
+        { id: '201', name: 'Thomas Brown', email: 'thomas@contact.com', subject: 'Partnership Inquiry', date: '2024-03-18', status: 'New' },
+        { id: '202', name: 'Lisa Anderson', email: 'lisa@contact.com', subject: 'Support Request', date: '2024-03-17', status: 'In Progress' },
+        { id: '203', name: 'Robert Taylor', email: 'robert@contact.com', subject: 'Feature Request', date: '2024-03-16', status: 'Resolved' },
+      ];
+
+      state.data.careers = [
+        { id: '301', name: 'Jennifer White', position: 'Senior Engineer', applied: '2024-03-18', status: 'Under Review' },
+        { id: '302', name: 'Mark Harris', position: 'Product Manager', applied: '2024-03-16', status: 'Interview Scheduled' },
+        { id: '303', name: 'Patricia Clark', position: 'UX Designer', applied: '2024-03-15', status: 'Interview Scheduled' },
+      ];
+
+      state.data.analytics = {
+        totalUsers: state.data.users.length,
+        activeUsers: state.data.users.filter(u => u.status === 'Active').length,
+        totalRegistrations: state.data.registrations.length,
+        pendingRegistrations: state.data.registrations.filter(r => r.status === 'Pending').length,
+        activeProjects: state.data.projects.filter(p => p.status === 'In Progress').length,
+        completedProjects: state.data.projects.filter(p => p.status === 'Completed').length,
+      };
 
       updateDashboardUI();
     } catch (err) {
@@ -430,7 +459,8 @@
 
   async function loadUsersData() {
     try {
-      // Load from API
+      // Ensure data is loaded
+      await loadDashboardData();
       renderUsersTable();
     } catch (err) {
       console.error('Failed to load users:', err);
@@ -439,7 +469,8 @@
 
   async function loadRegistrationsData() {
     try {
-      // Load from API
+      // Ensure data is loaded
+      await loadDashboardData();
       renderRegistrationsTable();
     } catch (err) {
       console.error('Failed to load registrations:', err);
@@ -448,7 +479,8 @@
 
   async function loadContactsData() {
     try {
-      // Load from API
+      // Ensure data is loaded
+      await loadDashboardData();
       renderContactsTable();
     } catch (err) {
       console.error('Failed to load contacts:', err);
@@ -457,7 +489,8 @@
 
   async function loadCareersData() {
     try {
-      // Load from API
+      // Ensure data is loaded
+      await loadDashboardData();
       renderCareersTable();
     } catch (err) {
       console.error('Failed to load careers:', err);
@@ -466,7 +499,8 @@
 
   async function loadAnalyticsData() {
     try {
-      // Load from API
+      // Ensure data is loaded
+      await loadDashboardData();
       renderAnalyticsContent();
     } catch (err) {
       console.error('Failed to load analytics:', err);
@@ -548,17 +582,21 @@
       <tr>
         <td>${r.name || '—'}</td>
         <td>${r.email || '—'}</td>
-        <td>${r.company || '—'}</td>
-        <td>${new Date(r.created_at).toLocaleDateString()}</td>
+        <td>${r.phone || '—'}</td>
+        <td>${r.date || '—'}</td>
+        <td><span class="status-badge status-${(r.status || '').toLowerCase()}">${r.status || '—'}</span></td>
         <td>
-          <button class="btn btn-secondary btn-sm">View</button>
+          <div class="row-actions">
+            <button class="icon-btn small" title="View">👁</button>
+            <button class="icon-btn small" title="Approve">✓</button>
+          </div>
         </td>
       </tr>
     `
       )
       .join('');
 
-    DOM.registrationsBody.innerHTML = html || '<tr class="empty-row"><td colspan="5">No registrations</td></tr>';
+    DOM.registrationsBody.innerHTML = html || '<tr class="empty-row"><td colspan="6">No registrations</td></tr>';
   }
 
   function renderContactsTable() {
@@ -568,17 +606,24 @@
       <tr>
         <td>${c.name || '—'}</td>
         <td>${c.email || '—'}</td>
-        <td>${(c.message || '—').substring(0, 50)}...</td>
-        <td>${new Date(c.created_at).toLocaleDateString()}</td>
+        <td>${c.subject || '—'}</td>
+        <td>${c.date || '—'}</td>
+        <td><span class="status-badge status-${(c.status || '').toLowerCase()}">${c.status || '—'}</span></td>
         <td>
-          <button class="btn btn-secondary btn-sm">Reply</button>
+          <div class="row-actions">
+            <button class="icon-btn small" title="View">👁</button>
+            <button class="icon-btn small" title="Reply">✉</button>
+          </div>
         </td>
       </tr>
     `
       )
       .join('');
 
-    DOM.contactsBody.innerHTML = html || '<tr class="empty-row"><td colspan="5">No contacts</td></tr>';
+    const contactsBody = document.getElementById('contactsBody');
+    if (contactsBody) {
+      contactsBody.innerHTML = html || '<tr class="empty-row"><td colspan="6">No contacts</td></tr>';
+    }
   }
 
   function renderCareersTable() {
@@ -587,31 +632,45 @@
         (c) => `
       <tr>
         <td>${c.name || '—'}</td>
-        <td>${c.email || '—'}</td>
-        <td>${c.applied_role || '—'}</td>
-        <td>${c.university || '—'}</td>
-        <td>${new Date(c.created_at).toLocaleDateString()}</td>
+        <td>${c.position || '—'}</td>
+        <td>${c.applied || '—'}</td>
+        <td><span class="status-badge status-${(c.status || '').toLowerCase().replace(/\s+/g, '-')}">${c.status || '—'}</span></td>
         <td>
-          <button class="btn btn-secondary btn-sm">Review</button>
+          <div class="row-actions">
+            <button class="icon-btn small" title="View">👁</button>
+            <button class="icon-btn small" title="Interview">📞</button>
+          </div>
         </td>
       </tr>
     `
       )
       .join('');
 
-    DOM.careersBody.innerHTML = html || '<tr class="empty-row"><td colspan="6">No applications</td></tr>';
+    const careersBody = document.getElementById('careersBody');
+    if (careersBody) {
+      careersBody.innerHTML = html || '<tr class="empty-row"><td colspan="5">No applications</td></tr>';
+    }
   }
 
   function renderAnalyticsContent() {
     const analId = document.getElementById('analyticsContent');
     if (analId) {
       analId.innerHTML = `
-        <div class="card">
-          <div class="card-header">
-            <h3>Key Metrics</h3>
+        <div class="analytics-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value">${state.data.analytics.totalUsers || 0}</div>
+            <div class="stat-change">↑ ${state.data.analytics.activeUsers || 0} active</div>
           </div>
-          <div class="card-body">
-            <p>Analytics loading...</p>
+          <div class="stat-card">
+            <div class="stat-label">Total Registrations</div>
+            <div class="stat-value">${state.data.analytics.totalRegistrations || 0}</div>
+            <div class="stat-change">⏳ ${state.data.analytics.pendingRegistrations || 0} pending</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active Projects</div>
+            <div class="stat-value">${state.data.analytics.activeProjects || 0}</div>
+            <div class="stat-change">✅ ${state.data.analytics.completedProjects || 0} completed</div>
           </div>
         </div>
       `;
