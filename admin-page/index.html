@@ -3,800 +3,617 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Qaulium AI Admin</title>
+  <title>Qaulium AI Admin Portal</title>
+  <meta name="description" content="Enterprise-grade admin portal for managing users, operations, analytics, and communications.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <div id="loginView" class="auth-shell">
-    <div class="auth-bg-shape auth-bg-shape-a"></div>
-    <div class="auth-bg-shape auth-bg-shape-b"></div>
+<body data-theme="light">
+
+  <!-- ============================================
+       AUTH VIEW (Login & OTP)
+       ============================================ -->
+  <div id="authView" class="auth-view">
+    <div class="auth-backdrop"></div>
     <div class="auth-card">
-      <div class="brand-row" style="margin:0 0 28px 0;padding:0;">
-        <img src="https://qauliumai.in/logo-white.png" alt="Qaulium AI" height="32" class="admin-logo" style="display:block;height:32px;width:auto;">
+      <div class="auth-header">
+        <div class="auth-logo">
+          <img src="https://qauliumai.in/logo-white.png" alt="Qaulium AI" height="32">
+        </div>
+        <h1>Admin Portal</h1>
+        <p>Secure access to enterprise operations</p>
       </div>
-      <form id="loginForm" class="stack">
-        <label>
-          API Base URL
-          <input type="text" id="apiBase" placeholder="Use current origin or https://qauliumai.in" required>
-        </label>
-        <label>
-          Admin Email
-          <input type="email" id="adminEmail" placeholder="admin@qauliumai.in" required>
-        </label>
-        <label>
-          Password
-          <input type="password" id="adminPassword" required>
-        </label>
-        <label id="adminOtpWrap" class="hidden">
-          OTP (sent to admin email)
-          <input type="text" id="adminOtp" inputmode="numeric" pattern="[0-9]{6}" placeholder="Enter 6-digit OTP">
-        </label>
-        <button type="submit" class="btn btn-primary" id="loginBtn">Access Console</button>
+
+      <form id="authForm" class="auth-form">
+        <div class="form-wrapper">
+          <label class="form-group">
+            <span class="form-label">Email Address</span>
+            <input type="email" id="adminEmail" placeholder="admin@qauliumai.in" required>
+            <span class="form-hint">Your admin email</span>
+          </label>
+
+          <label class="form-group">
+            <span class="form-label">Password</span>
+            <input type="password" id="adminPassword" placeholder="••••••••" required>
+            <span class="form-hint">Enter your secure password</span>
+          </label>
+
+          <label id="otpGroup" class="form-group hidden">
+            <span class="form-label">Authentication Code</span>
+            <input type="text" id="adminOtp" placeholder="000000" inputmode="numeric" maxlength="6">
+            <span class="form-hint">6-digit code from your authenticator</span>
+          </label>
+
+          <label class="form-checkbox">
+            <input type="checkbox" id="rememberMe">
+            <span>Remember this device for 30 days</span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" id="authSubmitBtn">
+          <span id="authSubmitText">Sign In</span>
+          <span id="authSubmitLoader" class="loader hidden"></span>
+        </button>
+
+        <div id="authStatus" class="auth-status"></div>
+
+        <div class="auth-footer">
+          <a href="#forgot">Forgot your password?</a>
+          <span class="divider">•</span>
+          <a href="#support">Contact Support</a>
+        </div>
       </form>
-      <div id="loginStatus" class="status"></div>
+
+      <div class="auth-security-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>Enterprise-grade encryption</span>
+      </div>
     </div>
   </div>
 
-  <div id="appView" class="app-shell hidden">
-    <div class="mobile-admin-topbar">
-      <button id="adminMenuToggle" class="mobile-menu-toggle" aria-label="Toggle admin menu">☰</button>
-      <span>Admin Console</span>
-    </div>
-    <div id="adminSidebarBackdrop" class="sidebar-backdrop hidden"></div>
-    <aside class="sidebar">
-      <div class="brand-row sidebar-brand">
-        <img src="https://qauliumai.in/logo-white.png" alt="Qaulium AI" height="28" class="admin-logo" style="display:block;height:28px;width:auto;">
-        <h2>Admin Console</h2>
+  <!-- ============================================
+       APP VIEW (Main Dashboard)
+       ============================================ -->
+  <div id="appView" class="app-view hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="https://qauliumai.in/logo-white.png" alt="Qaulium AI" height="24">
+        </div>
+        <h2>Qaulium</h2>
+        <button class="sidebar-close" id="sidebarClose" aria-label="Close sidebar">×</button>
       </div>
-      <nav class="menu">
-        <button class="menu-item active" data-tab="overview">Overview</button>
-        <button class="menu-item" data-tab="users">Users</button>
-        <button class="menu-item" data-tab="roles">Roles</button>
-        <button class="menu-item" data-tab="organization">Organization</button>
-        <button class="menu-item" data-tab="projects">Tasks & Projects</button>
-        <button class="menu-item" data-tab="api-access">API Access</button>
-        <button class="menu-item" data-tab="monitoring">Monitoring</button>
-        <button class="menu-item" data-tab="billing">Billing</button>
-        <button class="menu-item" data-tab="analytics">Analytics</button>
-        <button class="menu-item" data-tab="audit">Audit Logs</button>
-        <button class="menu-item" data-tab="security">Security</button>
-        <button class="menu-item" data-tab="notifications">Notifications</button>
-        <button class="menu-item" data-tab="registrations">Registrations</button>
-        <button class="menu-item" data-tab="contacts">Contacts</button>
-        <button class="menu-item" data-tab="careers">Careers</button>
-        <button class="menu-item" data-tab="forms">Forms</button>
-        <button class="menu-item" data-tab="composer">Email Composer</button>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-label">Operations</div>
+          <button class="nav-item active" data-view="dashboard">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span>Dashboard</span>
+          </button>
+          <button class="nav-item" data-view="projects">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline>
+            </svg>
+            <span>Projects</span>
+          </button>
+          <button class="nav-item" data-view="notifications">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span>Notifications</span>
+          </button>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-label">Data & People</div>
+          <button class="nav-item" data-view="users">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Users & Teams</span>
+          </button>
+          <button class="nav-item" data-view="analytics">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="8 14 12 10 16 14"></polyline>
+            </svg>
+            <span>Analytics</span>
+          </button>
+          <button class="nav-item" data-view="reports">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2V17zm4 0h-2V7h2V17zm4 0h-2v-4h2V17z"></path>
+            </svg>
+            <span>Reports</span>
+          </button>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-label">Intake</div>
+          <button class="nav-item" data-view="registrations">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>Registrations</span>
+          </button>
+          <button class="nav-item" data-view="contacts">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>Contacts</span>
+          </button>
+          <button class="nav-item" data-view="careers">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+              <path d="M16 5V3a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
+            </svg>
+            <span>Careers</span>
+          </button>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-label">Configuration</div>
+          <button class="nav-item" data-view="settings">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m3.08 3.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m3.08-3.08l4.24-4.24M19.78 19.78l-4.24-4.24m-3.08-3.08l-4.24-4.24"></path>
+            </svg>
+            <span>Settings</span>
+          </button>
+        </div>
       </nav>
-      <div class="sidebar-actions">
-        <button class="btn btn-secondary" id="refreshBtn">Refresh Data</button>
-        <button class="btn btn-secondary" id="themeToggle">Theme</button>
-        <button class="btn btn-secondary" id="logoutBtn">Logout</button>
+
+      <div class="sidebar-footer">
+        <button class="btn btn-secondary btn-sm btn-full" id="themeToggle">
+          <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <span>Theme</span>
+        </button>
+        <button class="btn btn-secondary btn-sm btn-full" id="logoutBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Logout</span>
+        </button>
       </div>
     </aside>
 
-    <main class="content">
-      <header class="topbar">
-        <div>
-          <h1 id="pageTitle">Overview</h1>
-          <p class="muted" id="pageSubtitle">Monitor submissions and send communication.</p>
-        </div>
-        <div class="topbar-controls">
-          <span id="wsStatusDot" class="ws-status-dot ws-disconnected" title="WebSocket: disconnected"></span>
-          <button class="btn btn-secondary" id="realtimeToggleBtn">Realtime: On</button>
-        </div>
-      </header>
+    <!-- Sidebar Backdrop (Mobile) -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-      <section class="tab-panel" id="panel-overview">
-        <div class="stats-grid">
-          <div class="stat-card"><h3>Registrations</h3><p id="statRegistrations">0</p></div>
-          <div class="stat-card"><h3>Contacts</h3><p id="statContacts">0</p></div>
-          <div class="stat-card"><h3>Careers</h3><p id="statCareers">0</p></div>
-          <div class="stat-card"><h3>Forms</h3><p id="statForms">0</p></div>
-          <div class="stat-card"><h3>Total Requests</h3><p id="statAll">0</p></div>
-          <div class="stat-card"><h3>Active Employees</h3><p id="statActiveEmployees">0</p></div>
-          <div class="stat-card"><h3>Open Tasks</h3><p id="statOpenTasks">0</p></div>
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <div class="topbar">
+        <button class="topbar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3" y2="6"></line>
+            <line x1="3" y1="12" x2="3" y2="12"></line>
+            <line x1="3" y1="18" x2="3" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="topbar-title">
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageSubtitle" class="muted">Welcome back. Here's what's happening.</p>
         </div>
-        <div class="overview-hero-grid">
-          <article class="overview-hero-card overview-hero-primary">
-            <span class="overview-kicker">Operational Pulse</span>
-            <h3 id="overviewHealthTitle">Waiting for live admin data</h3>
-            <p id="overviewHealthCopy">The overview updates from the backend dashboard payload and reflects current intake, queue health, and runtime signals.</p>
-            <div class="overview-pill-row">
-              <span class="overview-pill" id="overviewLatestActivity">Latest activity: --</span>
-              <span class="overview-pill" id="overviewQueueDepth">Queued notifications: 0</span>
-              <span class="overview-pill" id="overviewOpenIncidents">Open incidents: 0</span>
+
+        <div class="topbar-actions">
+          <button class="icon-btn" id="searchBtn" aria-label="Search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+          </button>
+          <div class="user-menu">
+            <button class="icon-btn user-btn" id="userMenuBtn">
+              <div class="avatar">
+                <span id="userInitials">A</span>
+              </div>
+            </button>
+            <div class="user-dropdown hidden" id="userDropdown">
+              <div class="user-info">
+                <p id="userEmail">admin@qauliumai.in</p>
+                <span class="role-badge">Super Admin</span>
+              </div>
+              <hr>
+              <a href="#" class="dropdown-item">Profile Settings</a>
+              <a href="#" class="dropdown-item">Security</a>
+              <a href="#" class="dropdown-item">Preferences</a>
+              <hr>
+              <button class="dropdown-item" id="logoutBtn2">Sign Out</button>
             </div>
-          </article>
-          <article class="overview-hero-card">
-            <span class="overview-kicker">Lead Sources</span>
-            <div id="overviewLeadSources" class="overview-source-list"></div>
-          </article>
-        </div>
-        <div class="overview-secondary-grid">
-          <div class="overview-note">
-            <h3>Operational Summary</h3>
-            <ul id="overviewInsights" class="insight-list"></ul>
-          </div>
-          <div class="overview-note">
-            <h3>Immediate Actions</h3>
-            <div id="overviewActionItems" class="overview-action-list"></div>
           </div>
         </div>
-      </section>
+      </div>
 
-      <section class="tab-panel hidden" id="panel-organization">
-        <div class="overview-note">
-          <h3>Department and Team Hierarchy</h3>
-          <div class="panel-toolbar enterprise-toolbar-3" style="margin-top:10px;">
-            <input type="text" id="deptNameInput" placeholder="Department name (e.g., Platform Engineering)">
-            <input type="text" id="deptLeadInput" placeholder="Department lead">
-            <button class="btn btn-primary" id="addDepartmentBtn">Add Department</button>
-          </div>
-          <div class="table-wrap" style="margin-top:10px;">
-            <table>
-              <thead><tr><th>Department</th><th>Lead</th><th>Parent</th><th>Members</th><th>Region</th><th>Actions</th></tr></thead>
-              <tbody id="departmentsBody"></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="overview-note" style="margin-top:12px;">
-          <h3>Employee Directory</h3>
-          <div class="panel-toolbar enterprise-toolbar-3" style="margin-top:10px;">
-            <input type="text" id="employeeSearch" placeholder="Search employee, email, manager...">
-            <select id="employeeDeptFilter"><option value="all">All Departments</option></select>
-            <button class="btn btn-secondary" id="orgExportBtn">Export Org CSV</button>
-          </div>
-          <div class="table-wrap" style="margin-top:10px;">
-            <table>
-              <thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Manager</th><th>Country</th><th>Phone</th></tr></thead>
-              <tbody id="employeesBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+      <!-- Views Container -->
+      <div class="views-container">
 
-      <section class="tab-panel hidden" id="panel-projects">
-        <div class="panel-toolbar enterprise-toolbar-3">
-          <input type="text" id="projectNameInput" placeholder="Project name">
-          <input type="date" id="projectDeadlineInput">
-          <button class="btn btn-primary" id="addProjectBtn">Create Project</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Project</th><th>Owner</th><th>Status</th><th>Deadline</th><th>Progress</th></tr></thead>
-            <tbody id="projectsBody"></tbody>
-          </table>
-        </div>
-        <div class="overview-note" style="margin-top:12px;">
-          <h3>Task Board</h3>
-          <div class="panel-toolbar enterprise-toolbar-4">
-            <input type="text" id="taskTitleInput" placeholder="Task title">
-            <select id="taskProjectFilter"><option value="all">All Projects</option></select>
-            <select id="taskStatusFilter">
-              <option value="todo">To Do</option>
-              <option value="in_progress">In Progress</option>
-              <option value="review">Review</option>
-              <option value="done">Done</option>
-            </select>
-            <button class="btn btn-primary" id="addTaskBtn">Add Task</button>
-          </div>
-          <div class="table-wrap" style="margin-top:10px;">
-            <table>
-              <thead><tr><th>Task</th><th>Project</th><th>Assignee</th><th>Priority</th><th>Status</th><th>Due Date</th><th>Actions</th></tr></thead>
-              <tbody id="tasksBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <section class="tab-panel hidden" id="panel-users">
-        <div class="panel-toolbar enterprise-toolbar-3">
-          <input type="text" id="usersSearch" placeholder="Search user name, email, role...">
-          <select id="usersStatusFilter">
-            <option value="all">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="suspended">Suspended</option>
-            <option value="invited">Invited</option>
-          </select>
-          <button class="btn btn-primary" id="usersAddBtn">+ Add User</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>MFA</th><th>Last Login</th><th>Actions</th></tr></thead>
-            <tbody id="usersBody"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="tab-panel hidden" id="panel-roles">
-        <div class="panel-toolbar enterprise-toolbar-2">
-          <input type="text" id="roleNameInput" placeholder="Create role name (e.g., Support Manager)">
-          <button class="btn btn-primary" id="roleCreateBtn">Create Role</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Role</th><th>Permissions</th><th>Members</th><th>Actions</th></tr></thead>
-            <tbody id="rolesBody"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="tab-panel hidden" id="panel-api-access">
-        <div class="panel-toolbar enterprise-toolbar-3">
-          <input type="text" id="apiKeyLabel" placeholder="API key label (e.g., CI Deploy Key)">
-          <select id="apiKeyScope">
-            <option value="read">Read-only</option>
-            <option value="write">Read + Write</option>
-            <option value="admin">Full Admin</option>
-          </select>
-          <button class="btn btn-primary" id="createApiKeyBtn">Generate Key</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Label</th><th>Scope</th><th>Prefix</th><th>Created</th><th>Last Used</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="apiKeysBody"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="tab-panel hidden" id="panel-monitoring">
-        <div class="stats-grid monitoring-grid">
-          <div class="stat-card"><h3>API Latency (P95)</h3><p id="monLatency">0 ms</p></div>
-          <div class="stat-card"><h3>Error Rate</h3><p id="monErrorRate">0%</p></div>
-          <div class="stat-card"><h3>Queue Depth</h3><p id="monQueueDepth">0</p></div>
-          <div class="stat-card"><h3>Uptime</h3><p id="monUptime">100%</p></div>
-        </div>
-        <div class="overview-note" style="margin-top:14px;">
-          <h3>Incident Feed</h3>
-          <div id="incidentFeed" class="incident-feed"></div>
-        </div>
-      </section>
-
-      <section class="tab-panel hidden" id="panel-billing">
-        <div class="stats-grid billing-grid">
-          <div class="stat-card"><h3>MRR</h3><p id="billingMrr">$0</p></div>
-          <div class="stat-card"><h3>Active Subscriptions</h3><p id="billingActiveSubs">0</p></div>
-          <div class="stat-card"><h3>Churn (30d)</h3><p id="billingChurn">0%</p></div>
-          <div class="stat-card"><h3>Avg. Revenue / Account</h3><p id="billingArpa">$0</p></div>
-        </div>
-        <div class="table-wrap" style="margin-top:12px;">
-          <table>
-            <thead><tr><th>Plan</th><th>Price</th><th>Accounts</th><th>Monthly Value</th></tr></thead>
-            <tbody id="billingPlansBody"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="tab-panel hidden" id="panel-analytics">
-        <div class="panel-toolbar analytics-toolbar enterprise-toolbar-4">
-          <select id="analyticsCountryFilter">
-            <option value="all">All Countries</option>
-            <option value="IN">India</option>
-            <option value="US">United States</option>
-            <option value="DE">Germany</option>
-            <option value="GB">United Kingdom</option>
-          </select>
-          <select id="analyticsDepartmentFilter"><option value="all">All Departments</option></select>
-          <select id="analyticsRoleFilter"><option value="all">All Roles</option></select>
-          <select id="analyticsTimeFilter">
-            <option value="7d">Last 7 days</option>
-            <option value="30d" selected>Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-          </select>
-          <button class="btn btn-secondary" id="analyticsExportBtn">Export Analytics CSV</button>
-        </div>
-        <div id="analyticsSummaryCards" class="analytics-summary-grid"></div>
-        <div class="overview-note analytics-card-shell">
-          <h3>Trend Snapshots</h3>
-          <div id="analyticsTrendCards" class="analytics-trend-grid"></div>
-        </div>
-        <div class="analytics-split-grid" style="margin-top:12px;">
-          <div class="overview-note analytics-card-shell">
-            <h3>Pipeline Funnel</h3>
-            <div id="analyticsFunnel" class="funnel-list"></div>
-          </div>
-          <div class="overview-note analytics-card-shell">
-            <h3>Delivery Health</h3>
-            <div id="analyticsDeliveryHealth" class="analytics-health-card"></div>
-          </div>
-        </div>
-        <div class="analytics-split-grid" style="margin-top:12px;">
-          <div class="overview-note analytics-card-shell">
-            <h3>Workforce Distribution</h3>
-            <div id="analyticsWorkforceBars" class="analytics-bar-list"></div>
-          </div>
-          <div class="overview-note analytics-card-shell">
-            <h3>Task Execution Flow</h3>
-            <div id="analyticsTaskStatusBars" class="analytics-bar-list"></div>
-          </div>
-        </div>
-        <div class="analytics-split-grid" style="margin-top:12px;">
-          <div class="overview-note analytics-card-shell">
-            <h3>Manager Performance</h3>
-            <div id="analyticsManagerPerformance" class="analytics-manager-list"></div>
-          </div>
-          <div class="overview-note analytics-card-shell">
-            <h3>Hiring Funnel</h3>
-            <div id="analyticsHiringFunnel" class="analytics-stage-grid"></div>
-          </div>
-        </div>
-        <div class="analytics-split-grid" style="margin-top:12px;">
-          <div class="overview-note analytics-card-shell">
-            <h3>Assignee Workload Balance</h3>
-            <div id="analyticsWorkloadBars" class="analytics-bar-list"></div>
-          </div>
-          <div class="overview-note analytics-card-shell">
-            <h3>Project Risk Radar</h3>
-            <div id="analyticsProjectRisks" class="analytics-risk-list"></div>
-          </div>
-        </div>
-        <div class="overview-note" style="margin-top:12px;">
-          <h3>Recommended Sections To Add</h3>
-          <div id="analyticsRecommendations" class="analytics-recommendation-list"></div>
-        </div>
-        <div class="overview-note" style="margin-top:12px;">
-          <h3>Operational Insights</h3>
-          <ul id="analyticsInsights" class="insight-list"></ul>
-        </div>
-      </section>
-
-      <section class="tab-panel hidden" id="panel-audit">
-        <div class="panel-toolbar enterprise-toolbar-3">
-          <input type="text" id="auditSearch" placeholder="Search actor, action, entity...">
-          <select id="auditSeverityFilter">
-            <option value="all">All Severities</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
-          <button class="btn btn-secondary" id="auditExportBtn">Export Audit CSV</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Entity</th><th>Severity</th><th>Details</th></tr></thead>
-            <tbody id="auditBody"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="tab-panel hidden" id="panel-security">
-        <div class="security-grid">
-          <div class="overview-note">
-            <h3>Authentication Policy</h3>
-            <label class="security-toggle"><input type="checkbox" id="securityMfaRequired"> Require MFA for all admins</label>
-            <label class="security-toggle"><input type="checkbox" id="securitySsoRequired"> Enforce SSO login</label>
-            <label class="security-toggle"><input type="checkbox" id="securitySessionLock"> Auto-lock inactive sessions</label>
-          </div>
-          <div class="overview-note">
-            <h3>Data Protection</h3>
-            <label class="security-toggle"><input type="checkbox" id="securityPiiMasking"> Mask PII in exports</label>
-            <label class="security-toggle"><input type="checkbox" id="securityIpAllowlist"> Restrict by IP allowlist</label>
-            <label class="security-toggle"><input type="checkbox" id="securityImmutableAudit"> Immutable audit log mode</label>
-          </div>
-        </div>
-        <div class="panel-toolbar" style="margin-top:12px;grid-template-columns:auto;justify-content:flex-start;">
-          <button class="btn btn-primary" id="saveSecuritySettingsBtn">Save Security Settings</button>
-        </div>
-      </section>
-
-      <section class="tab-panel hidden" id="panel-notifications">
-        <div class="panel-toolbar enterprise-toolbar-3">
-          <input type="text" id="notificationTitle" placeholder="Notification title">
-          <select id="notificationChannel">
-            <option value="email">Email</option>
-            <option value="sms">SMS</option>
-            <option value="push">Push</option>
-            <option value="webhook">Webhook</option>
-          </select>
-          <button class="btn btn-primary" id="queueNotificationBtn">Queue Notification</button>
-        </div>
-        <div class="panel-toolbar enterprise-toolbar-4" style="margin-top:10px;">
-          <input type="text" id="announcementTitle" placeholder="Announcement title">
-          <select id="announcementAudience">
-            <option value="all">All Employees</option>
-            <option value="engineering">Engineering</option>
-            <option value="marketing">Marketing</option>
-            <option value="support">Support</option>
-          </select>
-          <input type="datetime-local" id="meetingTime">
-          <button class="btn btn-secondary" id="generateMeetingBtn">Generate Meeting Link</button>
-        </div>
-        <div class="overview-note" style="margin-top:10px;">
-          <h3>Generated Meeting Link</h3>
-          <p id="meetingLinkOut" class="muted">No meeting link generated yet.</p>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Time</th><th>Title</th><th>Channel</th><th>Status</th><th>Audience</th><th>Actions</th></tr></thead>
-            <tbody id="notificationsBody"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="tab-panel hidden" id="panel-registrations">
-        <div class="panel-toolbar">
-          <input type="text" id="registrationsSearch" placeholder="Search name, email, company, role...">
-          <button class="btn btn-secondary" id="registrationsExportBtn">Export CSV</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Role</th><th>Source</th><th>Date</th><th>Actions</th></tr></thead>
-            <tbody id="registrationsBody"></tbody>
-          </table>
-        </div>
-        <div class="pagination-bar">
-          <button class="btn btn-secondary" id="registrationsPrevBtn">Previous</button>
-          <span id="registrationsPageInfo" class="muted">Page 1</span>
-          <button class="btn btn-secondary" id="registrationsNextBtn">Next</button>
-        </div>
-      </section>
-
-      <section class="tab-panel hidden" id="panel-contacts">
-        <div class="panel-toolbar">
-          <input type="text" id="contactsSearch" placeholder="Search name, email, company, message...">
-          <button class="btn btn-secondary" id="contactsExportBtn">Export CSV</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Message</th><th>Date</th><th>Actions</th></tr></thead>
-            <tbody id="contactsBody"></tbody>
-          </table>
-        </div>
-        <div class="pagination-bar">
-          <button class="btn btn-secondary" id="contactsPrevBtn">Previous</button>
-          <span id="contactsPageInfo" class="muted">Page 1</span>
-          <button class="btn btn-secondary" id="contactsNextBtn">Next</button>
-        </div>
-      </section>
-
-      <section class="tab-panel hidden" id="panel-careers">
-        <div class="panel-toolbar">
-          <input type="text" id="careersSearch" placeholder="Search name, email, role, university...">
-          <select id="careersRoleFilter">
-            <option value="all">All Roles</option>
-            <option value="AI Intern">AI Intern</option>
-            <option value="Frontend Intern">Frontend Intern</option>
-            <option value="Backend Intern">Backend Intern</option>
-            <option value="UI/UX Intern">UI/UX Intern</option>
-            <option value="Testing Intern">Testing Intern</option>
-            <option value="Marketing Intern">Marketing Intern</option>
-            <option value="Research Intern">Research Intern</option>
-          </select>
-          <button class="btn btn-secondary" id="careersExportBtn">Export CSV</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>University</th><th>Degree</th><th>Grad Year</th><th>Date</th><th>Actions</th></tr></thead>
-            <tbody id="careersBody"></tbody>
-          </table>
-        </div>
-        <div class="pagination-bar">
-          <button class="btn btn-secondary" id="careersPrevBtn">Previous</button>
-          <span id="careersPageInfo" class="muted">Page 1</span>
-          <button class="btn btn-secondary" id="careersNextBtn">Next</button>
-        </div>
-      </section>
-
-      <section class="tab-panel hidden" id="panel-composer">
-        <form id="composerForm" class="composer-card">
-          <div class="composer-layout">
-            <!-- Left Panel: Editor -->
-            <div class="composer-editor">
-              <!-- Professional Templates Section -->
-              <div class="composer-section">
-                <div class="section-header">
-                  <h3>Professional Templates</h3>
-                  <p>Choose from pre-designed templates or customize</p>
+        <!-- DASHBOARD VIEW -->
+        <section id="view-dashboard" class="view active">
+          <div class="page-content">
+            <div class="hero-stats">
+              <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #2563EB, #1D4ED8);">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
                 </div>
-                <div class="template-grid">
-                  <label class="template-option active">
-                    <input type="radio" name="template" value="registration-welcome" checked>
-                    <div class="template-card">
-                      <div class="template-icon">👋</div>
-                      <div class="template-name">Welcome Registration</div>
-                      <div class="template-desc">Confirm new registrations</div>
-                    </div>
-                  </label>
-                  <label class="template-option">
-                    <input type="radio" name="template" value="interview-invitation">
-                    <div class="template-card">
-                      <div class="template-icon">📅</div>
-                      <div class="template-name">Interview Invitation</div>
-                      <div class="template-desc">Schedule interview with candidates</div>
-                    </div>
-                  </label>
-                  <label class="template-option">
-                    <input type="radio" name="template" value="career-confirmation">
-                    <div class="template-card">
-                      <div class="template-icon">✅</div>
-                      <div class="template-name">Career Confirmation</div>
-                      <div class="template-desc">Confirm job applications received</div>
-                    </div>
-                  </label>
-                  <label class="template-option">
-                    <input type="radio" name="template" value="intern-confirmation">
-                    <div class="template-card">
-                      <div class="template-icon">🎓</div>
-                      <div class="template-name">Intern Confirmation</div>
-                      <div class="template-desc">Role-based intern confirmation email</div>
-                    </div>
-                  </label>
-                  <label class="template-option">
-                    <input type="radio" name="template" value="contact-response">
-                    <div class="template-card">
-                      <div class="template-icon">💬</div>
-                      <div class="template-name">Contact Response</div>
-                      <div class="template-desc">Respond to contact inquiries</div>
-                    </div>
-                  </label>
-                  <label class="template-option">
-                    <input type="radio" name="template" value="company-announcement">
-                    <div class="template-card">
-                      <div class="template-icon">📢</div>
-                      <div class="template-name">Company Announcement</div>
-                      <div class="template-desc">Share updates and announcements</div>
-                    </div>
-                  </label>
-                  <label class="template-option">
-                    <input type="radio" name="template" value="blank">
-                    <div class="template-card">
-                      <div class="template-icon">📝</div>
-                      <div class="template-name">Blank Custom</div>
-                      <div class="template-desc">Start from scratch</div>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Recipient Selection -->
-              <div class="composer-section">
-                <div class="section-header">
-                  <h3>Recipients</h3>
-                  <p>Choose who receives this email</p>
-                </div>
-                <div class="audience-grid">
-                  <label class="audience-option">
-                    <input type="radio" name="audience" value="all" checked>
-                    <div class="audience-card">
-                      <div class="audience-label">All Members</div>
-                      <div id="audienceCount-all" class="audience-count">—</div>
-                    </div>
-                  </label>
-                  <label class="audience-option">
-                    <input type="radio" name="audience" value="registrations">
-                    <div class="audience-card">
-                      <div class="audience-label">Registrations</div>
-                      <div id="audienceCount-registrations" class="audience-count">—</div>
-                    </div>
-                  </label>
-                  <label class="audience-option">
-                    <input type="radio" name="audience" value="contacts">
-                    <div class="audience-card">
-                      <div class="audience-label">Contacts</div>
-                      <div id="audienceCount-contacts" class="audience-count">—</div>
-                    </div>
-                  </label>
-                  <label class="audience-option">
-                    <input type="radio" name="audience" value="careers">
-                    <div class="audience-card">
-                      <div class="audience-label">Career Applicants</div>
-                      <div id="audienceCount-careers" class="audience-count">—</div>
-                    </div>
-                  </label>
-                  <label class="audience-option">
-                    <input type="radio" name="audience" value="custom">
-                    <div class="audience-card">
-                      <div class="audience-label">Custom Recipients</div>
-                      <div class="audience-count">✉️</div>
-                    </div>
-                  </label>
-                </div>
-
-                <label id="customEmailsWrap" class="hidden custom-emails-label">
-                  Custom Recipient List
-                  <textarea id="customEmails" rows="4" placeholder="admin@example.com&#10;user@example.com&#10;candidate@example.com" spellcheck="false"></textarea>
-                  <div class="custom-emails-hint" id="customEmailsHint"></div>
-                </label>
-              </div>
-
-              <!-- Email Content -->
-              <div class="composer-section">
-                <div class="section-header">
-                  <h3>Email Content</h3>
-                  <p>Customize your message</p>
-                </div>
-
-                <label>Subject Line
-                  <input type="text" id="emailSubject" placeholder="Professional subject line..." required>
-                  <div class="input-hint" id="subjectHint"></div>
-                </label>
-
-                <label>Email Body
-                    <textarea id="middleContent" rows="10" placeholder="Write the main body of your email here..." spellcheck="true"></textarea>
-                  <div class="input-hint" id="bodyHint"></div>
-                </label>
-
-                  <label id="internRoleWrap" class="hidden">Intern Role
-                    <select id="internRoleSelect">
-                      <option value="">Select role</option>
-                      <option value="AI Intern">AI Intern</option>
-                      <option value="Frontend Intern">Frontend Intern</option>
-                      <option value="Backend Intern">Backend Intern</option>
-                      <option value="UI/UX Intern">UI/UX Intern</option>
-                      <option value="Testing Intern">Testing Intern</option>
-                      <option value="Marketing Intern">Marketing Intern</option>
-                      <option value="Research Intern">Research Intern</option>
-                    </select>
-                  </label>
-
-                <!-- HTML Source Code Editor -->
-                <div id="htmlEditorWrap" class="html-editor-wrap">
-                  <div class="html-editor-header">
-                    <button type="button" class="btn btn-secondary btn-sm" id="toggleHtmlEditor">Edit HTML Source</button>
-                    <span class="html-editor-hint">Edit the full HTML template code directly</span>
+                <div class="stat-content">
+                  <p class="stat-label">Active Users</p>
+                  <div class="stat-value-row">
+                    <span class="stat-value" id="statUsers">0</span>
+                    <span class="stat-trend positive">↑ 12%</span>
                   </div>
-                  <div id="htmlEditorContainer" class="hidden">
-                    <textarea id="htmlSourceEditor" rows="20" spellcheck="false" class="html-source-editor" placeholder="Paste or edit raw HTML email template here..."></textarea>
-                    <div class="html-editor-actions">
-                      <button type="button" class="btn btn-secondary btn-sm" id="applyHtmlBtn">Apply HTML to Preview</button>
-                      <button type="button" class="btn btn-secondary btn-sm" id="copyHtmlBtn">Copy HTML</button>
-                      <button type="button" class="btn btn-secondary btn-sm" id="loadCurrentHtmlBtn">Load Current Template</button>
-                    </div>
+                  <p class="stat-meta">from last month</p>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #059669, #047857);">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline>
+                  </svg>
+                </div>
+                <div class="stat-content">
+                  <p class="stat-label">Active Projects</p>
+                  <div class="stat-value-row">
+                    <span class="stat-value" id="statProjects">0</span>
+                    <span class="stat-trend positive">↑ 8%</span>
+                  </div>
+                  <p class="stat-meta">in progress</p>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #DC2626, #B91C1C);">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                </div>
+                <div class="stat-content">
+                  <p class="stat-label">Pending Actions</p>
+                  <div class="stat-value-row">
+                    <span class="stat-value" id="statPending">0</span>
+                    <span class="stat-trend neutral">→</span>
+                  </div>
+                  <p class="stat-meta">awaiting response</p>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2V17zm4 0h-2V7h2V17zm4 0h-2v-4h2V17z"></path>
+                  </svg>
+                </div>
+                <div class="stat-content">
+                  <p class="stat-label">This Month</p>
+                  <div class="stat-value-row">
+                    <span class="stat-value" id="statThisMonth">0</span>
+                    <span class="stat-trend neutral">→</span>
+                  </div>
+                  <p class="stat-meta">registrations</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="dashboard-grid">
+              <!-- Activity Feed -->
+              <div class="card">
+                <div class="card-header">
+                  <h3>Recent Activity</h3>
+                  <button class="icon-btn small" aria-label="View more">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="activity-feed" id="activityFeed">
+                  <div class="empty-state">
+                    <p>No recent activity</p>
                   </div>
                 </div>
               </div>
 
-              <input type="hidden" id="emailBody" required>
-
-              <!-- Action Buttons -->
-              <div class="composer-actions">
-                <button type="button" class="btn btn-secondary" id="regenerateTemplate">Regenerate Template</button>
-                <button type="button" class="btn btn-secondary" id="saveDraftBtn">Save as Draft</button>
-                <button type="submit" class="btn btn-primary" id="sendEmailBtn">Send Email</button>
-              </div>
-              <div id="composerStatus" class="status"></div>
-            </div>
-
-            <!-- Right Panel: Preview -->
-            <div class="composer-preview">
-              <div class="preview-header">
-                <h3>Live Email Preview</h3>
-                <p>See how your email will look</p>
-              </div>
-              <div class="preview-info">
-                <div class="preview-item">
-                  <span class="preview-label">Subject:</span>
-                  <span id="previewSubject" class="preview-value">—</span>
+              <!-- Quick Actions -->
+              <div class="card">
+                <div class="card-header">
+                  <h3>Quick Actions</h3>
                 </div>
-                <div class="preview-item">
-                  <span class="preview-label">Recipients:</span>
-                  <span id="previewRecipients" class="preview-value">—</span>
+                <div class="quick-actions">
+                  <button class="action-btn" data-view="users">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span>Manage Users</span>
+                  </button>
+                  <button class="action-btn" data-view="projects">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline>
+                    </svg>
+                    <span>Create Project</span>
+                  </button>
+                  <button class="action-btn" data-view="notifications">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                      <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span>Send Message</span>
+                  </button>
+                  <button class="action-btn" data-view="reports">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2V17zm4 0h-2V7h2V17zm4 0h-2v-4h2V17z"></path>
+                    </svg>
+                    <span>Generate Report</span>
+                  </button>
                 </div>
               </div>
-              <iframe id="emailPreviewFrame" title="Email Preview"></iframe>
             </div>
           </div>
-        </form>
-      </section>
+        </section>
 
-      <section class="tab-panel hidden" id="panel-forms">
-        <div class="panel-toolbar">
-          <input type="text" id="formsSearch" placeholder="Search forms...">
-          <button class="btn btn-primary" id="createFormBtn">+ Create Form</button>
-        </div>
-        <div id="formsList" class="forms-grid"></div>
-      </section>
-
-      <section class="tab-panel hidden" id="panel-form-builder">
-        <div class="panel-toolbar">
-          <button class="btn btn-secondary" id="backToFormsBtn">&larr; Back to Forms</button>
-          <div style="flex:1"></div>
-          <span id="formBuilderStatus" class="muted" style="margin-right:12px"></span>
-          <button class="btn btn-primary" id="saveFormBtn">Save Form</button>
-        </div>
-        <div class="fb-layout">
-          <div class="fb-main">
-            <div class="fb-header-card">
-              <input type="text" id="fbTitle" class="fb-title-input" placeholder="Untitled Form" required>
-              <input type="text" id="fbDescription" class="fb-desc-input" placeholder="Form description (optional)">
+        <!-- USERS VIEW -->
+        <section id="view-users" class="view">
+          <div class="page-content">
+            <div class="page-header">
+              <h2>Users & Teams</h2>
+              <button class="btn btn-primary" id="addUserBtn">+ Add User</button>
             </div>
-            <div id="fbSections" class="fb-sections"></div>
-            <button type="button" class="btn btn-secondary fb-add-section" id="fbAddSection">+ Add Section</button>
-          </div>
-          <div class="fb-sidebar">
-            <div class="fb-sidebar-card">
-              <h4>Form Link</h4>
-              <div id="fbLinkWrap" class="fb-link-wrap">
-                <span class="muted">Save form to generate link</span>
+            <div class="card">
+              <div class="table-toolbar">
+                <input type="text" class="search-input" placeholder="Search users...">
+                <select class="filter-select">
+                  <option>All Statuses</option>
+                  <option>Active</option>
+                  <option>Invited</option>
+                  <option>Suspended</option>
+                </select>
               </div>
-            </div>
-            <div class="fb-sidebar-card">
-              <h4>Status</h4>
-              <label class="fb-toggle-label">
-                <input type="checkbox" id="fbActive" checked> Accepting responses
-              </label>
-            </div>
-            <div class="fb-sidebar-card">
-              <h4>Add Field</h4>
-              <p class="muted" style="font-size:13px;margin-bottom:10px">Click a field type to add it to the last section</p>
-              <div class="fb-field-types">
-                <button type="button" class="fb-field-btn" data-type="text">Aa Text</button>
-                <button type="button" class="fb-field-btn" data-type="paragraph">¶ Paragraph</button>
-                <button type="button" class="fb-field-btn" data-type="email">@ Email</button>
-                <button type="button" class="fb-field-btn" data-type="number"># Number</button>
-                <button type="button" class="fb-field-btn" data-type="date">📅 Date</button>
-                <button type="button" class="fb-field-btn" data-type="phone">📞 Phone</button>
-                <button type="button" class="fb-field-btn" data-type="url">🔗 URL</button>
-                <button type="button" class="fb-field-btn" data-type="dropdown">▼ Dropdown</button>
-                <button type="button" class="fb-field-btn" data-type="multiple_choice">◉ Multiple Choice</button>
-                <button type="button" class="fb-field-btn" data-type="checkbox">☑ Checkbox</button>
+              <div class="table-wrap">
+                <table id="usersTable">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Joined</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usersBody">
+                    <tr class="empty-row"><td colspan="6">No users yet</td></tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="tab-panel hidden" id="panel-form-responses">
-        <div class="panel-toolbar">
-          <button class="btn btn-secondary" id="backToFormsBtn2">&larr; Back to Forms</button>
-          <div style="flex:1"></div>
-          <span id="responseCount" class="muted" style="margin-right:12px"></span>
-          <button class="btn btn-secondary" id="exportResponsesBtn">Export CSV</button>
-        </div>
-        <h2 id="responsesFormTitle" style="margin:0 0 16px"></h2>
-        <div class="table-wrap">
-          <table>
-            <thead id="responsesHead"><tr></tr></thead>
-            <tbody id="responsesBody"></tbody>
-          </table>
-        </div>
-      </section>
+        <!-- REGISTRATIONS VIEW -->
+        <section id="view-registrations" class="view">
+          <div class="page-content">
+            <div class="page-header">
+              <h2>Registrations</h2>
+              <button class="btn btn-secondary" id="exportRegistrationsBtn">Export CSV</button>
+            </div>
+            <div class="card">
+              <div class="table-toolbar">
+                <input type="text" class="search-input" placeholder="Search by name, email...">
+              </div>
+              <div class="table-wrap">
+                <table id="registrationsTable">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Company</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="registrationsBody">
+                    <tr class="empty-row"><td colspan="5">No registrations</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ANALYTICS VIEW -->
+        <section id="view-analytics" class="view">
+          <div class="page-content">
+            <div class="page-header">
+              <h2>Analytics & Insights</h2>
+              <div class="header-controls">
+                <select class="filter-select">
+                  <option>Last 30 days</option>
+                  <option>Last 7 days</option>
+                  <option>Last 90 days</option>
+                  <option>This year</option>
+                </select>
+              </div>
+            </div>
+            <div id="analyticsContent" class="analytics-grid">
+              <div class="card">
+                <p class="muted">Loading analytics...</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SETTINGS VIEW -->
+        <section id="view-settings" class="view">
+          <div class="page-content">
+            <div class="page-header">
+              <h2>Settings & Configuration</h2>
+            </div>
+            <div class="settings-grid">
+              <div class="card">
+                <h3>Organization</h3>
+                <form class="settings-form">
+                  <label class="form-group">
+                    <span class="form-label">Organization Name</span>
+                    <input type="text" id="orgName" placeholder="Qaulium AI">
+                  </label>
+                  <label class="form-group">
+                    <span class="form-label">Primary Contact Email</span>
+                    <input type="email" id="orgEmail">
+                  </label>
+                  <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+              </div>
+
+              <div class="card">
+                <h3>Security Settings</h3>
+                <div class="settings-list">
+                  <label class="settings-toggle">
+                    <input type="checkbox" checked>
+                    <span>Require MFA for all admins</span>
+                  </label>
+                  <label class="settings-toggle">
+                    <input type="checkbox">
+                    <span>IP Allowlist enabled</span>
+                  </label>
+                  <label class="settings-toggle">
+                    <input type="checkbox" checked>
+                    <span>Immutable audit logs</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PROJECTS VIEW -->
+        <section id="view-projects" class="view">
+          <div class="page-content">
+            <div class="page-header">
+              <h2>Projects</h2>
+              <button class="btn btn-primary" id="createProjectBtn">+ New Project</button>
+            </div>
+            <div id="projectsList" class="projects-grid"></div>
+          </div>
+        </section>
+
+        <!-- CONTACTS VIEW -->
+        <section id="view-contacts" class="view">
+          <div class="page-content">
+            <div class="page-header">
+              <h2>Contacts</h2>
+            </div>
+            <div class="card">
+              <div class="table-toolbar">
+                <input type="text" class="search-input" placeholder="Search contacts...">
+              </div>
+              <div class="table-wrap">
+                <table id="contactsTable">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Message</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="contactsBody">
+                    <tr class="empty-row"><td colspan="5">No contacts</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CAREERS VIEW -->
+        <section id="view-careers" class="view">
+          <div class="page-content">
+            <div class="page-header">
+              <h2>Career Applications</h2>
+            </div>
+            <div class="card">
+              <div class="table-toolbar">
+                <input type="text" class="search-input" placeholder="Search applicants...">
+                <select class="filter-select">
+                  <option value="">All Roles</option>
+                  <option value="AI Intern">AI Intern</option>
+                  <option value="Frontend Intern">Frontend Intern</option>
+                  <option value="Backend Intern">Backend Intern</option>
+                </select>
+              </div>
+              <div class="table-wrap">
+                <table id="careersTable">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>University</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="careersBody">
+                    <tr class="empty-row"><td colspan="6">No applications</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- NOTIFICATIONS VIEW -->
+        <section id="view-notifications" class="view">
+          <div class="page-content">
+            <div class="page-header">
+              <h2>Notifications & Communications</h2>
+              <button class="btn btn-primary" id="sendNotificationBtn">+ Send Message</button>
+            </div>
+            <div id="notificationsContent" class="notifications-grid"></div>
+          </div>
+        </section>
+
+        <!-- REPORTS VIEW -->
+        <section id="view-reports" class="view">
+          <div class="page-content">
+            <div class="page-header">
+              <h2>Reports</h2>
+            </div>
+            <div id="reportsContent" class="reports-grid"></div>
+          </div>
+        </section>
+
+      </div>
     </main>
-  </div>
-
-  <div id="recordModal" class="modal hidden" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="recordModalTitle">
-      <div class="modal-header">
-        <h3 id="recordModalTitle">Edit Record</h3>
-        <button type="button" class="modal-close" id="recordModalClose" aria-label="Close">×</button>
-      </div>
-      <form id="recordForm" class="modal-form">
-        <div id="recordFormFields" class="modal-fields"></div>
-        <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" id="recordCancelBtn">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="recordSaveBtn">Save Changes</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div id="confirmModal" class="modal hidden" aria-hidden="true">
-    <div class="modal-card modal-card-sm" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
-      <div class="modal-header">
-        <h3 id="confirmModalTitle">Confirm Action</h3>
-        <button type="button" class="modal-close" id="confirmModalClose" aria-label="Close">×</button>
-      </div>
-      <div class="modal-body">
-        <p id="confirmModalMessage" class="muted">Are you sure?</p>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-secondary" id="confirmCancelBtn">Cancel</button>
-        <button type="button" class="btn btn-secondary danger" id="confirmOkBtn">Delete</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="analyticsDetailModal" class="modal hidden" aria-hidden="true">
-    <div class="modal-card modal-card-lg" role="dialog" aria-modal="true" aria-labelledby="analyticsDetailTitle">
-      <div class="modal-header">
-        <h3 id="analyticsDetailTitle">Analytics Detail</h3>
-        <button type="button" class="modal-close" id="analyticsDetailClose" aria-label="Close">&times;</button>
-      </div>
-      <div class="modal-body" id="analyticsDetailBody"></div>
-    </div>
   </div>
 
   <script src="app.js"></script>

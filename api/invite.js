@@ -19,7 +19,7 @@ module.exports = async (req, res) => {
         }
 
         // Use Firebase deployment URL as the main application frontend
-        const baseUrl = process.env.FRONTEND_URL || 'https://qualium-ai.web.app';
+        const baseUrl = process.env.FRONTEND_URL || 'https://workspace.qauliumai.in';
 
         const onboardingUrl = `${baseUrl}/onboarding/?id=${inviteId}&token=${token}`;
 

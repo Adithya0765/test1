@@ -1,18 +1,24 @@
 {
-  "framework": null,
+  "version": 2,
+  "framework": "node",
+  "buildCommand": "npm run build",
+  "outputDirectory": "public",
   "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,OPTIONS" }
+      ]
+    }
+  ],
   "rewrites": [
-    { "source": "/api/send-otp", "destination": "/api/send-otp.js" },
-    { "source": "/api/verify-otp", "destination": "/api/verify-otp.js" },
-    { "source": "/api/setup-totp", "destination": "/api/setup-totp.js" },
-    { "source": "/api/verify-totp", "destination": "/api/verify-totp.js" },
-    { "source": "/api/invite", "destination": "/api/invite.js" },
-    { "source": "/api/(.*)", "destination": "/api" },
-    { "source": "/forms/:slug", "destination": "/api" },
     { "source": "/careers", "destination": "/careers.html" },
     { "source": "/careers/apply", "destination": "/careers-apply.html" },
     { "source": "/registration", "destination": "/registration.html" },
     { "source": "/pre-register", "destination": "/registration.html" },
-    { "source": "/pre-registration", "destination": "/registration.html" }
+    { "source": "/pre-registration", "destination": "/registration.html" },
+    { "source": "/forms/(.*)", "destination": "/forms.html" }
   ]
 }

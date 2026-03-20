@@ -832,6 +832,14 @@ if (HAS_POSTGRES) {
                 state_json TEXT NOT NULL DEFAULT '{}',
                 updated_at TEXT DEFAULT (datetime('now'))
             );
+
+            CREATE TABLE IF NOT EXISTS password_reset_tokens (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL,
+                token TEXT NOT NULL UNIQUE,
+                expires_at TEXT NOT NULL,
+                created_at TEXT DEFAULT (datetime('now'))
+            );
         `);
 
         try { db.prepare("INSERT OR IGNORE INTO admin_runtime_settings (id, locale, country, realtime_enabled) VALUES (1, 'en', 'all', 1)").run(); } catch (e) {}
@@ -888,6 +896,12 @@ if (HAS_POSTGRES) {
     console.log('No persistent DB configured on Vercel. Add POSTGRES_URL to enable storage.');
 }
 
+// --- Initialize Password Reset Table ---
+if (db) {
+    // This will be properly initialized when the module is loaded
+    // passwordResetModule.initializePwdResetTable(db) is called during module initialization
+}
+
 // --- Email Configuration ---
 // IMPORTANT: Replace these with your actual email credentials before deployment.
 // For production, use environment variables:
@@ -916,6 +930,10 @@ try {
 } catch (err) {
     console.error('Email transporter setup failed:', err.message);
 }
+
+// --- Initialize Password Reset Module ---
+const passwordResetModule = require('./api/password-reset.js');
+passwordResetModule.initializePasswordReset(db, HAS_POSTGRES, pgQuery, transporter, SMTP_FROM);
 
 // --- Email Template ---
 function buildConfirmationEmail(firstName) {
@@ -3422,6 +3440,14 @@ app.post('/api/verify-otp', require('./api/verify-otp.js'));
 app.post('/api/setup-totp', require('./api/setup-totp.js'));
 app.post('/api/verify-totp', require('./api/verify-totp.js'));
 app.post('/api/invite', require('./api/invite.js'));
+
+// --- Password Reset Routes ---
+app.post('/api/password-reset/request', passwordResetModule.handlePasswordResetRequest);
+app.post('/api/password-reset/verify-token', passwordResetModule.handleVerifyToken);
+app.post('/api/password-reset/reset', passwordResetModule.handlePasswordReset);
+app.get('/password-reset', (req, res) => {
+    res.sendFile(path.join(__dirname, 'password-reset.html'));
+});
 
 // --- Start Server (skip on Vercel) ---
 if (!process.env.VERCEL) {
