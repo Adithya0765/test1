@@ -932,8 +932,19 @@ try {
 }
 
 // --- Initialize Password Reset Module ---
-const passwordResetModule = require('./api/password-reset.js');
-passwordResetModule.initializePasswordReset(db, HAS_POSTGRES, pgQuery, transporter, SMTP_FROM);
+let passwordResetModule;
+try {
+    passwordResetModule = require('./api/password-reset.js');
+    passwordResetModule.initializePasswordReset(db, HAS_POSTGRES, pgQuery, transporter, SMTP_FROM);
+} catch (err) {
+    console.error('Password reset module initialization failed:', err.message);
+    // Provide fallback so server doesn't crash
+    passwordResetModule = {
+        handlePasswordResetRequest: (req, res) => res.status(500).json({ success: false, message: 'Password reset service unavailable' }),
+        handleVerifyToken: (req, res) => res.status(500).json({ success: false, message: 'Password reset service unavailable' }),
+        handlePasswordReset: (req, res) => res.status(500).json({ success: false, message: 'Password reset service unavailable' })
+    };
+}
 
 // --- Email Template ---
 function buildConfirmationEmail(firstName) {
@@ -3435,11 +3446,15 @@ app.get('/api/careers', requireAdminAuth, async (req, res) => {
 });
 
 // --- Employee Portal API Routes ---
-app.post('/api/send-otp', require('./api/send-otp.js'));
-app.post('/api/verify-otp', require('./api/verify-otp.js'));
-app.post('/api/setup-totp', require('./api/setup-totp.js'));
-app.post('/api/verify-totp', require('./api/verify-totp.js'));
-app.post('/api/invite', require('./api/invite.js'));
+try {
+    app.post('/api/send-otp', require('./api/send-otp.js'));
+    app.post('/api/verify-otp', require('./api/verify-otp.js'));
+    app.post('/api/setup-totp', require('./api/setup-totp.js'));
+    app.post('/api/verify-totp', require('./api/verify-totp.js'));
+    app.post('/api/invite', require('./api/invite.js'));
+} catch (err) {
+    console.error('Employee portal API routes initialization failed:', err.message);
+}
 
 // --- Password Reset Routes ---
 app.post('/api/password-reset/request', passwordResetModule.handlePasswordResetRequest);
