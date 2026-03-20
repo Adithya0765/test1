@@ -2581,6 +2581,81 @@ app.patch('/api/admin/settings', requireAdminAuth, requireAdminPermission('setti
     }
 });
 
+app.get('/api/admin/registrations/:id', requireAdminAuth, async (req, res) => {
+    try {
+        const id = parseAdminId(req, res);
+        if (!id) return;
+
+        let row = null;
+        if (HAS_POSTGRES) {
+            await ensurePostgresSchema();
+            const result = await pgQuery('SELECT * FROM registrations WHERE id = $1 LIMIT 1', [id]);
+            row = (result.rows || [])[0] || null;
+        } else if (db) {
+            row = db.prepare('SELECT * FROM registrations WHERE id = ? LIMIT 1').get(id) || null;
+        }
+
+        if (!row) {
+            return res.status(404).json({ success: false, message: 'Registration not found.' });
+        }
+
+        return res.json({ success: true, data: row });
+    } catch (err) {
+        console.error('Admin registration fetch error:', err.message);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+});
+
+app.get('/api/admin/contacts/:id', requireAdminAuth, async (req, res) => {
+    try {
+        const id = parseAdminId(req, res);
+        if (!id) return;
+
+        let row = null;
+        if (HAS_POSTGRES) {
+            await ensurePostgresSchema();
+            const result = await pgQuery('SELECT * FROM contact_messages WHERE id = $1 LIMIT 1', [id]);
+            row = (result.rows || [])[0] || null;
+        } else if (db) {
+            row = db.prepare('SELECT * FROM contact_messages WHERE id = ? LIMIT 1').get(id) || null;
+        }
+
+        if (!row) {
+            return res.status(404).json({ success: false, message: 'Contact message not found.' });
+        }
+
+        return res.json({ success: true, data: row });
+    } catch (err) {
+        console.error('Admin contact fetch error:', err.message);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+});
+
+app.get('/api/admin/careers/:id', requireAdminAuth, async (req, res) => {
+    try {
+        const id = parseAdminId(req, res);
+        if (!id) return;
+
+        let row = null;
+        if (HAS_POSTGRES) {
+            await ensurePostgresSchema();
+            const result = await pgQuery('SELECT * FROM career_applications WHERE id = $1 LIMIT 1', [id]);
+            row = (result.rows || [])[0] || null;
+        } else if (db) {
+            row = db.prepare('SELECT * FROM career_applications WHERE id = ? LIMIT 1').get(id) || null;
+        }
+
+        if (!row) {
+            return res.status(404).json({ success: false, message: 'Career application not found.' });
+        }
+
+        return res.json({ success: true, data: row });
+    } catch (err) {
+        console.error('Admin career fetch error:', err.message);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+});
+
 app.put('/api/admin/registrations/:id', requireAdminAuth, async (req, res) => {
     try {
         const id = parseAdminId(req, res);
