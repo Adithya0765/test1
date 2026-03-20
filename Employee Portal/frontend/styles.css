@@ -1,5 +1,0 @@
-﻿/* Frontend Developer dashboard specific styles */
-.role-accent { color: #3B82F6 !important; }
-@media (max-width: 768px) {
-    #mainContent > div > div { grid-template-columns: 1fr !important; }
-}
