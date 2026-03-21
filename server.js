@@ -42,6 +42,8 @@ const pendingAdminOtps = new Map();
 const adminWsClients = new Set();
 const ADMIN_RUNTIME_SAMPLE_LIMIT = 200;
 const ADMIN_DASHBOARD_CACHE_TTL_MS = 5000;
+const CONTACT_WORKFLOW_STATUSES = ['new', 'in_progress', 'replied', 'closed'];
+const CAREER_WORKFLOW_STATUSES = ['applied', 'screening', 'interview', 'accepted', 'rejected'];
 const adminRuntimeMetrics = {
     startedAt: Date.now(),
     requestCount: 0,
@@ -215,6 +217,42 @@ function getRuntimeMonitoringSnapshot() {
         lastUpdatedAt: adminRuntimeMetrics.lastUpdatedAt,
         startedAt: new Date(adminRuntimeMetrics.startedAt).toISOString()
     };
+}
+
+function normalizeWorkflowStatus(value, allowed, fallback) {
+    const normalized = String(value || '').trim().toLowerCase().replace(/\s+/g, '_');
+    if (!normalized) return fallback;
+    return allowed.includes(normalized) ? normalized : fallback;
+}
+
+async function appendAdminAuditLog(req, action, resourceType, resourceId, payload) {
+    try {
+        const actorEmail = String((req.admin && req.admin.email) || ADMIN_LOGIN_EMAIL || 'admin@qauliumai.in').trim().toLowerCase();
+        const actorRole = normalizeAdminRole((req.admin && req.admin.role) || ADMIN_LOGIN_ROLE || 'admin');
+        const safeAction = String(action || 'unknown.action').trim().slice(0, 120);
+        const safeResourceType = String(resourceType || 'unknown').trim().slice(0, 80);
+        const safeResourceId = String(resourceId || '').trim().slice(0, 80);
+        const payloadJson = JSON.stringify(payload || {});
+
+        if (HAS_POSTGRES) {
+            await ensurePostgresSchema();
+            await pgQuery(
+                `INSERT INTO admin_audit_logs (actor_email, actor_role, action, resource_type, resource_id, payload_json)
+                 VALUES ($1, $2, $3, $4, $5, $6)`,
+                [actorEmail, actorRole, safeAction, safeResourceType, safeResourceId, payloadJson]
+            );
+            return;
+        }
+
+        if (db) {
+            db.prepare(
+                `INSERT INTO admin_audit_logs (actor_email, actor_role, action, resource_type, resource_id, payload_json)
+                 VALUES (?, ?, ?, ?, ?, ?)`
+            ).run(actorEmail, actorRole, safeAction, safeResourceType, safeResourceId, payloadJson);
+        }
+    } catch (e) {
+        console.warn('Admin audit log skipped:', e.message);
+    }
 }
 
 // Trust the first proxy (Vercel, etc.) so express-rate-limit reads X-Forwarded-For correctly
@@ -535,6 +573,10 @@ async function ensurePostgresSchema() {
                 )
             `);
 
+            await pgSchemaQuery(`ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS workflow_status TEXT DEFAULT 'new'`);
+            await pgSchemaQuery(`ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS owner TEXT DEFAULT ''`);
+            await pgSchemaQuery(`ALTER TABLE contact_messages ADD COLUMN IF NOT EXISTS internal_note TEXT DEFAULT ''`);
+
             await pgSchemaQuery(`
                 CREATE TABLE IF NOT EXISTS career_applications (
                     id SERIAL PRIMARY KEY,
@@ -562,6 +604,22 @@ async function ensurePostgresSchema() {
             await pgSchemaQuery(`ALTER TABLE career_applications ADD COLUMN IF NOT EXISTS degree TEXT DEFAULT ''`);
             await pgSchemaQuery(`ALTER TABLE career_applications ADD COLUMN IF NOT EXISTS graduation_year INTEGER DEFAULT 0`);
             await pgSchemaQuery(`ALTER TABLE career_applications ADD COLUMN IF NOT EXISTS availability TEXT DEFAULT ''`);
+            await pgSchemaQuery(`ALTER TABLE career_applications ADD COLUMN IF NOT EXISTS workflow_status TEXT DEFAULT 'applied'`);
+            await pgSchemaQuery(`ALTER TABLE career_applications ADD COLUMN IF NOT EXISTS owner TEXT DEFAULT ''`);
+            await pgSchemaQuery(`ALTER TABLE career_applications ADD COLUMN IF NOT EXISTS internal_note TEXT DEFAULT ''`);
+
+            await pgSchemaQuery(`
+                CREATE TABLE IF NOT EXISTS admin_audit_logs (
+                    id SERIAL PRIMARY KEY,
+                    actor_email TEXT NOT NULL,
+                    actor_role TEXT DEFAULT 'admin',
+                    action TEXT NOT NULL,
+                    resource_type TEXT DEFAULT '',
+                    resource_id TEXT DEFAULT '',
+                    payload_json TEXT DEFAULT '{}',
+                    created_at TIMESTAMPTZ DEFAULT NOW()
+                )
+            `);
 
             await pgSchemaQuery(`DROP INDEX IF EXISTS idx_contact_messages_email`);
             await pgSchemaQuery(`DROP INDEX IF EXISTS idx_career_applications_email`);
@@ -727,7 +785,10 @@ if (HAS_POSTGRES) {
                 email TEXT NOT NULL,
                 company TEXT DEFAULT '',
                 message TEXT NOT NULL,
-                sent_at TEXT DEFAULT (datetime('now'))
+                sent_at TEXT DEFAULT (datetime('now')),
+                workflow_status TEXT DEFAULT 'new',
+                owner TEXT DEFAULT '',
+                internal_note TEXT DEFAULT ''
             );
 
             CREATE TABLE IF NOT EXISTS career_applications (
@@ -748,7 +809,10 @@ if (HAS_POSTGRES) {
                 portfolio_url TEXT DEFAULT '',
                 resume_url TEXT NOT NULL,
                 cover_letter TEXT NOT NULL,
-                applied_at TEXT DEFAULT (datetime('now'))
+                applied_at TEXT DEFAULT (datetime('now')),
+                workflow_status TEXT DEFAULT 'applied',
+                owner TEXT DEFAULT '',
+                internal_note TEXT DEFAULT ''
             );
         `);
 
@@ -756,6 +820,12 @@ if (HAS_POSTGRES) {
         try { db.prepare('ALTER TABLE career_applications ADD COLUMN degree TEXT DEFAULT ""').run(); } catch (e) {}
         try { db.prepare('ALTER TABLE career_applications ADD COLUMN graduation_year INTEGER DEFAULT 0').run(); } catch (e) {}
         try { db.prepare('ALTER TABLE career_applications ADD COLUMN availability TEXT DEFAULT ""').run(); } catch (e) {}
+        try { db.prepare('ALTER TABLE contact_messages ADD COLUMN workflow_status TEXT DEFAULT "new"').run(); } catch (e) {}
+        try { db.prepare('ALTER TABLE contact_messages ADD COLUMN owner TEXT DEFAULT ""').run(); } catch (e) {}
+        try { db.prepare('ALTER TABLE contact_messages ADD COLUMN internal_note TEXT DEFAULT ""').run(); } catch (e) {}
+        try { db.prepare('ALTER TABLE career_applications ADD COLUMN workflow_status TEXT DEFAULT "applied"').run(); } catch (e) {}
+        try { db.prepare('ALTER TABLE career_applications ADD COLUMN owner TEXT DEFAULT ""').run(); } catch (e) {}
+        try { db.prepare('ALTER TABLE career_applications ADD COLUMN internal_note TEXT DEFAULT ""').run(); } catch (e) {}
 
         try { db.prepare('CREATE UNIQUE INDEX IF NOT EXISTS idx_contact_messages_email ON contact_messages(email)').run(); } catch (e) {}
         try { db.prepare('CREATE UNIQUE INDEX IF NOT EXISTS idx_career_applications_email ON career_applications(email)').run(); } catch (e) {}
@@ -862,6 +932,17 @@ if (HAS_POSTGRES) {
                 email TEXT NOT NULL,
                 token TEXT NOT NULL UNIQUE,
                 expires_at TEXT NOT NULL,
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+
+            CREATE TABLE IF NOT EXISTS admin_audit_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                actor_email TEXT NOT NULL,
+                actor_role TEXT DEFAULT 'admin',
+                action TEXT NOT NULL,
+                resource_type TEXT DEFAULT '',
+                resource_id TEXT DEFAULT '',
+                payload_json TEXT DEFAULT '{}',
                 created_at TEXT DEFAULT (datetime('now'))
             );
         `);
@@ -2073,6 +2154,58 @@ app.get('/api/admin/careers', requireAdminAuth, async (req, res) => {
     }
 });
 
+app.get('/api/admin/activity', requireAdminAuth, async (req, res) => {
+    try {
+        const requested = parseInt(String((req.query || {}).limit || '50'), 10);
+        const limit = Number.isFinite(requested) ? Math.max(1, Math.min(200, requested)) : 50;
+
+        let rows = [];
+        if (HAS_POSTGRES) {
+            await ensurePostgresSchema();
+            const result = await pgQuery(
+                `SELECT id, actor_email, actor_role, action, resource_type, resource_id, payload_json, created_at
+                 FROM admin_audit_logs
+                 ORDER BY created_at DESC
+                 LIMIT $1`,
+                [limit]
+            );
+            rows = result.rows || [];
+        } else if (db) {
+            rows = db.prepare(
+                `SELECT id, actor_email, actor_role, action, resource_type, resource_id, payload_json, created_at
+                 FROM admin_audit_logs
+                 ORDER BY datetime(created_at) DESC
+                 LIMIT ?`
+            ).all(limit);
+        }
+
+        const data = rows.map(function (row) {
+            let payload = {};
+            try {
+                payload = row.payload_json ? JSON.parse(row.payload_json) : {};
+            } catch (e) {
+                payload = {};
+            }
+
+            return {
+                id: row.id,
+                actor_email: row.actor_email,
+                actor_role: row.actor_role,
+                action: row.action,
+                resource_type: row.resource_type,
+                resource_id: row.resource_id,
+                payload: payload,
+                created_at: row.created_at
+            };
+        });
+
+        return res.json({ success: true, count: data.length, data: data });
+    } catch (err) {
+        console.error('Admin activity error:', err.message);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+});
+
 function parseAdminId(req, res) {
     const id = parseInt(req.params.id, 10);
     if (!Number.isInteger(id) || id <= 0) {
@@ -2707,6 +2840,7 @@ app.put('/api/admin/registrations/:id', requireAdminAuth, async (req, res) => {
         if (!updated) {
             return res.status(404).json({ success: false, message: 'Registration not found.' });
         }
+        await appendAdminAuditLog(req, 'registration.updated', 'registration', id, { email: email, company: company, role: role });
         invalidateAdminDashboardCache();
         return res.json({ success: true, message: 'Registration updated.' });
     } catch (err) {
@@ -2733,6 +2867,7 @@ app.delete('/api/admin/registrations/:id', requireAdminAuth, async (req, res) =>
         if (!deleted) {
             return res.status(404).json({ success: false, message: 'Registration not found.' });
         }
+        await appendAdminAuditLog(req, 'registration.deleted', 'registration', id, {});
         invalidateAdminDashboardCache();
         return res.json({ success: true, message: 'Registration deleted.' });
     } catch (err) {
@@ -2751,6 +2886,9 @@ app.put('/api/admin/contacts/:id', requireAdminAuth, async (req, res) => {
         const email = String(payload.email || '').trim().toLowerCase();
         const company = String(payload.company || '').trim();
         const message = String(payload.message || '').trim();
+        const workflowStatus = normalizeWorkflowStatus(payload.workflow_status, CONTACT_WORKFLOW_STATUSES, 'new');
+        const owner = String(payload.owner || '').trim().slice(0, 120);
+        const internalNote = String(payload.internal_note || '').trim().slice(0, 1000);
 
         if (!name || !email || !message) {
             return res.status(400).json({ success: false, message: 'name, email and message are required.' });
@@ -2761,23 +2899,26 @@ app.put('/api/admin/contacts/:id', requireAdminAuth, async (req, res) => {
             await ensurePostgresSchema();
             const result = await pgQuery(
                 `UPDATE contact_messages
-                 SET name = $1, email = $2, company = $3, message = $4
-                 WHERE id = $5`,
-                [name, email, company, message, id]
+                 SET name = $1, email = $2, company = $3, message = $4,
+                     workflow_status = $5, owner = $6, internal_note = $7
+                 WHERE id = $8`,
+                [name, email, company, message, workflowStatus, owner, internalNote, id]
             );
             updated = (result.rowCount || 0) > 0;
         } else if (db) {
             const result = db.prepare(
                 `UPDATE contact_messages
-                 SET name = ?, email = ?, company = ?, message = ?
+                 SET name = ?, email = ?, company = ?, message = ?,
+                     workflow_status = ?, owner = ?, internal_note = ?
                  WHERE id = ?`
-            ).run(name, email, company, message, id);
+            ).run(name, email, company, message, workflowStatus, owner, internalNote, id);
             updated = (result.changes || 0) > 0;
         }
 
         if (!updated) {
             return res.status(404).json({ success: false, message: 'Contact message not found.' });
         }
+        await appendAdminAuditLog(req, 'contact.updated', 'contact', id, { workflowStatus: workflowStatus, owner: owner });
         invalidateAdminDashboardCache();
         return res.json({ success: true, message: 'Contact message updated.' });
     } catch (err) {
@@ -2804,6 +2945,7 @@ app.delete('/api/admin/contacts/:id', requireAdminAuth, async (req, res) => {
         if (!deleted) {
             return res.status(404).json({ success: false, message: 'Contact message not found.' });
         }
+        await appendAdminAuditLog(req, 'contact.deleted', 'contact', id, {});
         invalidateAdminDashboardCache();
         return res.json({ success: true, message: 'Contact message deleted.' });
     } catch (err) {
@@ -2834,6 +2976,9 @@ app.put('/api/admin/careers/:id', requireAdminAuth, async (req, res) => {
         const coverLetter = String(payload.cover_letter || '').trim();
         const currentCompany = String(payload.current_company || '').trim();
         const experienceYears = parseInt(payload.experience_years || 0, 10) || 0;
+        const workflowStatus = normalizeWorkflowStatus(payload.workflow_status, CAREER_WORKFLOW_STATUSES, 'applied');
+        const owner = String(payload.owner || '').trim().slice(0, 120);
+        const internalNote = String(payload.internal_note || '').trim().slice(0, 1000);
 
         if (!firstName || !lastName || !email || !roleApplied) {
             return res.status(400).json({ success: false, message: 'first_name, last_name, email and role_applied are required.' });
@@ -2847,13 +2992,14 @@ app.put('/api/admin/careers/:id', requireAdminAuth, async (req, res) => {
                  SET first_name = $1, last_name = $2, email = $3, phone = $4, role_applied = $5,
                      location = $6, university = $7, degree = $8, graduation_year = $9, availability = $10,
                      linkedin_url = $11, portfolio_url = $12, resume_url = $13, cover_letter = $14,
-                     current_company = $15, experience_years = $16
-                 WHERE id = $17`,
+                     current_company = $15, experience_years = $16,
+                     workflow_status = $17, owner = $18, internal_note = $19
+                 WHERE id = $20`,
                 [
                     firstName, lastName, email, phone, roleApplied,
                     location, university, degree, graduationYear, availability,
                     linkedinUrl, portfolioUrl, resumeUrl, coverLetter,
-                    currentCompany, experienceYears, id
+                    currentCompany, experienceYears, workflowStatus, owner, internalNote, id
                 ]
             );
             updated = (result.rowCount || 0) > 0;
@@ -2863,13 +3009,14 @@ app.put('/api/admin/careers/:id', requireAdminAuth, async (req, res) => {
                  SET first_name = ?, last_name = ?, email = ?, phone = ?, role_applied = ?,
                      location = ?, university = ?, degree = ?, graduation_year = ?, availability = ?,
                      linkedin_url = ?, portfolio_url = ?, resume_url = ?, cover_letter = ?,
-                     current_company = ?, experience_years = ?
+                     current_company = ?, experience_years = ?,
+                     workflow_status = ?, owner = ?, internal_note = ?
                  WHERE id = ?`
             ).run(
                 firstName, lastName, email, phone, roleApplied,
                 location, university, degree, graduationYear, availability,
                 linkedinUrl, portfolioUrl, resumeUrl, coverLetter,
-                currentCompany, experienceYears, id
+                currentCompany, experienceYears, workflowStatus, owner, internalNote, id
             );
             updated = (result.changes || 0) > 0;
         }
@@ -2877,6 +3024,7 @@ app.put('/api/admin/careers/:id', requireAdminAuth, async (req, res) => {
         if (!updated) {
             return res.status(404).json({ success: false, message: 'Career application not found.' });
         }
+        await appendAdminAuditLog(req, 'career.updated', 'career', id, { workflowStatus: workflowStatus, owner: owner, role: roleApplied });
         invalidateAdminDashboardCache();
         return res.json({ success: true, message: 'Career application updated.' });
     } catch (err) {
@@ -2903,6 +3051,7 @@ app.delete('/api/admin/careers/:id', requireAdminAuth, async (req, res) => {
         if (!deleted) {
             return res.status(404).json({ success: false, message: 'Career application not found.' });
         }
+        await appendAdminAuditLog(req, 'career.deleted', 'career', id, {});
         invalidateAdminDashboardCache();
         return res.json({ success: true, message: 'Career application deleted.' });
     } catch (err) {
@@ -2945,6 +3094,16 @@ app.post('/api/admin/careers/:id/action', requireAdminAuth, async (req, res) => 
             subject: template.subject,
             html: template.html
         });
+
+        const actionStatus = action === 'interview' ? 'interview' : 'accepted';
+        if (HAS_POSTGRES) {
+            await ensurePostgresSchema();
+            await pgQuery('UPDATE career_applications SET workflow_status = $1 WHERE id = $2', [actionStatus, id]);
+        } else if (db) {
+            db.prepare('UPDATE career_applications SET workflow_status = ? WHERE id = ?').run(actionStatus, id);
+        }
+
+        await appendAdminAuditLog(req, 'career.action_email_sent', 'career', id, { action: action, workflowStatus: actionStatus, recipient: row.email });
 
         invalidateAdminDashboardCache();
         return res.json({ success: true, message: `${action} email sent.` });
@@ -3390,6 +3549,12 @@ app.post('/api/admin/email/send', requireAdminAuth, async (req, res) => {
             actualCredits: emailCreditCost.estimatedCredits,
             status: 'completed',
             metadata: { audience: audience || 'all' }
+        });
+
+        await appendAdminAuditLog(req, 'email.bulk_sent', 'email', usageEventId, {
+            audience: audience || 'all',
+            recipients: recipients.length,
+            subject: String(subject).trim().slice(0, 180)
         });
 
         return res.json({ success: true, message: 'Email sent successfully.', sent: recipients.length });
