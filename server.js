@@ -3393,6 +3393,31 @@ app.get('/api/forms/:slug', async (req, res) => {
         if (!row) return res.status(404).json({ success: false, message: 'Form not found.' });
         if (!row.is_active) return res.status(403).json({ success: false, message: 'This form is no longer accepting responses.' });
         row.sections = JSON.parse(row.schema_json || '[]');
+        const isGenericQuestionLabel = (value) => /^question\s*\d+$/i.test(String(value || '').trim());
+        const toTitleCase = (value) => String(value || '')
+            .replace(/[_-]+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .replace(/\b\w/g, (c) => c.toUpperCase());
+
+        row.sections = (row.sections || []).map((section) => {
+            const sectionFields = Array.isArray(section.fields) ? section.fields : [];
+            const sectionTitle = String(section.title || '').trim();
+            const mappedFields = sectionFields.map((field, idx) => {
+                const raw = String(field.label || '').trim();
+                let label = '';
+                if (raw && !/^f_[a-z0-9]+$/i.test(raw) && !isGenericQuestionLabel(raw)) {
+                    label = raw;
+                } else if (sectionTitle) {
+                    label = sectionFields.length <= 1 ? sectionTitle : (sectionTitle + ' - Item ' + (idx + 1));
+                } else {
+                    const idLabel = toTitleCase(field.id);
+                    label = /^F [A-Za-z0-9]+$/i.test(idLabel) ? (toTitleCase(field.type) || 'Field') : (idLabel || toTitleCase(field.type) || 'Field');
+                }
+                return Object.assign({}, field, { label });
+            });
+            return Object.assign({}, section, { fields: mappedFields });
+        });
         delete row.schema_json;
         return res.json({ success: true, form: row });
     } catch (err) {
