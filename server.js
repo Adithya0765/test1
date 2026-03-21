@@ -3284,11 +3284,27 @@ app.get('/api/admin/forms/:id/responses/export', requireAdminAuth, async (req, r
 
         const sections = JSON.parse(form.schema_json || '[]');
         const fieldsList = [];
-        let fieldCounter = 0;
+        const isGenericQuestionLabel = (value) => /^question\s*\d+$/i.test(String(value || '').trim());
+        const toTitleCase = (value) => String(value || '')
+            .replace(/[_-]+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .replace(/\b\w/g, (c) => c.toUpperCase());
+
         for (const s of sections) {
-            for (const f of (s.fields || [])) {
-                fieldCounter++;
-                var lbl = (f.label && f.label.trim() && !/^f_[a-z0-9]+$/i.test(f.label.trim())) ? f.label.trim() : ('Question ' + fieldCounter);
+            const sectionFields = s.fields || [];
+            for (let idx = 0; idx < sectionFields.length; idx++) {
+                const f = sectionFields[idx];
+                const raw = String(f.label || '').trim();
+                let lbl = '';
+                if (raw && !/^f_[a-z0-9]+$/i.test(raw) && !isGenericQuestionLabel(raw)) {
+                    lbl = raw;
+                } else if (s.title && String(s.title).trim()) {
+                    lbl = sectionFields.length <= 1 ? String(s.title).trim() : (String(s.title).trim() + ' - Item ' + (idx + 1));
+                } else {
+                    const idLabel = toTitleCase(f.id);
+                    lbl = /^F [A-Za-z0-9]+$/i.test(idLabel) ? (toTitleCase(f.type) || 'Field') : (idLabel || toTitleCase(f.type) || 'Field');
+                }
                 fieldsList.push({ id: f.id, label: lbl });
             }
         }
@@ -3406,13 +3422,32 @@ app.post('/api/forms/:slug/submit', async (req, res) => {
         const { responses, email } = req.body || {};
         const data = responses || {};
 
+        const isGenericQuestionLabel = (value) => /^question\s*\d+$/i.test(String(value || '').trim());
+        const toTitleCase = (value) => String(value || '')
+            .replace(/[_-]+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .replace(/\b\w/g, (c) => c.toUpperCase());
+
         // validate required fields
         for (const section of sections) {
-            for (const field of (section.fields || [])) {
+            const sectionFields = section.fields || [];
+            for (let idx = 0; idx < sectionFields.length; idx++) {
+                const field = sectionFields[idx];
                 if (field.required) {
                     const val = data[field.id];
                     if (val === undefined || val === null || val === '' || (Array.isArray(val) && val.length === 0)) {
-                        return res.status(400).json({ success: false, message: `"${field.label}" is required.` });
+                        const raw = String(field.label || '').trim();
+                        let label = '';
+                        if (raw && !/^f_[a-z0-9]+$/i.test(raw) && !isGenericQuestionLabel(raw)) {
+                            label = raw;
+                        } else if (section.title && String(section.title).trim()) {
+                            label = sectionFields.length <= 1 ? String(section.title).trim() : (String(section.title).trim() + ' - Item ' + (idx + 1));
+                        } else {
+                            const idLabel = toTitleCase(field.id);
+                            label = /^F [A-Za-z0-9]+$/i.test(idLabel) ? (toTitleCase(field.type) || 'Field') : (idLabel || toTitleCase(field.type) || 'Field');
+                        }
+                        return res.status(400).json({ success: false, message: `"${label}" is required.` });
                     }
                 }
             }
