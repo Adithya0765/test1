@@ -821,8 +821,6 @@
     }
 
     // --- Horizontal scroll for capabilities section ---
-    // Outer div is tall. Section is sticky (stays fixed on screen).
-    // As user scrolls through the extra height of outer, cards translate left.
     (function () {
         var outer   = document.getElementById('capabilitiesOuter');
         var section = document.getElementById('capabilities');
@@ -832,22 +830,16 @@
         var cardScrollWidth = 0;
 
         function setup() {
-            // Measure how far cards need to travel
-            cardScrollWidth = track.scrollWidth - outer.offsetWidth;
+            cardScrollWidth = track.scrollWidth - section.offsetWidth;
             if (cardScrollWidth <= 0) return;
-
-            // Outer height = section height + extra scroll budget for cards
+            // Outer height = section height + scroll budget for cards
             outer.style.height = (section.offsetHeight + cardScrollWidth) + 'px';
         }
 
         function update() {
             if (cardScrollWidth <= 0) return;
-
-            var outerRect = outer.getBoundingClientRect();
-            // How far we've scrolled INTO the outer div past the sticky point
-            // outerRect.top starts at some positive value, goes negative as we scroll
-            var scrolled = -outerRect.top;
-            var progress = Math.max(0, Math.min(1, scrolled / cardScrollWidth));
+            var scrolled = Math.max(0, -outer.getBoundingClientRect().top);
+            var progress = Math.min(1, scrolled / cardScrollWidth);
             track.style.transform = 'translateX(' + (-progress * cardScrollWidth) + 'px)';
         }
 
@@ -855,15 +847,26 @@
             setup();
             update();
             window.addEventListener('scroll', update, { passive: true });
-            window.addEventListener('resize', function() {
-                outer.style.height = '';
-                setup();
-                update();
-            });
+            window.addEventListener('resize', function() { outer.style.height = ''; setup(); update(); });
         }
 
         if (document.readyState === 'complete') { init(); }
         else { window.addEventListener('load', init); }
+
+        // Touch fallback
+        var tx0 = 0, ty0 = 0, txL = 0, touch = false;
+        var container = document.getElementById('capabilitiesScroll');
+        if (container) {
+            container.addEventListener('touchstart', function(e) {
+                tx0 = txL = e.touches[0].clientX; ty0 = e.touches[0].clientY; touch = true;
+            }, { passive: true });
+            container.addEventListener('touchmove', function(e) {
+                if (!touch) return;
+                var dx = Math.abs(tx0 - e.touches[0].clientX), dy = Math.abs(ty0 - e.touches[0].clientY);
+                if (dx > dy && dx > 8) { e.preventDefault(); container.scrollLeft += txL - e.touches[0].clientX; txL = e.touches[0].clientX; }
+            }, { passive: false });
+            container.addEventListener('touchend', function() { touch = false; }, { passive: true });
+        }
     })();
 
     // --- Horizontal scroll for dev platform section ---

@@ -2792,8 +2792,9 @@ img { max-width: 100%; display: block; }
 }
 
 
-/* Capabilities horizontal track — driven by translateX via JS */
+
+/* Capabilities track — translateX driven by scroll progress */
 #capabilitiesTrack {
     will-change: transform;
-    transition: none;
+    flex-wrap: nowrap;
 }
