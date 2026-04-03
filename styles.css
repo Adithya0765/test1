@@ -1011,9 +1011,8 @@ img { max-width: 100%; display: block; }
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: column;
-    min-width: 340px;
-    max-width: 340px;
-    flex-shrink: 0;
+    flex: 1;
+    min-width: 320px;
 }
 
 .dev-card-horizontal:hover {
@@ -1381,11 +1380,6 @@ img { max-width: 100%; display: block; }
     display: flex;
     gap: 24px;
     padding: 20px 0;
-}
-
-/* Center architecture cards specifically */
-#architectureScroll .capabilities-horizontal {
-    padding: 20px max(20px, calc((100vw - 1400px) / 2));
 }
 
 .capability-card-horizontal {
