@@ -2707,9 +2707,22 @@ img { max-width: 100%; display: block; }
     z-index: 10;
 }
 
-/* Ensure dropdown only shows when triggered */
+/* Dropdown appended to body - ensure proper z-index and max height */
 .iti__country-list:not(.iti__hide) {
-    z-index: 1000;
+    z-index: 1001;
     max-height: 200px;
     overflow-y: auto;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+[data-theme="dark"] .iti__country-list {
+    background: #1a1a1a;
+    border-color: #2a2a2a;
+    color: #e5e5e5;
+}
+
+[data-theme="dark"] .iti__country-list .iti__country:hover,
+[data-theme="dark"] .iti__country-list .iti__country.iti__highlight {
+    background: #2a2a2a;
 }

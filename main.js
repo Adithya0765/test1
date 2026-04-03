@@ -446,6 +446,7 @@
             autoPlaceholder: 'polite',
             separateDialCode: true,
             loadUtilsOnInit: true,
+            dropdownContainer: document.body,
             geoIpLookup: function (callback) {
                 fetch('https://ipapi.co/json/')
                     .then(function (res) { return res.json(); })
@@ -456,7 +457,16 @@
     }
 
     itiRegPhone = null;
-    itiCareerPhone = initIntlPhoneInput('careerPhone');
+    itiCareerPhone = null;
+
+    // Init career phone lazily on page load only if the form is visible (not in a modal)
+    var careerPhoneInput = document.getElementById('careerPhone');
+    if (careerPhoneInput) {
+        // Defer init so it doesn't trigger dropdown on load
+        setTimeout(function () {
+            itiCareerPhone = initIntlPhoneInput('careerPhone');
+        }, 300);
+    }
 
     function openModal() {
         if (!registerModal) return;
