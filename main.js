@@ -825,105 +825,47 @@
         var capabilitiesScroll = document.getElementById('capabilitiesScroll');
         if (!capabilitiesScroll) return;
 
-        var maxScroll = 0;
-        var isScrolling = false;
-        var scrollTimeout;
-
-        // Touch support variables
+        // Touch support
         var touchStartX = 0;
         var touchStartY = 0;
+        var touchLastX = 0;
         var isTouching = false;
 
-        function updateMaxScroll() {
-            maxScroll = capabilitiesScroll.scrollWidth - capabilitiesScroll.clientWidth;
-        }
+        // Desktop: intercept wheel on the element itself (not window)
+        capabilitiesScroll.addEventListener('wheel', function(e) {
+            var maxScroll = capabilitiesScroll.scrollWidth - capabilitiesScroll.clientWidth;
+            var atStart = capabilitiesScroll.scrollLeft <= 2;
+            var atEnd = capabilitiesScroll.scrollLeft >= maxScroll - 2;
 
-        function isCardsInMiddle() {
-            var rect = capabilitiesScroll.getBoundingClientRect();
-            var viewportMiddle = window.innerHeight / 2;
-            return rect.top <= viewportMiddle && rect.bottom >= viewportMiddle;
-        }
+            // If scrolling vertically and at a boundary, let page scroll
+            if ((e.deltaY > 0 && atEnd) || (e.deltaY < 0 && atStart)) return;
 
-        // Desktop: Mouse wheel scroll
-        function handleWheel(e) {
-            // Only intercept if cards are in middle of viewport
-            if (!isCardsInMiddle()) {
-                return;
-            }
+            e.preventDefault();
+            capabilitiesScroll.scrollBy({ left: e.deltaY + e.deltaX, behavior: 'smooth' });
+        }, { passive: false });
 
-            updateMaxScroll();
-
-            var currentScroll = capabilitiesScroll.scrollLeft;
-            var isAtStart = currentScroll <= 2;
-            var isAtEnd = currentScroll >= maxScroll - 2;
-
-            // Determine scroll direction
-            var scrollingDown = e.deltaY > 0;
-            var scrollingUp = e.deltaY < 0;
-
-            // Only prevent default if we're not at boundaries
-            if (scrollingDown && !isAtEnd) {
-                e.preventDefault();
-                // Smooth horizontal scroll
-                capabilitiesScroll.scrollLeft += e.deltaY * 0.8;
-                isScrolling = true;
-            } else if (scrollingUp && !isAtStart) {
-                e.preventDefault();
-                // Smooth horizontal scroll
-                capabilitiesScroll.scrollLeft += e.deltaY * 0.8;
-                isScrolling = true;
-            } else {
-                // At boundary, allow normal scroll
-                isScrolling = false;
-            }
-
-            // Clear timeout and set new one
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(function() {
-                isScrolling = false;
-            }, 100);
-        }
-
-        // Mobile: Touch events - let CSS scroll-snap handle smoothness
-        function handleTouchStart(e) {
-            touchStartX = e.touches[0].clientX;
+        // Touch events
+        capabilitiesScroll.addEventListener('touchstart', function(e) {
+            touchStartX = touchLastX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
             isTouching = true;
-        }
+        }, { passive: true });
 
-        function handleTouchMove(e) {
+        capabilitiesScroll.addEventListener('touchmove', function(e) {
             if (!isTouching) return;
-
-            var touchX = e.touches[0].clientX;
-            var touchY = e.touches[0].clientY;
-            var deltaX = Math.abs(touchStartX - touchX);
-            var deltaY = Math.abs(touchStartY - touchY);
-
-            // Only prevent default if horizontal swipe is dominant
-            if (deltaX > deltaY && deltaX > 10) {
+            var dx = Math.abs(touchStartX - e.touches[0].clientX);
+            var dy = Math.abs(touchStartY - e.touches[0].clientY);
+            if (dx > dy && dx > 5) {
                 e.preventDefault();
+                var delta = touchLastX - e.touches[0].clientX;
+                capabilitiesScroll.scrollLeft += delta;
+                touchLastX = e.touches[0].clientX;
             }
-        }
+        }, { passive: false });
 
-        function handleTouchEnd() {
+        capabilitiesScroll.addEventListener('touchend', function() {
             isTouching = false;
-        }
-
-        // Listen to wheel events (works for mouse and trackpad)
-        window.addEventListener('wheel', handleWheel, { passive: false });
-        
-        // Listen to touch events for mobile
-        capabilitiesScroll.addEventListener('touchstart', handleTouchStart, { passive: true });
-        capabilitiesScroll.addEventListener('touchmove', handleTouchMove, { passive: false });
-        capabilitiesScroll.addEventListener('touchend', handleTouchEnd, { passive: true });
-        
-        window.addEventListener('resize', updateMaxScroll);
-        
-        // Initial setup
-        updateMaxScroll();
-        
-        // Update on window load to ensure correct measurements
-        window.addEventListener('load', updateMaxScroll);
+        }, { passive: true });
     })();
 
     // --- Horizontal scroll for dev platform section ---
