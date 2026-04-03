@@ -1890,6 +1890,80 @@ img { max-width: 100%; display: block; }
     .career-form .form-row { grid-template-columns: 1fr; }
     .contact-grid { grid-template-columns: 1fr; gap: 48px; }
 
+    /* Mobile capabilities horizontal scroll */
+    .capabilities-scroll-container {
+        padding: 0 20px 40px;
+        margin: 0 -20px;
+    }
+
+    .capabilities-horizontal {
+        padding: 20px 0 20px 20px;
+        gap: 16px;
+    }
+
+    .capability-card-horizontal {
+        min-width: 280px;
+        max-width: 280px;
+    }
+
+    .dev-card-horizontal {
+        min-width: 280px;
+        max-width: 280px;
+    }
+
+    .dev-card-image-top {
+        height: 140px;
+    }
+
+    .dev-illustration {
+        max-height: 120px;
+    }
+
+    .dev-card-content {
+        padding: 20px 16px;
+    }
+
+    .dev-card-tag {
+        font-size: 9px;
+        margin-bottom: 8px;
+    }
+
+    .dev-card-content h3 {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .dev-features {
+        gap: 6px;
+    }
+
+    .dev-features li {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .capability-card-image {
+        padding: 16px;
+    }
+
+    .capability-illustration {
+        max-height: 120px;
+    }
+
+    .capability-card-content {
+        padding: 20px 16px;
+    }
+
+    .capability-card-content h3 {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .capability-card-content p {
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
     .careers-apply-wrap { padding: 24px; }
 
     .benchmark-table th,
@@ -1917,6 +1991,47 @@ img { max-width: 100%; display: block; }
 
     .hero-actions { flex-direction: column; }
     .btn { width: 100%; text-align: center; }
+
+    /* Extra small mobile - capabilities */
+    .capabilities-scroll-container {
+        padding: 0 16px 40px;
+        margin: 0 -16px;
+    }
+
+    .capabilities-horizontal {
+        padding: 20px 0 20px 16px;
+        gap: 12px;
+    }
+
+    .capability-card-horizontal,
+    .dev-card-horizontal {
+        min-width: 260px;
+        max-width: 260px;
+    }
+
+    .dev-card-image-top {
+        height: 120px;
+    }
+
+    .dev-illustration {
+        max-height: 100px;
+    }
+
+    .dev-card-content {
+        padding: 16px 14px;
+    }
+
+    .dev-card-tag {
+        font-size: 8px;
+    }
+
+    .dev-card-content h3 {
+        font-size: 15px;
+    }
+
+    .dev-features li {
+        font-size: 12px;
+    }
 
     .role-card {
         padding: 22px;
