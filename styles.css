@@ -2798,3 +2798,12 @@ img { max-width: 100%; display: block; }
     will-change: transform;
     flex-wrap: nowrap;
 }
+
+/* Prevent card images from overflowing sticky capabilities section */
+#capabilities.section-capabilities {
+    overflow: hidden;
+}
+
+#capabilities .capabilities-scroll-container {
+    overflow: hidden;
+}
