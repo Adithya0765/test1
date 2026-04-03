@@ -821,49 +821,49 @@
     }
 
     // --- Horizontal scroll for capabilities section ---
-    // Outer div is tall (height = section height + card scroll width).
-    // Section is sticky. Scroll progress through outer div drives translateX on track.
+    // Outer div is tall. Section is sticky (stays fixed on screen).
+    // As user scrolls through the extra height of outer, cards translate left.
     (function () {
         var outer   = document.getElementById('capabilitiesOuter');
         var section = document.getElementById('capabilities');
         var track   = document.getElementById('capabilitiesTrack');
         if (!outer || !section || !track) return;
 
+        var cardScrollWidth = 0;
+
         function setup() {
-            var cardScrollWidth = track.scrollWidth - section.offsetWidth;
+            // Measure how far cards need to travel
+            cardScrollWidth = track.scrollWidth - outer.offsetWidth;
             if (cardScrollWidth <= 0) return;
 
-            // Make outer tall enough: section height + card scroll distance
+            // Outer height = section height + extra scroll budget for cards
             outer.style.height = (section.offsetHeight + cardScrollWidth) + 'px';
+        }
 
-            // On scroll: map progress through outer to translateX
-            function update() {
-                var outerTop    = outer.getBoundingClientRect().top;
-                var outerHeight = outer.offsetHeight;
-                var sectionH    = section.offsetHeight;
-                var scrollRange = outerHeight - sectionH;
+        function update() {
+            if (cardScrollWidth <= 0) return;
 
-                // progress 0→1 as we scroll through the "extra" height
-                var progress = Math.max(0, Math.min(1, -outerTop / scrollRange));
-                var tx = -progress * cardScrollWidth;
+            var outerRect = outer.getBoundingClientRect();
+            // How far we've scrolled INTO the outer div past the sticky point
+            // outerRect.top starts at some positive value, goes negative as we scroll
+            var scrolled = -outerRect.top;
+            var progress = Math.max(0, Math.min(1, scrolled / cardScrollWidth));
+            track.style.transform = 'translateX(' + (-progress * cardScrollWidth) + 'px)';
+        }
 
-                track.style.transform = 'translateX(' + tx + 'px)';
-            }
-
-            window.addEventListener('scroll', update, { passive: true });
+        function init() {
+            setup();
             update();
+            window.addEventListener('scroll', update, { passive: true });
+            window.addEventListener('resize', function() {
+                outer.style.height = '';
+                setup();
+                update();
+            });
         }
 
-        // Wait for fonts/images to load so measurements are accurate
-        if (document.readyState === 'complete') {
-            setup();
-        } else {
-            window.addEventListener('load', setup);
-        }
-        window.addEventListener('resize', function() {
-            outer.style.height = '';
-            setup();
-        });
+        if (document.readyState === 'complete') { init(); }
+        else { window.addEventListener('load', init); }
     })();
 
     // --- Horizontal scroll for dev platform section ---
