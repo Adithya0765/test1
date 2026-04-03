@@ -715,6 +715,13 @@ img { max-width: 100%; display: block; }
     margin-bottom: 72px;
 }
 
+/* Tighter spacing before horizontal scroll containers */
+.section-capabilities .section-intro,
+.section-developer .section-intro,
+.section-research .section-intro {
+    margin-bottom: 32px;
+}
+
 /* ============================================
    Architecture Section
    ============================================ */
@@ -1465,6 +1472,29 @@ img { max-width: 100%; display: block; }
     gap: 24px;
     padding: 20px 32px;
     justify-content: safe center;
+}
+
+/* Align first card top edge with heading text — consistent across all scroll sections */
+.section-capabilities .capabilities-horizontal,
+.section-research .capabilities-horizontal {
+    padding-top: 0;
+    align-items: flex-start;
+}
+
+/* Scroll section layout: heading left, cards start at same vertical level */
+.section-capabilities .container,
+.section-developer .container {
+    margin-bottom: 0;
+}
+
+.section-capabilities .container .section-intro,
+.section-developer .container .section-intro {
+    margin-bottom: 32px;
+}
+
+.capabilities-scroll-container,
+.dev-platform-scroll-container {
+    margin-top: 0;
 }
 
 /* Architecture cards fixed width */
