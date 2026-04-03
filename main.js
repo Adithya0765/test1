@@ -821,39 +821,40 @@
     }
 
     // --- Horizontal scroll for capabilities section ---
-    // Trigger: section bottom reaches viewport bottom → lock page, scroll cards L→R
-    // Reverse: scrolling up while cards visible → scroll cards R→L, then unlock
+    // DOWN: lock when section.bottom == viewport.bottom (full card visible at bottom)
+    // UP:   lock when section.top == header.bottom (full card visible at top)
     (function () {
         var container = document.getElementById('capabilitiesScroll');
         if (!container) return;
 
         var locked = false;
-        var lockScrollY = 0; // page Y position where we locked
+        var lockY = 0;
+        var HEADER = 72;
+        var TOLERANCE = 40;
 
         function maxScroll() { return container.scrollWidth - container.clientWidth; }
         function atStart()   { return container.scrollLeft <= 2; }
         function atEnd()     { return container.scrollLeft >= maxScroll() - 2; }
 
-        function sectionBottomAtViewportBottom() {
-            var r = container.getBoundingClientRect();
-            // Section bottom is at or below viewport bottom (within 20px tolerance)
-            return r.bottom >= window.innerHeight - 20 && r.bottom <= window.innerHeight + 200;
+        function bottomAligned() {
+            // section bottom is within tolerance of viewport bottom
+            var b = container.getBoundingClientRect().bottom;
+            return Math.abs(b - window.innerHeight) < TOLERANCE;
         }
 
-        function sectionVisible() {
-            var r = container.getBoundingClientRect();
-            return r.top < window.innerHeight && r.bottom > 0;
+        function topAligned() {
+            // section top is within tolerance of header bottom
+            var t = container.getBoundingClientRect().top;
+            return Math.abs(t - HEADER) < TOLERANCE;
         }
 
         function lock() {
-            if (locked) return;
             locked = true;
-            lockScrollY = window.scrollY;
+            lockY = window.scrollY;
             document.body.style.overflow = 'hidden';
         }
 
         function unlock() {
-            if (!locked) return;
             locked = false;
             document.body.style.overflow = '';
         }
@@ -862,36 +863,44 @@
             var down = e.deltaY > 0;
             var up   = e.deltaY < 0;
 
-            // --- Scrolling DOWN ---
-            if (down) {
-                // Enter lock: section bottom just hit viewport bottom
-                if (!locked && sectionBottomAtViewportBottom() && !atEnd()) {
-                    lock();
+            if (!locked) {
+                // Snap to lock position when crossing the trigger
+                if (down && !atEnd()) {
+                    var b = container.getBoundingClientRect().bottom;
+                    if (b <= window.innerHeight + TOLERANCE && b >= window.innerHeight - TOLERANCE * 3) {
+                        // Snap page so section bottom == viewport bottom
+                        var snapY = window.scrollY + (b - window.innerHeight);
+                        window.scrollTo({ top: snapY, behavior: 'instant' });
+                        lock();
+                        lockY = window.scrollY;
+                        e.preventDefault();
+                        return;
+                    }
                 }
-                if (locked) {
-                    if (atEnd()) { unlock(); return; } // cards done, resume page
-                    e.preventDefault();
-                    window.scrollTo(0, lockScrollY); // hold page position
-                    container.scrollLeft += e.deltaY * 0.9;
-                    return;
+                if (up && !atStart()) {
+                    var t = container.getBoundingClientRect().top;
+                    if (t >= HEADER - TOLERANCE * 3 && t <= HEADER + TOLERANCE) {
+                        // Snap page so section top == header bottom
+                        var snapY = window.scrollY - (HEADER - t);
+                        window.scrollTo({ top: snapY, behavior: 'instant' });
+                        lock();
+                        lockY = window.scrollY;
+                        e.preventDefault();
+                        return;
+                    }
                 }
+                return;
             }
 
-            // --- Scrolling UP ---
-            if (up) {
-                // Enter lock: cards have content to scroll back AND section is visible
-                if (!locked && sectionVisible() && !atStart()) {
-                    lock();
-                    lockScrollY = window.scrollY;
-                }
-                if (locked) {
-                    if (atStart()) { unlock(); return; } // cards reset, resume page
-                    e.preventDefault();
-                    window.scrollTo(0, lockScrollY);
-                    container.scrollLeft += e.deltaY * 0.9;
-                    return;
-                }
-            }
+            // Locked — drive cards
+            e.preventDefault();
+            window.scrollTo({ top: lockY, behavior: 'instant' });
+
+            if (down && atEnd())   { unlock(); return; }
+            if (up   && atStart()) { unlock(); return; }
+
+            container.scrollLeft += e.deltaY * 0.9;
+
         }, { passive: false });
 
         // Touch
