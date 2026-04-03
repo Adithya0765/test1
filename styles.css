@@ -1470,7 +1470,7 @@ img { max-width: 100%; display: block; }
 .capabilities-horizontal {
     display: flex;
     gap: 24px;
-    padding: 20px 0 20px max(32px, calc((100vw - 1200px) / 2 + 32px));
+    padding: 40px 0 20px max(32px, calc((100vw - 1200px) / 2 + 32px));
     justify-content: flex-start;
 }
 
