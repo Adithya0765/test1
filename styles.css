@@ -1266,11 +1266,16 @@ img { max-width: 100%; display: block; }
 
 /* Research cards in horizontal scroll */
 .capabilities-horizontal .research-card {
+    min-width: 340px;
+    max-width: 340px;
     flex-shrink: 0;
 }
 
-#architectureScroll .capabilities-horizontal {
-    justify-content: flex-start;
+/* Software capability cards in horizontal scroll */
+.capabilities-horizontal .dev-card-horizontal {
+    min-width: 360px;
+    max-width: 360px;
+    flex-shrink: 0;
 }
 
 .research-header {
@@ -1434,22 +1439,45 @@ img { max-width: 100%; display: block; }
 }
 
 .capabilities-scroll-container {
+    overflow-x: auto;
+    overflow-y: hidden;
     width: 100%;
     position: relative;
+    padding: 0 0 40px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+    scroll-behavior: smooth;
+}
+
+.capabilities-scroll-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.capabilities-scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.capabilities-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 4px;
+}
+
+.capabilities-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-tertiary);
 }
 
 .capabilities-horizontal {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
     gap: 24px;
-    padding: 20px 0;
+    padding: 20px 0 20px 32px;
 }
 
-/* Architecture cards: 4-col grid on desktop */
-#architectureScroll .capabilities-horizontal {
-    grid-template-columns: repeat(4, 1fr);
-    padding: 20px 0;
-    justify-content: unset;
+/* Architecture cards fixed width */
+#architectureScroll .capabilities-horizontal .research-card {
+    min-width: 340px;
+    max-width: 340px;
+    flex-shrink: 0;
 }
 
 /* Hide scrollbar on desktop */
@@ -2135,7 +2163,7 @@ img { max-width: 100%; display: block; }
     .capabilities-scroll-container::-webkit-scrollbar { display: none; }
 
     .capabilities-horizontal {
-        display: flex !important;
+        display: flex;
         padding: 20px 0 20px 20px;
         gap: 16px;
     }
