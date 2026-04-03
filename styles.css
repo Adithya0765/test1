@@ -1470,7 +1470,8 @@ img { max-width: 100%; display: block; }
 .capabilities-horizontal {
     display: flex;
     gap: 24px;
-    padding: 20px 0 20px 32px;
+    padding: 20px 32px;
+    justify-content: safe center;
 }
 
 /* Architecture cards fixed width */
