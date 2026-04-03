@@ -1077,8 +1077,17 @@ img { max-width: 100%; display: block; }
     grid-template-columns: repeat(3, 360px);
     gap: 24px;
     justify-content: center;
+    padding: 20px 0;
 }
 
+@media (max-width: 1200px) {
+    .dev-platform-horizontal {
+        display: flex;
+        gap: 24px;
+        padding: 20px 0 20px 32px;
+        justify-content: flex-start;
+    }
+}
 .dev-card-horizontal {
     background: var(--color-bg);
     border: 1px solid var(--color-border);
@@ -1263,7 +1272,8 @@ img { max-width: 100%; display: block; }
 }
 
 #architectureScroll .capabilities-horizontal {
-    justify-content: center;
+    padding: 20px 0 20px 32px;
+    justify-content: flex-start;
 }
 
 .research-header {
