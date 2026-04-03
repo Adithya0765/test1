@@ -831,20 +831,21 @@
 
         function setup() {
             track.style.transform = 'translateX(0)';
-            // Use getBoundingClientRect for accurate pixel measurements at any zoom
-            var sectionRect = section.getBoundingClientRect();
-            var trackRect   = track.getBoundingClientRect();
-            cardScrollWidth = Math.max(0, trackRect.width - sectionRect.width);
+            // scrollWidth gives layout pixels; works correctly at any zoom
+            cardScrollWidth = track.scrollWidth - section.scrollWidth;
+            if (cardScrollWidth <= 0) {
+                // fallback: use offsetWidth
+                cardScrollWidth = track.offsetWidth - section.offsetWidth;
+            }
             if (cardScrollWidth <= 0) return;
             var sectionH = section.offsetHeight;
             outer.style.height = (sectionH + cardScrollWidth) + 'px';
-            outer.style.paddingBottom = '0';
         }
 
         function update() {
             if (cardScrollWidth <= 0) return;
-            var scrolled  = Math.max(0, -outer.getBoundingClientRect().top);
-            var progress  = Math.min(1, scrolled / cardScrollWidth);
+            var scrolled = Math.max(0, -outer.getBoundingClientRect().top);
+            var progress = Math.min(1, scrolled / cardScrollWidth);
             track.style.transform = 'translateX(' + (-progress * cardScrollWidth) + 'px)';
         }
 
@@ -859,8 +860,12 @@
             });
         }
 
-        if (document.readyState === 'complete') { init(); }
-        else { window.addEventListener('load', init); }
+        // Delay init slightly to ensure layout is complete
+        if (document.readyState === 'complete') {
+            setTimeout(init, 50);
+        } else {
+            window.addEventListener('load', function() { setTimeout(init, 50); });
+        }
 
         // Touch
         var tx0 = 0, ty0 = 0, txL = 0, touch = false;
