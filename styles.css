@@ -872,6 +872,34 @@ img { max-width: 100%; display: block; }
 }
 
 /* Horizontal Developer Platform Layout */
+.dev-platform-scroll-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    position: relative;
+    padding: 0 0 40px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+}
+
+.dev-platform-scroll-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.dev-platform-scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.dev-platform-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 4px;
+}
+
+.dev-platform-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-tertiary);
+}
+
 .dev-platform-horizontal {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1890,6 +1918,24 @@ img { max-width: 100%; display: block; }
     .career-form .form-row { grid-template-columns: 1fr; }
     .contact-grid { grid-template-columns: 1fr; gap: 48px; }
 
+    /* Mobile dev platform horizontal scroll */
+    .dev-platform-scroll-container {
+        padding: 0 20px 40px;
+        margin: 0 -20px;
+    }
+
+    .dev-platform-horizontal {
+        display: flex;
+        padding: 20px 0 20px 20px;
+        gap: 16px;
+    }
+
+    .dev-card-horizontal {
+        min-width: 280px;
+        max-width: 280px;
+        flex-shrink: 0;
+    }
+
     /* Mobile capabilities horizontal scroll */
     .capabilities-scroll-container {
         padding: 0 20px 40px;
@@ -1992,6 +2038,22 @@ img { max-width: 100%; display: block; }
     .hero-actions { flex-direction: column; }
     .btn { width: 100%; text-align: center; }
 
+    /* Extra small mobile - dev platform */
+    .dev-platform-scroll-container {
+        padding: 0 16px 40px;
+        margin: 0 -16px;
+    }
+
+    .dev-platform-horizontal {
+        padding: 20px 0 20px 16px;
+        gap: 12px;
+    }
+
+    .dev-card-horizontal {
+        min-width: 260px;
+        max-width: 260px;
+    }
+
     /* Extra small mobile - capabilities */
     .capabilities-scroll-container {
         padding: 0 16px 40px;
@@ -2003,8 +2065,7 @@ img { max-width: 100%; display: block; }
         gap: 12px;
     }
 
-    .capability-card-horizontal,
-    .dev-card-horizontal {
+    .capability-card-horizontal {
         min-width: 260px;
         max-width: 260px;
     }

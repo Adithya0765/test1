@@ -846,4 +846,48 @@
         window.addEventListener('load', updateMaxScroll);
     })();
 
+    // --- Horizontal scroll for dev platform section ---
+    (function () {
+        var devPlatformScroll = document.getElementById('devPlatformScroll');
+        if (!devPlatformScroll) return;
+
+        // Touch support variables
+        var touchStartX = 0;
+        var touchStartY = 0;
+        var scrollStartLeft = 0;
+        var isTouching = false;
+
+        // Mobile: Touch events
+        function handleTouchStart(e) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            scrollStartLeft = devPlatformScroll.scrollLeft;
+            isTouching = true;
+        }
+
+        function handleTouchMove(e) {
+            if (!isTouching) return;
+
+            var touchX = e.touches[0].clientX;
+            var touchY = e.touches[0].clientY;
+            var deltaX = touchStartX - touchX;
+            var deltaY = touchStartY - touchY;
+
+            // If horizontal swipe is more significant than vertical
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                e.preventDefault();
+                devPlatformScroll.scrollLeft = scrollStartLeft + deltaX;
+            }
+        }
+
+        function handleTouchEnd() {
+            isTouching = false;
+        }
+
+        // Listen to touch events for mobile
+        devPlatformScroll.addEventListener('touchstart', handleTouchStart, { passive: true });
+        devPlatformScroll.addEventListener('touchmove', handleTouchMove, { passive: false });
+        devPlatformScroll.addEventListener('touchend', handleTouchEnd, { passive: true });
+    })();
+
 })();
