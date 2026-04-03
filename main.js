@@ -821,50 +821,77 @@
     }
 
     // --- Horizontal scroll for capabilities section ---
+    // Scrolling down the page moves cards left->right; releases at boundaries
     (function () {
         var capabilitiesScroll = document.getElementById('capabilitiesScroll');
         if (!capabilitiesScroll) return;
 
-        // Touch support
-        var touchStartX = 0;
-        var touchStartY = 0;
-        var touchLastX = 0;
-        var isTouching = false;
+        var velocity = 0;
+        var rafId = null;
+        var FRICTION = 0.88;
 
-        // Desktop: intercept wheel on the element itself (not window)
-        capabilitiesScroll.addEventListener('wheel', function(e) {
-            var maxScroll = capabilitiesScroll.scrollWidth - capabilitiesScroll.clientWidth;
-            var atStart = capabilitiesScroll.scrollLeft <= 2;
-            var atEnd = capabilitiesScroll.scrollLeft >= maxScroll - 2;
+        function getMaxScroll() {
+            return capabilitiesScroll.scrollWidth - capabilitiesScroll.clientWidth;
+        }
 
-            // If scrolling vertically and at a boundary, let page scroll
-            if ((e.deltaY > 0 && atEnd) || (e.deltaY < 0 && atStart)) return;
+        function isSectionActive() {
+            var rect = capabilitiesScroll.getBoundingClientRect();
+            return rect.top < window.innerHeight * 0.65 && rect.bottom > window.innerHeight * 0.35;
+        }
+
+        function isAtStart() { return capabilitiesScroll.scrollLeft <= 2; }
+        function isAtEnd()   { return capabilitiesScroll.scrollLeft >= getMaxScroll() - 2; }
+
+        function momentum() {
+            if (Math.abs(velocity) < 0.5) { velocity = 0; return; }
+            capabilitiesScroll.scrollLeft += velocity;
+            velocity *= FRICTION;
+            rafId = requestAnimationFrame(momentum);
+        }
+
+        window.addEventListener('wheel', function(e) {
+            if (!isSectionActive()) return;
+
+            var down = e.deltaY > 0;
+            var up   = e.deltaY < 0;
+
+            // At boundaries: release so page can scroll
+            if (down && isAtEnd())   return;
+            if (up   && isAtStart()) return;
 
             e.preventDefault();
-            capabilitiesScroll.scrollBy({ left: e.deltaY + e.deltaX, behavior: 'smooth' });
+            velocity += e.deltaY * 0.7;
+            cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(momentum);
         }, { passive: false });
 
-        // Touch events
+        // Touch: horizontal swipe moves cards
+        var txStart = 0, tyStart = 0, txLast = 0, touching = false;
+
         capabilitiesScroll.addEventListener('touchstart', function(e) {
-            touchStartX = touchLastX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            isTouching = true;
+            txStart = txLast = e.touches[0].clientX;
+            tyStart = e.touches[0].clientY;
+            touching = true;
+            velocity = 0;
+            cancelAnimationFrame(rafId);
         }, { passive: true });
 
         capabilitiesScroll.addEventListener('touchmove', function(e) {
-            if (!isTouching) return;
-            var dx = Math.abs(touchStartX - e.touches[0].clientX);
-            var dy = Math.abs(touchStartY - e.touches[0].clientY);
-            if (dx > dy && dx > 5) {
+            if (!touching) return;
+            var dx = Math.abs(txStart - e.touches[0].clientX);
+            var dy = Math.abs(tyStart - e.touches[0].clientY);
+            if (dx > dy && dx > 8) {
                 e.preventDefault();
-                var delta = touchLastX - e.touches[0].clientX;
+                var delta = txLast - e.touches[0].clientX;
                 capabilitiesScroll.scrollLeft += delta;
-                touchLastX = e.touches[0].clientX;
+                velocity = delta;
+                txLast = e.touches[0].clientX;
             }
         }, { passive: false });
 
         capabilitiesScroll.addEventListener('touchend', function() {
-            isTouching = false;
+            touching = false;
+            rafId = requestAnimationFrame(momentum);
         }, { passive: true });
     })();
 
