@@ -2823,3 +2823,38 @@ html {
 @media (max-width: 1024px) and (min-width: 769px) {
     :root { --container-max: 960px; }
 }
+
+/* ============================================
+   Sticky capabilities section — viewport-fit
+   Ensures full card visibility at any OS scale
+   ============================================ */
+
+/* Section height fits exactly in viewport at any DPI/scale */
+#capabilities.section-capabilities {
+    height: calc(100vh - 72px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    box-sizing: border-box;
+}
+
+/* Cards fill available height */
+#capabilities .capabilities-scroll-container {
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+#capabilities .capabilities-horizontal {
+    align-items: center;
+}
+
+/* Cap card height so it always fits in viewport */
+#capabilities .dev-card-horizontal {
+    max-height: calc(100vh - 200px);
+    overflow: hidden;
+}
