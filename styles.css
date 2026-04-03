@@ -1011,8 +1011,9 @@ img { max-width: 100%; display: block; }
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: column;
-    flex: 1;
-    min-width: 320px;
+    min-width: 360px;
+    max-width: 360px;
+    flex-shrink: 0;
 }
 
 .dev-card-horizontal:hover {
@@ -1380,6 +1381,7 @@ img { max-width: 100%; display: block; }
     display: flex;
     gap: 24px;
     padding: 20px 0;
+    justify-content: center;
 }
 
 .capability-card-horizontal {
