@@ -820,31 +820,61 @@
         });
     }
 
-    // --- Horizontal scroll for capabilities section (scroll-progress driven) ---
-    // Uses a tall wrapper + sticky section. Scroll progress through wrapper = card progress.
+    // --- Horizontal scroll for capabilities section ---
+    // When section is in view: wheel scrolls cards. Page locked via overflow:hidden on body.
     (function () {
-        var wrapper = document.getElementById('capabilitiesPinWrapper');
         var container = document.getElementById('capabilitiesScroll');
-        if (!wrapper || !container) return;
+        if (!container) return;
 
-        function update() {
-            var wRect = wrapper.getBoundingClientRect();
-            var wrapperH = wrapper.offsetHeight;
-            var viewH = window.innerHeight;
-            var sectionH = container.offsetHeight || viewH;
+        var locked = false;
 
-            // Progress: 0 when wrapper top hits viewport top, 1 when wrapper bottom leaves
-            var scrollable = wrapperH - viewH;
-            if (scrollable <= 0) return;
+        function maxScroll() { return container.scrollWidth - container.clientWidth; }
+        function atStart()   { return container.scrollLeft <= 2; }
+        function atEnd()     { return container.scrollLeft >= maxScroll() - 2; }
 
-            var progress = Math.max(0, Math.min(1, -wRect.top / scrollable));
-            var maxCardScroll = container.scrollWidth - container.clientWidth;
-            container.scrollLeft = progress * maxCardScroll;
+        function inView() {
+            var r = container.getBoundingClientRect();
+            // Section top is within viewport and not fully scrolled past
+            return r.top <= window.innerHeight * 0.5 && r.bottom >= 0;
         }
 
-        window.addEventListener('scroll', update, { passive: true });
-        window.addEventListener('resize', update, { passive: true });
-        update();
+        function lock() {
+            if (locked) return;
+            locked = true;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function unlock() {
+            if (!locked) return;
+            locked = false;
+            document.body.style.overflow = '';
+        }
+
+        window.addEventListener('wheel', function(e) {
+            if (!inView()) { unlock(); return; }
+
+            var down = e.deltaY > 0;
+            var up   = e.deltaY < 0;
+
+            if (down && atEnd())   { unlock(); return; }
+            if (up   && atStart()) { unlock(); return; }
+
+            lock();
+            e.preventDefault();
+            container.scrollLeft += e.deltaY * 0.9;
+        }, { passive: false });
+
+        // Touch
+        var tx0 = 0, ty0 = 0, txL = 0, touch = false;
+        container.addEventListener('touchstart', function(e) {
+            tx0 = txL = e.touches[0].clientX; ty0 = e.touches[0].clientY; touch = true;
+        }, { passive: true });
+        container.addEventListener('touchmove', function(e) {
+            if (!touch) return;
+            var dx = Math.abs(tx0 - e.touches[0].clientX), dy = Math.abs(ty0 - e.touches[0].clientY);
+            if (dx > dy && dx > 8) { e.preventDefault(); container.scrollLeft += txL - e.touches[0].clientX; txL = e.touches[0].clientX; }
+        }, { passive: false });
+        container.addEventListener('touchend', function() { touch = false; }, { passive: true });
     })();
 
     // --- Horizontal scroll for dev platform section ---
