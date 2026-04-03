@@ -832,8 +832,12 @@
         function setup() {
             cardScrollWidth = track.scrollWidth - section.offsetWidth;
             if (cardScrollWidth <= 0) return;
+            var sectionH = section.offsetHeight;
             // Outer height = section height + scroll budget for cards
-            outer.style.height = (section.offsetHeight + cardScrollWidth) + 'px';
+            // padding-bottom = section height so content below waits for sticky to unstick
+            outer.style.height = (sectionH + cardScrollWidth) + 'px';
+            outer.style.paddingBottom = sectionH + 'px';
+            document.documentElement.style.setProperty('--capabilities-section-height', sectionH + 'px');
         }
 
         function update() {
