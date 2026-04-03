@@ -1178,6 +1178,13 @@ img { max-width: 100%; display: block; }
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
+/* Research cards in horizontal scroll */
+.capabilities-horizontal .research-card {
+    min-width: 340px;
+    max-width: 340px;
+    flex-shrink: 0;
+}
+
 .research-header {
     display: flex;
     align-items: center;
@@ -2050,6 +2057,11 @@ img { max-width: 100%; display: block; }
         gap: 16px;
     }
 
+    .capabilities-horizontal .research-card {
+        min-width: 280px;
+        max-width: 280px;
+    }
+
     .capability-card-horizontal {
         min-width: 280px;
         max-width: 280px;
@@ -2173,6 +2185,11 @@ img { max-width: 100%; display: block; }
     .capabilities-horizontal {
         padding: 20px 0 20px 16px;
         gap: 12px;
+    }
+
+    .capabilities-horizontal .research-card {
+        min-width: 260px;
+        max-width: 260px;
     }
 
     .capability-card-horizontal {
