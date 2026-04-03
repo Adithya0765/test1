@@ -821,83 +821,68 @@
     }
 
     // --- Horizontal scroll for capabilities section ---
-    // Page freezes when section is pinned; scroll wheel drives cards 1→6, then resumes
     (function () {
-        var capabilitiesScroll = document.getElementById('capabilitiesScroll');
-        if (!capabilitiesScroll) return;
+        var container = document.getElementById('capabilitiesScroll');
+        if (!container) return;
 
         var pinned = false;
-        var pinnedScrollY = 0;
+        var pinnedY = 0;
+        var headerH = 72; // site header height
 
-        function getMaxScroll() {
-            return capabilitiesScroll.scrollWidth - capabilitiesScroll.clientWidth;
-        }
-
-        function getSectionTop() {
-            return capabilitiesScroll.getBoundingClientRect().top + window.scrollY;
-        }
-
-        function getSectionBottom() {
-            return capabilitiesScroll.getBoundingClientRect().bottom + window.scrollY;
-        }
-
-        function isAtStart() { return capabilitiesScroll.scrollLeft <= 2; }
-        function isAtEnd()   { return capabilitiesScroll.scrollLeft >= getMaxScroll() - 2; }
+        function maxScroll() { return container.scrollWidth - container.clientWidth; }
+        function atStart()   { return container.scrollLeft <= 2; }
+        function atEnd()     { return container.scrollLeft >= maxScroll() - 2; }
 
         window.addEventListener('wheel', function(e) {
-            var sectionTop = getSectionTop();
-            var rect = capabilitiesScroll.getBoundingClientRect();
-            var inView = rect.top <= 80 && rect.bottom >= window.innerHeight * 0.3;
+            var rect = container.getBoundingClientRect();
+            var sectionTop = rect.top; // distance from viewport top
 
-            // Enter pin: section has scrolled to near top of viewport
-            if (!pinned && inView && !isAtEnd()) {
-                pinned = true;
-                pinnedScrollY = window.scrollY;
+            // --- Enter pin: section top just reached the header ---
+            if (!pinned && sectionTop <= headerH + 2 && sectionTop >= headerH - 60) {
+                if (e.deltaY > 0 && !atEnd()) {
+                    pinned = true;
+                    pinnedY = window.scrollY;
+                    // Snap page so section top sits exactly at header
+                    var targetY = window.scrollY + sectionTop - headerH;
+                    window.scrollTo({ top: targetY, behavior: 'instant' });
+                    pinnedY = window.scrollY;
+                }
             }
 
             if (!pinned) return;
 
-            var scrollingDown = e.deltaY > 0;
-            var scrollingUp   = e.deltaY < 0;
+            var down = e.deltaY > 0;
+            var up   = e.deltaY < 0;
 
-            // Exit pin when cards are done
-            if (scrollingDown && isAtEnd()) {
-                pinned = false;
-                return; // let page scroll continue
-            }
-            if (scrollingUp && isAtStart()) {
-                pinned = false;
-                return;
-            }
+            // Exit pin when cards exhausted
+            if (down && atEnd())   { pinned = false; return; }
+            if (up   && atStart()) { pinned = false; return; }
 
-            // Freeze page, move cards
+            // Lock page + scroll cards
             e.preventDefault();
-            window.scrollTo(0, pinnedScrollY); // keep page locked
-            capabilitiesScroll.scrollLeft += e.deltaY * 0.8;
+            window.scrollTo({ top: pinnedY, behavior: 'instant' });
+            container.scrollLeft += e.deltaY * 0.9;
 
         }, { passive: false });
 
-        // Touch support
-        var txStart = 0, tyStart = 0, txLast = 0, touching = false;
-
-        capabilitiesScroll.addEventListener('touchstart', function(e) {
-            txStart = txLast = e.touches[0].clientX;
-            tyStart = e.touches[0].clientY;
-            touching = true;
+        // Touch
+        var tx0 = 0, ty0 = 0, txL = 0, touch = false;
+        container.addEventListener('touchstart', function(e) {
+            tx0 = txL = e.touches[0].clientX;
+            ty0 = e.touches[0].clientY;
+            touch = true;
         }, { passive: true });
-
-        capabilitiesScroll.addEventListener('touchmove', function(e) {
-            if (!touching) return;
-            var dx = Math.abs(txStart - e.touches[0].clientX);
-            var dy = Math.abs(tyStart - e.touches[0].clientY);
+        container.addEventListener('touchmove', function(e) {
+            if (!touch) return;
+            var dx = Math.abs(tx0 - e.touches[0].clientX);
+            var dy = Math.abs(ty0 - e.touches[0].clientY);
             if (dx > dy && dx > 8) {
                 e.preventDefault();
-                capabilitiesScroll.scrollLeft += txLast - e.touches[0].clientX;
-                txLast = e.touches[0].clientX;
+                container.scrollLeft += txL - e.touches[0].clientX;
+                txL = e.touches[0].clientX;
             }
         }, { passive: false });
-
-        capabilitiesScroll.addEventListener('touchend', function() { touching = false; }, { passive: true });
+        container.addEventListener('touchend', function() { touch = false; }, { passive: true });
     })();
 
     // --- Horizontal scroll for dev platform section ---
