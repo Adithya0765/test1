@@ -1032,7 +1032,6 @@ img { max-width: 100%; display: block; }
 .research-card {
     background: var(--color-bg);
     border: 1px solid var(--color-border);
-    border-left: 3px solid var(--color-accent);
     border-radius: 12px;
     padding: 36px 32px;
     display: flex;
@@ -1042,7 +1041,7 @@ img { max-width: 100%; display: block; }
 }
 
 .research-card:hover {
-    border-left-color: var(--color-primary);
+    border-color: var(--color-text-tertiary);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     transform: translateY(-2px);
 }
@@ -1108,19 +1107,20 @@ img { max-width: 100%; display: block; }
 
 .research-topics span {
     font-family: var(--font-heading);
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--color-text-tertiary);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-primary);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 100px;
-    padding: 6px 14px;
+    padding: 8px 16px;
     letter-spacing: 0.01em;
-    transition: background 0.2s var(--ease-out), color 0.2s var(--ease-out);
+    transition: background 0.2s var(--ease-out), border-color 0.2s var(--ease-out);
 }
 
 .research-topics span:hover {
-    background: var(--color-surface);
-    color: var(--color-primary);
+    background: var(--color-bg);
+    border-color: var(--color-primary);
 }
 
 /* ============================================
