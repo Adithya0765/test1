@@ -404,9 +404,72 @@
                     </div>
                 </div>
             </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Qaulium AI, Inc. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Security</a>
+                </div>
+            </div>
         </div>
     </footer>
 
+    <!-- Registration Modal -->
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal-container">
+            <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+            <div class="modal-header">
+                <h2>Create Your Account</h2>
+                <p>Register for early access to Qaulium-Studio and our quantum development platform.</p>
+            </div>
+            <form class="register-form" id="registerForm" data-registration-source="landing_modal" novalidate>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="regFirstName">First Name</label>
+                        <input type="text" id="regFirstName" name="firstName" required autocomplete="given-name">
+                    </div>
+                    <div class="form-group">
+                        <label for="regLastName">Last Name</label>
+                        <input type="text" id="regLastName" name="lastName" required autocomplete="family-name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Work Email</label>
+                    <input type="email" id="regEmail" name="email" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="regPhone">Phone Number</label>
+                    <input type="tel" id="regPhone" name="phone" autocomplete="tel">
+                </div>
+                <div class="form-group">
+                    <label for="regCompany">Organization</label>
+                    <input type="text" id="regCompany" name="company" required autocomplete="organization">
+                </div>
+                <div class="form-group">
+                    <label for="regRole">Role / Title</label>
+                    <input type="text" id="regRole" name="role" required autocomplete="organization-title">
+                </div>
+                <div class="form-group">
+                    <label for="regUseCase">Primary Use Case</label>
+                    <select id="regUseCase" name="useCase" required>
+                        <option value="">Select a use case</option>
+                        <option value="research">Academic Research</option>
+                        <option value="enterprise">Enterprise Deployment</option>
+                        <option value="drug-discovery">Drug Discovery</option>
+                        <option value="finance">Financial Modeling</option>
+                        <option value="climate">Climate Simulation</option>
+                        <option value="cryptography">Cryptography</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-status" id="formStatus"></div>
+                <button type="submit" class="btn btn-primary btn-full" id="registerBtn">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/intlTelInput.min.js"></script>
     <script src="main.js"></script>
 </body>
 </html>

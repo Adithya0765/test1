@@ -464,7 +464,7 @@
     } else if (navCtaBtn) {
         navCtaBtn.addEventListener('click', function (e) {
             e.preventDefault();
-            window.location.href = '/registration';
+            openModal();
         });
     }
 

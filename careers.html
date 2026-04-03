@@ -92,7 +92,7 @@
                     <p class="hero-sub">Intern with a deep-tech team building software-defined quantum infrastructure. Choose a role and apply with your details.</p>
                     <div class="hero-actions">
                         <a href="#openRoles" class="btn btn-primary">View Open Roles <span class="btn-icon">&rarr;</span></a>
-                        <a href="careers-apply.html" class="btn btn-secondary">Go To Application Form</a>
+                        <a href="/careers/apply" class="btn btn-secondary">Go To Application Form</a>
                     </div>
                 </div>
             </div>
@@ -109,43 +109,43 @@
                         <h3>AI Intern</h3>
                         <p>Support model development for quantum copilots, code intelligence, and developer workflow automation.</p>
                         <span>Python, LLMs, MLOps</span>
-                        <div class="role-actions"><a class="btn btn-primary" href="careers-apply.html?role=AI%20Intern">Apply</a></div>
+                        <div class="role-actions"><a class="btn btn-primary" href="/careers/apply?role=AI%20Intern">Apply</a></div>
                     </article>
                     <article class="role-card">
                         <h3>Frontend Intern</h3>
                         <p>Build responsive interfaces and UI components for Qaulium-Studio and developer workflows.</p>
                         <span>React, TypeScript, Performance</span>
-                        <div class="role-actions"><a class="btn btn-primary" href="careers-apply.html?role=Frontend%20Intern">Apply</a></div>
+                        <div class="role-actions"><a class="btn btn-primary" href="/careers/apply?role=Frontend%20Intern">Apply</a></div>
                     </article>
                     <article class="role-card">
                         <h3>Backend Intern</h3>
                         <p>Contribute to APIs, data models, and backend services powering quantum development tools.</p>
                         <span>Node.js, APIs, Databases</span>
-                        <div class="role-actions"><a class="btn btn-primary" href="careers-apply.html?role=Backend%20Intern">Apply</a></div>
+                        <div class="role-actions"><a class="btn btn-primary" href="/careers/apply?role=Backend%20Intern">Apply</a></div>
                     </article>
                     <article class="role-card">
                         <h3>UI/UX Intern</h3>
                         <p>Design user journeys, wireframes, and interaction patterns for technical product experiences.</p>
                         <span>Figma, UX Research, Design Systems</span>
-                        <div class="role-actions"><a class="btn btn-primary" href="careers-apply.html?role=UI%2FUX%20Intern">Apply</a></div>
+                        <div class="role-actions"><a class="btn btn-primary" href="/careers/apply?role=UI%2FUX%20Intern">Apply</a></div>
                     </article>
                     <article class="role-card">
                         <h3>Testing Intern</h3>
                         <p>Support QA workflows and automation coverage across frontend, backend, and integration tests.</p>
                         <span>Automation, CI/CD, Quality Engineering</span>
-                        <div class="role-actions"><a class="btn btn-primary" href="careers-apply.html?role=Testing%20Intern">Apply</a></div>
+                        <div class="role-actions"><a class="btn btn-primary" href="/careers/apply?role=Testing%20Intern">Apply</a></div>
                     </article>
                     <article class="role-card">
                         <h3>Marketing Intern</h3>
                         <p>Support content creation, campaign execution, and communication for technical audiences.</p>
                         <span>Growth, Content, Analytics</span>
-                        <div class="role-actions"><a class="btn btn-primary" href="careers-apply.html?role=Marketing%20Intern">Apply</a></div>
+                        <div class="role-actions"><a class="btn btn-primary" href="/careers/apply?role=Marketing%20Intern">Apply</a></div>
                     </article>
                     <article class="role-card">
                         <h3>Research Intern</h3>
                         <p>Work on quantum algorithms, benchmarking, and software-hardware co-design experiments.</p>
                         <span>Quantum Computing, Research, Prototyping</span>
-                        <div class="role-actions"><a class="btn btn-primary" href="careers-apply.html?role=Research%20Intern">Apply</a></div>
+                        <div class="role-actions"><a class="btn btn-primary" href="/careers/apply?role=Research%20Intern">Apply</a></div>
                     </article>
                 </div>
             </div>
@@ -177,9 +177,72 @@
                     </div>
                 </div>
             </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Qaulium AI, Inc. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Security</a>
+                </div>
+            </div>
         </div>
     </footer>
 
+    <!-- Registration Modal -->
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal-container">
+            <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+            <div class="modal-header">
+                <h2>Create Your Account</h2>
+                <p>Register for early access to Qaulium-Studio and our quantum development platform.</p>
+            </div>
+            <form class="register-form" id="registerForm" data-registration-source="landing_modal" novalidate>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="regFirstName">First Name</label>
+                        <input type="text" id="regFirstName" name="firstName" required autocomplete="given-name">
+                    </div>
+                    <div class="form-group">
+                        <label for="regLastName">Last Name</label>
+                        <input type="text" id="regLastName" name="lastName" required autocomplete="family-name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Work Email</label>
+                    <input type="email" id="regEmail" name="email" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="regPhone">Phone Number</label>
+                    <input type="tel" id="regPhone" name="phone" autocomplete="tel">
+                </div>
+                <div class="form-group">
+                    <label for="regCompany">Organization</label>
+                    <input type="text" id="regCompany" name="company" required autocomplete="organization">
+                </div>
+                <div class="form-group">
+                    <label for="regRole">Role / Title</label>
+                    <input type="text" id="regRole" name="role" required autocomplete="organization-title">
+                </div>
+                <div class="form-group">
+                    <label for="regUseCase">Primary Use Case</label>
+                    <select id="regUseCase" name="useCase" required>
+                        <option value="">Select a use case</option>
+                        <option value="research">Academic Research</option>
+                        <option value="enterprise">Enterprise Deployment</option>
+                        <option value="drug-discovery">Drug Discovery</option>
+                        <option value="finance">Financial Modeling</option>
+                        <option value="climate">Climate Simulation</option>
+                        <option value="cryptography">Cryptography</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-status" id="formStatus"></div>
+                <button type="submit" class="btn btn-primary btn-full" id="registerBtn">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/intlTelInput.min.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
