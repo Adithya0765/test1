@@ -1186,6 +1186,10 @@ img { max-width: 100%; display: block; }
     flex-shrink: 0;
 }
 
+#architectureScroll .capabilities-horizontal {
+    justify-content: center;
+}
+
 .research-header {
     display: flex;
     align-items: center;
