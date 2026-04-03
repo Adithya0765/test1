@@ -1271,8 +1271,8 @@ img { max-width: 100%; display: block; }
 
 /* Software capability cards in horizontal scroll */
 .capabilities-horizontal .dev-card-horizontal {
-    min-width: 360px;
-    max-width: 360px;
+    min-width: 340px;
+    max-width: 340px;
     flex-shrink: 0;
 }
 
