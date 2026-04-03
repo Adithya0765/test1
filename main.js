@@ -72,6 +72,18 @@
         });
     }
 
+    // --- Desktop products dropdown (hover-based, no JS needed for open/close) ---
+    var productDropdown = document.getElementById('productDropdown');
+
+    if (productDropdown) {
+        // Keep links functional for navigation
+        productDropdown.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', function () {
+                // Just let the link work normally
+            });
+        });
+    }
+
     // --- Quantum Circuit: random build animation ---
     (function () {
         var container = document.getElementById('qcCircuit');
