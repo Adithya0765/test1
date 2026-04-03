@@ -1470,8 +1470,8 @@ img { max-width: 100%; display: block; }
 .capabilities-horizontal {
     display: flex;
     gap: 24px;
-    padding: 20px 32px;
-    justify-content: safe center;
+    padding: 20px 0 20px max(32px, calc((100vw - 1200px) / 2 + 32px));
+    justify-content: flex-start;
 }
 
 /* Align first card top edge with heading text — consistent across all scroll sections */
