@@ -35,6 +35,7 @@ html {
 }
 
 body {
+    position: relative;
     font-family: var(--font-body);
     font-size: 16px;
     line-height: 1.6;
@@ -46,11 +47,30 @@ body {
 a { text-decoration: none; color: inherit; }
 ul { list-style: none; }
 img { max-width: 100%; display: block; }
+img, svg { max-width: 100%; }
 
 .container {
     max-width: var(--container-max);
     margin: 0 auto;
     padding: 0 32px;
+}
+
+#particleCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.35;
+}
+
+.site-header,
+main,
+.site-footer {
+    position: relative;
+    z-index: 1;
 }
 
 /* ============================================
@@ -513,7 +533,6 @@ img { max-width: 100%; display: block; }
     padding: 0;
 }
 
-/* Grid layout: label column + gate columns */
 .qc-grid {
     display: grid;
     grid-template-columns: 36px repeat(var(--qc-cols), 1fr);
@@ -521,7 +540,6 @@ img { max-width: 100%; display: block; }
     width: 100%;
 }
 
-/* Each cell */
 .qc-cell {
     display: flex;
     align-items: center;
@@ -530,7 +548,6 @@ img { max-width: 100%; display: block; }
     position: relative;
 }
 
-/* Wire line through each cell (except label column) */
 .qc-cell:not(.qc-label-cell)::before {
     content: '';
     position: absolute;
@@ -542,16 +559,19 @@ img { max-width: 100%; display: block; }
     z-index: 0;
 }
 
-/* Qubit labels */
 .qc-label-cell {
     justify-content: flex-end;
     padding-right: 8px;
     font-family: var(--font-mono);
     font-size: 13px;
     color: var(--color-text-tertiary);
+    opacity: 0;
 }
 
-/* Gate boxes */
+.qc-label-cell.qc-pop {
+    animation: qcLabelFade 0.4s ease forwards;
+}
+
 .qc-gate {
     width: 44px;
     height: 44px;
@@ -576,7 +596,6 @@ img { max-width: 100%; display: block; }
     animation: qcGatePop 0.35s var(--ease-out) forwards;
 }
 
-/* CNOT control dot */
 .qc-ctrl {
     width: 12px;
     height: 12px;
@@ -592,7 +611,6 @@ img { max-width: 100%; display: block; }
     animation: qcGatePop 0.35s var(--ease-out) forwards;
 }
 
-/* CNOT target */
 .qc-tgt {
     width: 36px;
     height: 36px;
@@ -614,7 +632,6 @@ img { max-width: 100%; display: block; }
     animation: qcGatePop 0.35s var(--ease-out) forwards;
 }
 
-/* Measurement gate */
 .qc-meter {
     width: 44px;
     height: 44px;
@@ -635,7 +652,6 @@ img { max-width: 100%; display: block; }
     animation: qcGatePop 0.35s var(--ease-out) forwards;
 }
 
-/* CNOT vertical connector */
 .qc-vline {
     position: absolute;
     width: 2px;
@@ -650,7 +666,6 @@ img { max-width: 100%; display: block; }
     animation: qcVLinePop 0.3s var(--ease-out) forwards;
 }
 
-/* --- Keyframes --- */
 @keyframes qcGatePop {
     from { opacity: 0; transform: scale(0.4); }
     to   { opacity: 1; transform: scale(1); }
@@ -669,14 +684,6 @@ img { max-width: 100%; display: block; }
 @keyframes qcLabelFade {
     from { opacity: 0; }
     to   { opacity: 1; }
-}
-
-.qc-label-cell {
-    opacity: 0;
-}
-
-.qc-label-cell.qc-pop {
-    animation: qcLabelFade 0.4s ease forwards;
 }
 
 /* ============================================
@@ -715,7 +722,6 @@ img { max-width: 100%; display: block; }
     margin-bottom: 72px;
 }
 
-/* Tighter spacing before horizontal scroll containers */
 .section-capabilities .section-intro,
 .section-developer .section-intro,
 .section-research .section-intro {
@@ -1050,7 +1056,6 @@ img { max-width: 100%; display: block; }
     background: var(--color-accent);
 }
 
-/* Horizontal Developer Platform Layout */
 .dev-platform-scroll-container {
     overflow-x: auto;
     overflow-y: hidden;
@@ -1096,6 +1101,7 @@ img { max-width: 100%; display: block; }
         justify-content: flex-start;
     }
 }
+
 .dev-card-horizontal {
     background: var(--color-bg);
     border: 1px solid var(--color-border);
@@ -1262,14 +1268,12 @@ img { max-width: 100%; display: block; }
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
-/* Research cards in horizontal scroll */
 .capabilities-horizontal .research-card {
     min-width: 340px;
     max-width: 340px;
     flex-shrink: 0;
 }
 
-/* Software capability cards in horizontal scroll */
 .capabilities-horizontal .dev-card-horizontal {
     min-width: 340px;
     max-width: 340px;
@@ -1379,10 +1383,12 @@ img { max-width: 100%; display: block; }
 
 [data-theme="dark"] .usecase-card {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    background: var(--color-surface);
 }
 
 [data-theme="dark"] .usecase-card:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    border-color: #444444;
 }
 
 .usecase-icon {
@@ -1404,15 +1410,6 @@ img { max-width: 100%; display: block; }
     font-size: 15px;
     line-height: 1.7;
     color: var(--color-text-secondary);
-}
-
-[data-theme="dark"] .usecase-card {
-    background: var(--color-surface);
-}
-
-[data-theme="dark"] .usecase-card:hover {
-    border-color: #444444;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 /* ============================================
@@ -1468,18 +1465,22 @@ img { max-width: 100%; display: block; }
 .capabilities-horizontal {
     display: flex;
     gap: 24px;
-    padding: 40px 0 20px max(32px, calc((100vw - 1200px) / 2 + 32px));
+    padding: 0 0 20px max(32px, calc((100vw - 1200px) / 2 + 32px));
     justify-content: flex-start;
+    align-items: flex-start;
+    flex-wrap: nowrap;
 }
 
-/* Align first card top edge with heading text — consistent across all scroll sections */
+.capabilities-horizontal > * {
+    flex-shrink: 0;
+}
+
 .section-capabilities .capabilities-horizontal,
 .section-research .capabilities-horizontal {
     padding-top: 0;
     align-items: flex-start;
 }
 
-/* Scroll section layout: heading left, cards start at same vertical level */
 .section-capabilities .container,
 .section-developer .container {
     margin-bottom: 0;
@@ -1495,15 +1496,34 @@ img { max-width: 100%; display: block; }
     margin-top: 0;
 }
 
-/* Architecture cards fixed width */
 #architectureScroll .capabilities-horizontal .research-card {
     min-width: 340px;
     max-width: 340px;
     flex-shrink: 0;
 }
 
-/* Hide scrollbar on desktop */
 .capabilities-scroll-container::-webkit-scrollbar { display: none; }
+
+#capabilitiesTrack {
+    will-change: transform;
+    flex-wrap: nowrap;
+}
+
+#capabilities.section-capabilities {
+    overflow: hidden;
+}
+
+#capabilities .capabilities-scroll-container {
+    overflow: hidden;
+}
+
+#capabilitiesScroll {
+    scroll-behavior: auto;
+}
+
+#capabilitiesScroll .capabilities-horizontal {
+    will-change: transform;
+}
 
 .capability-card-horizontal {
     background: var(--color-bg);
@@ -1520,10 +1540,11 @@ img { max-width: 100%; display: block; }
 }
 
 .capability-card-horizontal:hover {
-.capability-card-horizontal:hover {
     border-color: var(--color-text-tertiary);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
+
+.capability-card-image {
     width: 100%;
     height: 100%;
     background: #F9FAFB;
@@ -1581,14 +1602,6 @@ img { max-width: 100%; display: block; }
 }
 
 .capability-card:hover { background: var(--color-surface); }
-
-.capability-number {
-    font-family: var(--font-heading);
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-accent);
-    margin-bottom: 16px;
-}
 
 .capability-card h4 {
     font-family: var(--font-heading);
@@ -2045,6 +2058,10 @@ img { max-width: 100%; display: block; }
 [data-theme="dark"] .theme-toggle:hover { background: #222222; }
 [data-theme="dark"] .benchmark-table .highlight-col { background: rgba(96, 165, 250, 0.05); }
 [data-theme="dark"] .research-topics span { border-color: var(--color-border); color: var(--color-text-tertiary); }
+[data-theme="dark"] .capability-card-image {
+    background: #141414;
+    border-right-color: var(--color-border);
+}
 
 /* ============================================
    Responsive
@@ -2149,7 +2166,6 @@ img { max-width: 100%; display: block; }
     .career-form .form-row { grid-template-columns: 1fr; }
     .contact-grid { grid-template-columns: 1fr; gap: 48px; }
 
-    /* Mobile dev platform horizontal scroll */
     .dev-platform-scroll-container {
         padding: 0 20px 40px;
         margin: 0 -20px;
@@ -2171,7 +2187,6 @@ img { max-width: 100%; display: block; }
         scroll-snap-stop: always;
     }
 
-    /* Mobile capabilities horizontal scroll */
     .capabilities-scroll-container {
         overflow-x: auto;
         overflow-y: hidden;
@@ -2296,7 +2311,6 @@ img { max-width: 100%; display: block; }
     .hero-actions { flex-direction: column; }
     .btn { width: 100%; text-align: center; }
 
-    /* Extra small mobile - dev platform */
     .dev-platform-scroll-container {
         padding: 0 16px 40px;
         margin: 0 -16px;
@@ -2315,7 +2329,6 @@ img { max-width: 100%; display: block; }
         scroll-snap-align: start;
     }
 
-    /* Extra small mobile - capabilities */
     .capabilities-scroll-container {
         padding: 0 16px 40px;
         margin: 0 -16px;
@@ -2382,7 +2395,6 @@ img { max-width: 100%; display: block; }
    Quantum Processor � Advanced Animations
    ============================================ */
 
-/* Pulsing core glow */
 .processor-core {
     animation: coreGlow 3s ease-in-out infinite;
 }
@@ -2392,7 +2404,6 @@ img { max-width: 100%; display: block; }
     50% { opacity: 0.25; box-shadow: 0 0 30px 8px rgba(37, 99, 235, 0.15); }
 }
 
-/* Inner ring pulse */
 .processor-inner-ring {
     animation: innerPulse 4s ease-in-out infinite;
 }
@@ -2402,7 +2413,6 @@ img { max-width: 100%; display: block; }
     50% { opacity: 0.8; transform: scale(1.04); }
 }
 
-/* Photon nodes blink sequentially */
 .photon-node {
     animation: nodeBlink 2.5s ease-in-out infinite;
 }
@@ -2422,7 +2432,6 @@ img { max-width: 100%; display: block; }
 .node-bottom { transform-origin: center; transform: translateX(-50%); }
 .node-left { transform-origin: center; transform: translateY(-50%); }
 
-/* Photon data flow along channels */
 .photon-channel::after {
     content: '';
     position: absolute;
@@ -2479,7 +2488,6 @@ img { max-width: 100%; display: block; }
     100% { right: 100%; opacity: 0; }
 }
 
-/* Outer ring subtle scale breathe */
 .processor-outer-ring {
     animation: slowRotate 60s linear infinite, outerBreathe 6s ease-in-out infinite;
 }
@@ -2489,7 +2497,6 @@ img { max-width: 100%; display: block; }
     50% { box-shadow: 0 0 40px 2px rgba(37, 99, 235, 0.06); }
 }
 
-/* Processor label fade-in */
 .processor-label {
     animation: labelFade 1.5s ease-out 0.5s both;
 }
@@ -2499,7 +2506,6 @@ img { max-width: 100%; display: block; }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Typewriter effect for spec items */
 .spec-item {
     display: inline-block;
     overflow: hidden;
@@ -2525,7 +2531,6 @@ img { max-width: 100%; display: block; }
     50% { border-right-color: transparent; }
 }
 
-/* Dark mode animation tweaks */
 [data-theme="dark"] .processor-core {
     animation: coreGlowDark 3s ease-in-out infinite;
 }
@@ -2658,6 +2663,7 @@ img { max-width: 100%; display: block; }
 
 .iti {
     width: 100%;
+    display: block;
 }
 
 .register-form select:focus {
@@ -2725,12 +2731,6 @@ img { max-width: 100%; display: block; }
    intl-tel-input fixes
    ============================================ */
 
-.iti {
-    width: 100%;
-    display: block;
-}
-
-/* Make the flag button sit inside the input */
 .iti__flag-container {
     z-index: 10;
 }
@@ -2742,7 +2742,6 @@ img { max-width: 100%; display: block; }
     padding-left: 4px;
 }
 
-/* Dropdown appended to body */
 .iti__country-list:not(.iti__hide) {
     z-index: 1001;
     max-height: 220px;
@@ -2787,35 +2786,16 @@ img { max-width: 100%; display: block; }
     color: #a0a0a0;
 }
 
-
-
-/* Capabilities track — translateX driven by scroll progress */
-#capabilitiesTrack {
-    will-change: transform;
-    flex-wrap: nowrap;
-}
-
-/* Prevent card images from overflowing sticky capabilities section */
-#capabilities.section-capabilities {
-    overflow: hidden;
-}
-
-#capabilities .capabilities-scroll-container {
-    overflow: hidden;
-}
-
 /* ============================================
    Dynamic Scaling — fluid layout for all screen sizes
    ============================================ */
 
-/* Large desktops (1440px+) */
 @media (min-width: 1440px) {
     :root { --container-max: 1320px; }
     .hero-headline { font-size: 80px; }
     .section-heading { font-size: 52px; }
 }
 
-/* Standard desktops (1280px) */
 @media (max-width: 1280px) {
     :root { --container-max: 1100px; }
     .dev-platform-horizontal {
@@ -2823,15 +2803,13 @@ img { max-width: 100%; display: block; }
     }
 }
 
-/* Tablets landscape (1024px already covered) */
-
-/* Tablets portrait (900px) */
 @media (max-width: 900px) {
     .hero-split {
         grid-template-columns: 1fr;
         gap: 40px;
         text-align: center;
     }
+
     .hero-content { max-width: 100%; }
     .hero-actions { justify-content: center; }
     .hero-sub { margin-left: auto; margin-right: auto; }
@@ -2844,7 +2822,6 @@ img { max-width: 100%; display: block; }
     .footer-columns { flex-wrap: wrap; gap: 32px; }
 }
 
-/* Small tablets / large phones (600px) */
 @media (max-width: 600px) {
     :root { --section-spacing: 64px; }
 
@@ -2872,11 +2849,29 @@ img { max-width: 100%; display: block; }
     .register-form .form-row { grid-template-columns: 1fr; }
 }
 
-/* Ensure images and SVGs scale properly */
-img, svg { max-width: 100%; }
-
-/* Fluid container padding */
 @media (min-width: 769px) and (max-width: 1024px) {
     .container { padding: 0 24px; }
     .nav-container { padding: 0 24px; }
+}
+
+/* ============================================
+   Reduced Motion
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+    }
 }
