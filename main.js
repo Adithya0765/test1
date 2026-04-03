@@ -821,69 +821,69 @@
     }
 
     // --- Horizontal scroll for capabilities section ---
-    // Vertical scroll position drives horizontal card movement (scroll-jacking)
+    // Page freezes when section is pinned; scroll wheel drives cards 1→6, then resumes
     (function () {
         var capabilitiesScroll = document.getElementById('capabilitiesScroll');
         if (!capabilitiesScroll) return;
 
-        var lastScrollY = window.scrollY;
-        var ticking = false;
-        var velocity = 0;
-        var rafId = null;
-        var FRICTION = 0.90;
-        var MULTIPLIER = 1.8;
+        var pinned = false;
+        var pinnedScrollY = 0;
 
         function getMaxScroll() {
             return capabilitiesScroll.scrollWidth - capabilitiesScroll.clientWidth;
         }
 
-        function isSectionActive() {
-            var rect = capabilitiesScroll.getBoundingClientRect();
-            // Active when section is between 20% and 80% of viewport
-            return rect.top < window.innerHeight * 0.75 && rect.bottom > window.innerHeight * 0.25;
+        function getSectionTop() {
+            return capabilitiesScroll.getBoundingClientRect().top + window.scrollY;
+        }
+
+        function getSectionBottom() {
+            return capabilitiesScroll.getBoundingClientRect().bottom + window.scrollY;
         }
 
         function isAtStart() { return capabilitiesScroll.scrollLeft <= 2; }
         function isAtEnd()   { return capabilitiesScroll.scrollLeft >= getMaxScroll() - 2; }
 
-        function applyMomentum() {
-            if (Math.abs(velocity) < 0.3) { velocity = 0; return; }
-            capabilitiesScroll.scrollLeft += velocity;
-            velocity *= FRICTION;
-            rafId = requestAnimationFrame(applyMomentum);
-        }
+        window.addEventListener('wheel', function(e) {
+            var sectionTop = getSectionTop();
+            var rect = capabilitiesScroll.getBoundingClientRect();
+            var inView = rect.top <= 80 && rect.bottom >= window.innerHeight * 0.3;
 
-        window.addEventListener('scroll', function() {
-            if (ticking) return;
-            ticking = true;
-            requestAnimationFrame(function() {
-                var currentScrollY = window.scrollY;
-                var delta = currentScrollY - lastScrollY;
-                lastScrollY = currentScrollY;
-                ticking = false;
+            // Enter pin: section has scrolled to near top of viewport
+            if (!pinned && inView && !isAtEnd()) {
+                pinned = true;
+                pinnedScrollY = window.scrollY;
+            }
 
-                if (!isSectionActive()) return;
+            if (!pinned) return;
 
-                // At boundaries: don't intercept, let page scroll
-                if (delta > 0 && isAtEnd())   return;
-                if (delta < 0 && isAtStart()) return;
+            var scrollingDown = e.deltaY > 0;
+            var scrollingUp   = e.deltaY < 0;
 
-                // Drive horizontal scroll from vertical delta
-                velocity += delta * MULTIPLIER;
-                cancelAnimationFrame(rafId);
-                rafId = requestAnimationFrame(applyMomentum);
-            });
-        }, { passive: true });
+            // Exit pin when cards are done
+            if (scrollingDown && isAtEnd()) {
+                pinned = false;
+                return; // let page scroll continue
+            }
+            if (scrollingUp && isAtStart()) {
+                pinned = false;
+                return;
+            }
 
-        // Touch: direct horizontal swipe
+            // Freeze page, move cards
+            e.preventDefault();
+            window.scrollTo(0, pinnedScrollY); // keep page locked
+            capabilitiesScroll.scrollLeft += e.deltaY * 0.8;
+
+        }, { passive: false });
+
+        // Touch support
         var txStart = 0, tyStart = 0, txLast = 0, touching = false;
 
         capabilitiesScroll.addEventListener('touchstart', function(e) {
             txStart = txLast = e.touches[0].clientX;
             tyStart = e.touches[0].clientY;
             touching = true;
-            velocity = 0;
-            cancelAnimationFrame(rafId);
         }, { passive: true });
 
         capabilitiesScroll.addEventListener('touchmove', function(e) {
@@ -892,17 +892,12 @@
             var dy = Math.abs(tyStart - e.touches[0].clientY);
             if (dx > dy && dx > 8) {
                 e.preventDefault();
-                var delta = txLast - e.touches[0].clientX;
-                capabilitiesScroll.scrollLeft += delta;
-                velocity = delta;
+                capabilitiesScroll.scrollLeft += txLast - e.touches[0].clientX;
                 txLast = e.touches[0].clientX;
             }
         }, { passive: false });
 
-        capabilitiesScroll.addEventListener('touchend', function() {
-            touching = false;
-            rafId = requestAnimationFrame(applyMomentum);
-        }, { passive: true });
+        capabilitiesScroll.addEventListener('touchend', function() { touching = false; }, { passive: true });
     })();
 
     // --- Horizontal scroll for dev platform section ---
