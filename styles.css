@@ -998,8 +998,9 @@ img { max-width: 100%; display: block; }
 
 .dev-platform-horizontal {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 360px);
     gap: 24px;
+    justify-content: center;
 }
 
 .dev-card-horizontal {
@@ -1011,9 +1012,6 @@ img { max-width: 100%; display: block; }
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: column;
-    min-width: 360px;
-    max-width: 360px;
-    flex-shrink: 0;
 }
 
 .dev-card-horizontal:hover {
@@ -1381,7 +1379,6 @@ img { max-width: 100%; display: block; }
     display: flex;
     gap: 24px;
     padding: 20px 0;
-    justify-content: center;
 }
 
 .capability-card-horizontal {
