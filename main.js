@@ -7,46 +7,47 @@
 
     // --- Theme toggle ---
     var themeToggle = document.getElementById('themeToggle');
-    var savedTheme = localStorage.getItem('qualium-theme');
-    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var savedTheme = localStorage.getItem('qaulium-theme');
+    var systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-    function setTheme(theme) {
+    function applyTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('qualium-theme', theme);
+    }
+
+    function setUserTheme(theme) {
+        localStorage.setItem('qaulium-theme', theme);
+        applyTheme(theme);
     }
 
     if (savedTheme) {
-        setTheme(savedTheme);
+        applyTheme(savedTheme);
     } else {
-        setTheme('light');
+        applyTheme(systemThemeQuery.matches ? 'dark' : 'light');
     }
 
     if (themeToggle) {
         themeToggle.addEventListener('click', function () {
             var current = document.documentElement.getAttribute('data-theme');
-            setTheme(current === 'dark' ? 'light' : 'dark');
+            setUserTheme(current === 'dark' ? 'light' : 'dark');
         });
     }
 
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
-        if (!localStorage.getItem('qualium-theme')) {
-            setTheme(e.matches ? 'dark' : 'light');
+    systemThemeQuery.addEventListener('change', function (e) {
+        if (!localStorage.getItem('qaulium-theme')) {
+            applyTheme(e.matches ? 'dark' : 'light');
         }
     });
 
     // --- Header scroll state ---
     var header = document.getElementById('siteHeader');
-    var lastScroll = 0;
 
     function updateHeader() {
-        var scrollY = window.scrollY;
         if (!header) return;
-        if (scrollY > 10) {
+        if (window.scrollY > 10) {
             header.classList.add('scrolled');
         } else {
             header.classList.remove('scrolled');
         }
-        lastScroll = scrollY;
     }
 
     window.addEventListener('scroll', updateHeader, { passive: true });
@@ -55,6 +56,11 @@
     // --- Mobile navigation ---
     var navToggle = document.getElementById('navToggle');
     var mobileNav = document.getElementById('mobileNav');
+    var mobileProductsToggle = document.getElementById('mobileProductsToggle');
+    var mobileProductsMenu = document.getElementById('mobileProductsMenu');
+    var mobileResearchToggle = document.getElementById('mobileResearchToggle');
+    var mobileResearchMenu = document.getElementById('mobileResearchMenu');
+    var mobileNavCta = document.getElementById('mobileNavCta');
 
     if (navToggle && mobileNav) {
         navToggle.addEventListener('click', function () {
@@ -72,65 +78,17 @@
         });
     }
 
-    // --- Mobile accordion dropdowns ---
-    function setupMobileAccordion(toggleId, menuId) {
-        var toggle = document.getElementById(toggleId);
-        var menu = document.getElementById(menuId);
-        if (!toggle || !menu) return;
-        toggle.addEventListener('click', function () {
-            var isOpen = menu.classList.contains('open');
-            // Close all submenus first
-            document.querySelectorAll('.mobile-nav-submenu').forEach(function (m) { m.classList.remove('open'); });
-            document.querySelectorAll('.mobile-nav-accordion-toggle').forEach(function (t) { t.classList.remove('open'); });
-            if (!isOpen) {
-                menu.classList.add('open');
-                toggle.classList.add('open');
-            }
+    if (mobileProductsToggle && mobileProductsMenu) {
+        mobileProductsToggle.addEventListener('click', function () {
+            mobileProductsToggle.classList.toggle('open');
+            mobileProductsMenu.classList.toggle('open');
         });
     }
 
-    setupMobileAccordion('mobileProductsToggle', 'mobileProductsMenu');
-    setupMobileAccordion('mobileResearchToggle', 'mobileResearchMenu');
-
-    // --- Mobile nav CTA opens modal ---
-    var mobileNavCta = document.getElementById('mobileNavCta');
-    if (mobileNavCta) {
-        mobileNavCta.addEventListener('click', function (e) {
-            e.preventDefault();
-            navToggle.classList.remove('active');
-            mobileNav.classList.remove('open');
-            document.body.style.overflow = '';
-            var modal = document.getElementById('registerModal');
-            if (modal) {
-                modal.classList.add('open');
-                document.body.style.overflow = 'hidden';
-            } else {
-                window.location.href = '/registration';
-            }
-        });
-    }
-
-    // --- Desktop products dropdown (hover-based, no JS needed for open/close) ---
-    var productDropdown = document.getElementById('productDropdown');
-
-    if (productDropdown) {
-        // Keep links functional for navigation
-        productDropdown.querySelectorAll('a').forEach(function (link) {
-            link.addEventListener('click', function () {
-                // Just let the link work normally
-            });
-        });
-    }
-
-    // --- Desktop research dropdown (hover-based, no JS needed for open/close) ---
-    var researchDropdown = document.getElementById('researchDropdown');
-
-    if (researchDropdown) {
-        // Keep links functional for navigation
-        researchDropdown.querySelectorAll('a').forEach(function (link) {
-            link.addEventListener('click', function () {
-                // Just let the link work normally
-            });
+    if (mobileResearchToggle && mobileResearchMenu) {
+        mobileResearchToggle.addEventListener('click', function () {
+            mobileResearchToggle.classList.toggle('open');
+            mobileResearchMenu.classList.toggle('open');
         });
     }
 
@@ -141,34 +99,36 @@
 
         var QUBITS = 3;
         var COLS = 6;
-        var ROW_H = 64; // matches CSS .qc-cell height
-        var GATE_DELAY = 200; // ms between gate pops
-        var HOLD_TIME = 5000; // ms to hold completed circuit
+        var GATE_DELAY = 200;
+        var HOLD_TIME = 5000;
         var FADE_TIME = 400;
-
         var singleGates = ['H', 'X', 'Y', 'Z', 'S', 'T', 'Rz'];
         var meterSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18 A8 8 0 0 1 20 18"/><line x1="12" y1="18" x2="17" y2="7"/></svg>';
+        var subscripts = ['₀', '₁', '₂'];
 
-        function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-        function randInt(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+        function pick(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
 
-        // Generate a random circuit layout
+        function randInt(a, b) {
+            return a + Math.floor(Math.random() * (b - a + 1));
+        }
+
         function generateCircuit() {
-            // grid[row][col] = { type, label } or null
             var grid = [];
             for (var r = 0; r < QUBITS; r++) {
                 grid[r] = [];
                 for (var c = 0; c < COLS; c++) grid[r][c] = null;
             }
 
-            var cnots = []; // { ctrl: row, tgt: row, col }
-            // Place 1-2 CNOTs
+            var cnots = [];
             var numCnot = randInt(1, 2);
+
             for (var i = 0; i < numCnot; i++) {
                 var col = randInt(0, COLS - 2);
                 var ctrlRow = randInt(0, QUBITS - 2);
                 var tgtRow = ctrlRow + 1;
-                // Check column is free
+
                 if (!grid[ctrlRow][col] && !grid[tgtRow][col]) {
                     grid[ctrlRow][col] = { type: 'ctrl' };
                     grid[tgtRow][col] = { type: 'tgt' };
@@ -176,18 +136,14 @@
                 }
             }
 
-            // Fill remaining empty cells with single gates or nothing
             for (var r2 = 0; r2 < QUBITS; r2++) {
                 for (var c2 = 0; c2 < COLS; c2++) {
-                    if (!grid[r2][c2]) {
-                        if (Math.random() < 0.45) {
-                            grid[r2][c2] = { type: 'gate', label: pick(singleGates) };
-                        }
+                    if (!grid[r2][c2] && Math.random() < 0.45) {
+                        grid[r2][c2] = { type: 'gate', label: pick(singleGates) };
                     }
                 }
             }
 
-            // Optionally add a measurement to last column of a random qubit
             if (Math.random() < 0.5) {
                 var mRow = randInt(0, QUBITS - 1);
                 grid[mRow][COLS - 1] = { type: 'meter' };
@@ -202,17 +158,15 @@
             gridEl.className = 'qc-grid';
             gridEl.style.setProperty('--qc-cols', COLS);
 
-            var elements = []; // { el, col } for sequential animation
+            var elements = [];
 
             for (var r = 0; r < QUBITS; r++) {
-                // Label cell
                 var lbl = document.createElement('div');
                 lbl.className = 'qc-cell qc-label-cell';
-                lbl.textContent = 'q\u2080\u2081\u2082'[0] + '\u2080\u2081\u2082'[r];
+                lbl.textContent = 'q' + subscripts[r];
                 gridEl.appendChild(lbl);
                 elements.push({ el: lbl, col: -1 });
 
-                // Gate cells
                 for (var c = 0; c < COLS; c++) {
                     var cell = document.createElement('div');
                     cell.className = 'qc-cell';
@@ -230,7 +184,7 @@
                         } else if (entry.type === 'tgt') {
                             gateEl = document.createElement('div');
                             gateEl.className = 'qc-tgt';
-                            gateEl.textContent = '\u2295';
+                            gateEl.textContent = '⊕';
                         } else if (entry.type === 'meter') {
                             gateEl = document.createElement('div');
                             gateEl.className = 'qc-meter';
@@ -246,10 +200,8 @@
 
             container.appendChild(gridEl);
 
-            // Sort elements by column for sequential animation
             elements.sort(function (a, b) { return a.col - b.col; });
 
-            // Create CNOT vertical lines (positioned after layout)
             var vlines = [];
             circuit.cnots.forEach(function (cn) {
                 var vl = document.createElement('div');
@@ -258,22 +210,25 @@
                 vlines.push({ el: vl, cnot: cn });
             });
 
-            return { elements: elements, vlines: vlines, gridEl: gridEl };
+            return { elements: elements, vlines: vlines };
         }
 
         function positionVLines(vlines) {
             var cRect = container.getBoundingClientRect();
+
             vlines.forEach(function (v) {
                 var cn = v.cnot;
                 var gridEl = container.querySelector('.qc-grid');
                 if (!gridEl) return;
-                // Find ctrl and tgt cells
-                var ctrlIdx = cn.ctrl * (COLS + 1) + 1 + cn.col; // +1 for label col
+
+                var ctrlIdx = cn.ctrl * (COLS + 1) + 1 + cn.col;
                 var tgtIdx = cn.tgt * (COLS + 1) + 1 + cn.col;
                 var cells = gridEl.children;
                 if (!cells[ctrlIdx] || !cells[tgtIdx]) return;
+
                 var cr = cells[ctrlIdx].getBoundingClientRect();
                 var tr = cells[tgtIdx].getBoundingClientRect();
+
                 v.el.style.left = (cr.left + cr.width / 2 - cRect.left - 1) + 'px';
                 v.el.style.top = (cr.top + cr.height / 2 - cRect.top) + 'px';
                 v.el.style.height = (tr.top + tr.height / 2 - cr.top - cr.height / 2) + 'px';
@@ -291,23 +246,27 @@
             });
 
             var cols = Object.keys(colGroups).sort(function (a, b) { return a - b; });
+
             cols.forEach(function (colKey) {
                 colGroups[colKey].forEach(function (el) {
-                    setTimeout(function () { el.classList.add('qc-pop'); }, delay);
+                    setTimeout(function () {
+                        el.classList.add('qc-pop');
+                    }, delay);
                 });
                 delay += GATE_DELAY;
             });
 
-            // Position and animate vlines after the last gate column
             setTimeout(function () {
                 positionVLines(dom.vlines);
-                dom.vlines.forEach(function (v) { v.el.classList.add('qc-pop'); });
+                dom.vlines.forEach(function (v) {
+                    v.el.classList.add('qc-pop');
+                });
             }, delay);
 
             setTimeout(callback, delay + HOLD_TIME);
         }
 
-        function fadeOutAll(dom, callback) {
+        function fadeOutAll(callback) {
             var allEls = container.querySelectorAll('.qc-gate, .qc-ctrl, .qc-tgt, .qc-meter, .qc-vline, .qc-label-cell');
             allEls.forEach(function (el) {
                 el.style.animation = 'qcFadeOut ' + FADE_TIME + 'ms ease forwards';
@@ -318,30 +277,19 @@
         function cycle() {
             var circuit = generateCircuit();
             var dom = buildDOM(circuit);
-            // Small delay to let DOM settle before animation
             requestAnimationFrame(function () {
                 animateIn(dom, function () {
-                    fadeOutAll(dom, function () {
-                        cycle(); // rebuild with a new random circuit
+                    fadeOutAll(function () {
+                        cycle();
                     });
                 });
             });
         }
 
         cycle();
-        window.addEventListener('resize', function () {
-            var vlines = container.querySelectorAll('.qc-vline');
-            if (vlines.length) {
-                // Recalculate on resize
-                var gridEl = container.querySelector('.qc-grid');
-                if (!gridEl) return;
-                var cRect = container.getBoundingClientRect();
-                // Simple re-position already handled by next cycle
-            }
-        });
     })();
 
-    // --- Scroll-reveal ---
+    // --- Scroll reveal ---
     var revealTargets = [
         '.hero-content',
         '.hero-visual',
@@ -351,6 +299,7 @@
         '.dev-card',
         '.code-example',
         '.research-card',
+        '.layer-surface',
         '.capability-card',
         '.contact-info',
         '.contact-form-wrap',
@@ -361,11 +310,12 @@
         '.usecase-card',
         '.careers-value-card',
         '.role-card',
-        '.careers-apply-wrap'
+        '.careers-apply-wrap',
+        '.dev-card-horizontal'
     ];
 
-    var elements = document.querySelectorAll(revealTargets.join(','));
-    elements.forEach(function (el) {
+    var revealElements = document.querySelectorAll(revealTargets.join(','));
+    revealElements.forEach(function (el) {
         el.classList.add('reveal');
     });
 
@@ -381,7 +331,7 @@
         rootMargin: '0px 0px -60px 0px'
     });
 
-    elements.forEach(function (el) {
+    revealElements.forEach(function (el) {
         observer.observe(el);
     });
 
@@ -390,6 +340,7 @@
         anchor.addEventListener('click', function (e) {
             var targetId = this.getAttribute('href');
             if (targetId === '#') return;
+
             var target = document.querySelector(targetId);
             if (target) {
                 e.preventDefault();
@@ -413,6 +364,7 @@
             var top = section.offsetTop;
             var height = section.offsetHeight;
             var id = section.getAttribute('id');
+
             if (scrollPos >= top && scrollPos < top + height) {
                 navLinks.forEach(function (link) {
                     link.classList.remove('active');
@@ -439,45 +391,34 @@
     function initIntlPhoneInput(inputId) {
         var input = document.getElementById(inputId);
         if (!input || typeof window.intlTelInput !== 'function') return null;
+
         return window.intlTelInput(input, {
             initialCountry: 'auto',
             strictMode: true,
             nationalMode: false,
             autoPlaceholder: 'polite',
-            showSelectedDialCode: true,
-            separateDialCode: false,
-            countrySearch: false,
+            separateDialCode: true,
             loadUtilsOnInit: true,
-            dropdownContainer: document.body,
             geoIpLookup: function (callback) {
                 fetch('https://ipapi.co/json/')
                     .then(function (res) { return res.json(); })
-                    .then(function (data) { callback((data && data.country_code) ? data.country_code : 'us'); })
-                    .catch(function () { callback('us'); });
+                    .then(function (data) {
+                        callback((data && data.country_code) ? data.country_code : 'us');
+                    })
+                    .catch(function () {
+                        callback('us');
+                    });
             }
         });
     }
 
-    itiRegPhone = null;
-    itiCareerPhone = null;
-
-    // Init career phone lazily on page load only if the form is visible (not in a modal)
-    var careerPhoneInput = document.getElementById('careerPhone');
-    if (careerPhoneInput) {
-        // Defer init so it doesn't trigger dropdown on load
-        setTimeout(function () {
-            itiCareerPhone = initIntlPhoneInput('careerPhone');
-        }, 300);
-    }
+    itiRegPhone = initIntlPhoneInput('regPhone');
+    itiCareerPhone = initIntlPhoneInput('careerPhone');
 
     function openModal() {
         if (!registerModal) return;
         registerModal.classList.add('open');
         document.body.style.overflow = 'hidden';
-        // Init phone input lazily on first open
-        if (!itiRegPhone) {
-            itiRegPhone = initIntlPhoneInput('regPhone');
-        }
     }
 
     function closeModal() {
@@ -500,12 +441,10 @@
         });
     }
 
-    // Wire up registration buttons (nav CTA + hero buttons that lead to registration)
-    var tryStudioBtn = document.querySelector('a[href="#developer"].btn-secondary');
+    var tryStudioBtn = document.querySelector('a[href="registration"].btn-secondary');
     if (tryStudioBtn && registerModal) {
         tryStudioBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            openModal();
+            // allow regular navigation to registration page
         });
     }
 
@@ -515,32 +454,19 @@
             e.preventDefault();
             openModal();
         });
-    } else if (navCtaBtn) {
-        navCtaBtn.addEventListener('click', function (e) {
+    }
+
+    if (mobileNavCta && registerModal) {
+        mobileNavCta.addEventListener('click', function (e) {
             e.preventDefault();
             openModal();
         });
     }
 
-    // Also wire up the CTA banner button
     var ctaBannerBtn = document.querySelector('.cta-banner .btn');
-    if (ctaBannerBtn && registerModal) {
+    if (ctaBannerBtn && registerModal && ctaBannerBtn.getAttribute('href') === '#') {
         ctaBannerBtn.addEventListener('click', function (e) {
             e.preventDefault();
-            openModal();
-        });
-    }
-
-    // Wire up Pre-Register Now button in CTA section
-    var ctaRegisterBtn = document.getElementById('ctaRegisterBtn');
-    if (ctaRegisterBtn && registerModal) {
-        ctaRegisterBtn.addEventListener('click', function () {
-            openModal();
-        });
-    }
-
-    if (portalRegisterBtn && registerModal) {
-        portalRegisterBtn.addEventListener('click', function () {
             openModal();
         });
     }
@@ -565,7 +491,6 @@
                     : 'landing_modal';
             }
 
-            // Basic validation
             if (!firstName || !lastName || !email || !company || !role || !useCase) {
                 showStatus('Please fill in all required fields.', 'error');
                 return;
@@ -589,42 +514,26 @@
             btn.textContent = 'Registering...';
             btn.disabled = true;
 
-            var payload = {
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                phone: phone,
-                company: company,
-                role: role,
-                useCase: useCase,
-                source: registrationSource
-            };
-
             fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    phone: phone,
+                    company: company,
+                    role: role,
+                    useCase: useCase,
+                    source: registrationSource
+                })
             })
             .then(function (res) { return res.json(); })
             .then(function (data) {
                 if (data.success) {
                     showStatus('Registration successful! A confirmation email has been sent to ' + email + '.', 'success');
                     registerForm.reset();
-
-                    var redirectTo = (registerForm.getAttribute('data-redirect-on-success') || '').trim();
-                    var redirectDelay = parseInt(registerForm.getAttribute('data-redirect-delay-ms') || '2200', 10);
-
-                    // Always redirect to landing page after success when submitting from registration portal.
-                    if (!redirectTo && window.location.pathname.indexOf('registration') !== -1) {
-                        redirectTo = '/';
-                    }
-
-                    if (redirectTo) {
-                        setTimeout(function () {
-                            window.location.replace(redirectTo);
-                        }, isNaN(redirectDelay) ? 2200 : redirectDelay);
-                    }
-
+                    if (itiRegPhone) itiRegPhone.setNumber('');
                     setTimeout(function () {
                         closeModal();
                         if (formStatus) {
@@ -635,6 +544,7 @@
                 } else {
                     showStatus(data.message || 'Registration failed. Please try again.', 'error');
                 }
+
                 btn.textContent = 'Register';
                 btn.disabled = false;
             })
@@ -652,100 +562,19 @@
         formStatus.className = 'form-status ' + type;
     }
 
-    // --- Careers form ---
-    var careerForm = document.getElementById('careerForm');
-    var careerFormStatus = document.getElementById('careerFormStatus');
-    var careerApplyBtn = document.getElementById('careerApplyBtn');
-    var careerRoleField = document.getElementById('careerRole');
-
-    function showCareerStatus(message, type) {
-        if (!careerFormStatus) return;
-        careerFormStatus.textContent = message;
-        careerFormStatus.className = 'form-status ' + type;
-    }
-
-    if (careerRoleField) {
-        var roleParam = new URLSearchParams(window.location.search).get('role');
-        if (roleParam) {
-            careerRoleField.value = roleParam;
-        }
-    }
-
-    if (careerForm) {
-        careerForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            var payload = {
-                firstName: document.getElementById('careerFirstName').value.trim(),
-                lastName: document.getElementById('careerLastName').value.trim(),
-                email: document.getElementById('careerEmail').value.trim(),
-                phone: document.getElementById('careerPhone').value.trim(),
-                roleApplied: document.getElementById('careerRole').value,
-                location: document.getElementById('careerLocation').value.trim(),
-                university: document.getElementById('careerUniversity').value.trim(),
-                degree: document.getElementById('careerDegree').value.trim(),
-                graduationYear: document.getElementById('careerGraduationYear').value.trim(),
-                availability: document.getElementById('careerAvailability').value.trim(),
-                linkedinUrl: document.getElementById('careerLinkedIn').value.trim(),
-                portfolioUrl: document.getElementById('careerPortfolio').value.trim(),
-                resumeUrl: document.getElementById('careerResume').value.trim(),
-                coverLetter: document.getElementById('careerCoverLetter').value.trim()
-            };
-
-            if (!payload.firstName || !payload.lastName || !payload.email || !payload.phone || !payload.roleApplied || !payload.location || !payload.university || !payload.degree || !payload.graduationYear || !payload.availability || !payload.resumeUrl || !payload.coverLetter) {
-                showCareerStatus('Please fill all required fields before submitting.', 'error');
-                return;
-            }
-
-            var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(payload.email)) {
-                showCareerStatus('Please enter a valid email address.', 'error');
-                return;
-            }
-
-            if (itiCareerPhone) {
-                if (!itiCareerPhone.isValidNumber()) {
-                    showCareerStatus('Please enter a valid international phone number.', 'error');
-                    return;
-                }
-                payload.phone = itiCareerPhone.getNumber();
-            }
-
-            if (careerApplyBtn) {
-                careerApplyBtn.textContent = 'Submitting...';
-                careerApplyBtn.disabled = true;
-            }
-
-            fetch('/api/careers/apply', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(function (res) { return res.json(); })
-            .then(function (data) {
-                if (data.success) {
-                    showCareerStatus('Application submitted successfully. A confirmation email has been sent to ' + payload.email + '.', 'success');
-                    careerForm.reset();
-                } else {
-                    showCareerStatus(data.message || 'Unable to submit application right now. Please try again.', 'error');
-                }
-                if (careerApplyBtn) {
-                    careerApplyBtn.textContent = 'Submit Application';
-                    careerApplyBtn.disabled = false;
-                }
-            })
-            .catch(function () {
-                showCareerStatus('Unable to connect to server. Please try again later.', 'error');
-                if (careerApplyBtn) {
-                    careerApplyBtn.textContent = 'Submit Application';
-                    careerApplyBtn.disabled = false;
-                }
-            });
-        });
-    }
-
     // --- Contact form ---
     var form = document.getElementById('contactForm');
+
+    function getContactStatusEl() {
+        if (!form) return null;
+        return form.querySelector('.contact-form-status') || (function () {
+            var s = document.createElement('div');
+            s.className = 'form-status contact-form-status';
+            form.appendChild(s);
+            return s;
+        })();
+    }
+
     if (form) {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -754,17 +583,12 @@
             var email = document.getElementById('email').value.trim();
             var message = document.getElementById('message').value.trim();
             var company = document.getElementById('company').value.trim();
+            var btn = form.querySelector('button[type="submit"]');
+            var statusEl = getContactStatusEl();
 
             if (!name || !email || !message || !company) {
-                var btn2 = form.querySelector('button[type="submit"]');
-                btn2.textContent = 'Send Message';
-                btn2.disabled = false;
-                var statusEl = form.querySelector('.contact-form-status') || (function() {
-                    var s = document.createElement('div');
-                    s.className = 'form-status error contact-form-status';
-                    form.appendChild(s);
-                    return s;
-                }());
+                btn.textContent = 'Send Message';
+                btn.disabled = false;
                 statusEl.className = 'form-status error contact-form-status';
                 statusEl.textContent = 'Please fill in all required fields.';
                 return;
@@ -772,42 +596,43 @@
 
             var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailPattern.test(email)) {
-                var btn3 = form.querySelector('button[type="submit"]');
-                var statusEl2 = form.querySelector('.contact-form-status') || (function() {
-                    var s = document.createElement('div');
-                    s.className = 'form-status error contact-form-status';
-                    form.appendChild(s);
-                    return s;
-                }());
-                statusEl2.className = 'form-status error contact-form-status';
-                statusEl2.textContent = 'Please enter a valid email address.';
+                btn.textContent = 'Send Message';
+                btn.disabled = false;
+                statusEl.className = 'form-status error contact-form-status';
+                statusEl.textContent = 'Please enter a valid email address.';
                 return;
             }
 
-            var btn = form.querySelector('button[type="submit"]');
             btn.textContent = 'Sending...';
             btn.disabled = true;
-
-            // Clear any validation status
-            var existingStatus = form.querySelector('.contact-form-status');
-            if (existingStatus) existingStatus.textContent = '';
+            statusEl.textContent = '';
+            statusEl.className = 'form-status contact-form-status';
 
             fetch('/api/contact', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: name, email: email, company: company, message: message })
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    company: company,
+                    message: message
+                })
             })
             .then(function (res) { return res.json(); })
             .then(function (data) {
                 if (data.success) {
                     btn.textContent = 'Message Sent';
                     form.reset();
+                    statusEl.className = 'form-status success contact-form-status';
+                    statusEl.textContent = 'Your message has been sent successfully.';
                 } else {
                     btn.textContent = 'Send Message';
                     btn.disabled = false;
-                    alert(data.message || 'Failed to send message. Please try again.');
+                    statusEl.className = 'form-status error contact-form-status';
+                    statusEl.textContent = data.message || 'Failed to send message. Please try again.';
                     return;
                 }
+
                 setTimeout(function () {
                     btn.textContent = 'Send Message';
                     btn.disabled = false;
@@ -816,164 +641,191 @@
             .catch(function () {
                 btn.textContent = 'Send Message';
                 btn.disabled = false;
+                statusEl.className = 'form-status error contact-form-status';
+                statusEl.textContent = 'Unable to connect to server. Please try again later.';
             });
         });
     }
 
-    // --- Horizontal scroll for capabilities section ---
+    // --- Sticky horizontal scroll for capabilities section ---
     (function () {
-        var outer     = document.getElementById('capabilitiesOuter');
-        var section   = document.getElementById('capabilities');
-        var track     = document.getElementById('capabilitiesTrack');
-        var container = document.getElementById('capabilitiesScroll');
-        if (!outer || !section || !track || !container) return;
+        var outer = document.getElementById('capabilitiesOuter');
+        var section = document.getElementById('capabilities');
+        var scrollContainer = document.getElementById('capabilitiesScroll');
+        var horizontal = document.getElementById('capabilitiesHorizontal') || document.getElementById('capabilitiesTrack');
 
-        var cardScrollWidth = 0;
-        var locked = false;
-        var lockY  = 0;
+        if (!outer || !section || !scrollContainer || !horizontal) return;
 
-        function setup() {
-            track.style.transform = 'translateX(0)';
-            // Measure true track width by temporarily removing overflow clip
-            var prevC = container.style.overflow;
-            var prevS = section.style.overflow;
-            container.style.overflow = 'visible';
-            section.style.overflow   = 'visible';
-            cardScrollWidth = Math.max(0, track.scrollWidth - section.offsetWidth);
-            container.style.overflow = prevC || 'hidden';
-            section.style.overflow   = prevS || 'hidden';
-            if (cardScrollWidth <= 0) return;
-            outer.style.height = (section.offsetHeight + cardScrollWidth) + 'px';
+        function isDesktop() {
+            return window.innerWidth > 768;
         }
 
-        function progress() {
-            return cardScrollWidth > 0
-                ? Math.max(0, Math.min(1, -outer.getBoundingClientRect().top / cardScrollWidth))
-                : 0;
+        function getHeaderOffset() {
+            return header ? header.offsetHeight : 72;
         }
 
-        function apply(p) {
-            track.style.transform = 'translateX(' + (-p * cardScrollWidth) + 'px)';
+        function updateStickyHorizontalMetrics() {
+            if (!isDesktop()) {
+                outer.style.paddingBottom = '';
+                section.style.position = '';
+                section.style.top = '';
+                section.style.zIndex = '';
+                scrollContainer.style.overflowX = '';
+                scrollContainer.style.overflowY = '';
+                scrollContainer.scrollLeft = 0;
+                return;
+            }
+
+            var visibleWidth = scrollContainer.clientWidth;
+            var totalWidth = horizontal.scrollWidth;
+            var horizontalDistance = Math.max(0, totalWidth - visibleWidth);
+            var extraVerticalDistance = horizontalDistance;
+
+            outer.style.paddingBottom = (section.offsetHeight + extraVerticalDistance) + 'px';
+            section.style.position = 'sticky';
+            section.style.top = getHeaderOffset() + 'px';
+            section.style.zIndex = '10';
+            scrollContainer.style.overflowX = 'hidden';
+            scrollContainer.style.overflowY = 'hidden';
         }
 
-        // Section is sticky when its top is at the header (72px)
-        function isSticky() {
-            var t = section.getBoundingClientRect().top;
-            return t <= 73 && t >= 71;
+        function updateHorizontalFromScroll() {
+            if (!isDesktop()) return;
+
+            var outerRect = outer.getBoundingClientRect();
+            var horizontalDistance = Math.max(0, horizontal.scrollWidth - scrollContainer.clientWidth);
+            var maxTravel = Math.max(1, outer.offsetHeight - section.offsetHeight);
+            var traveled = Math.min(Math.max(-outerRect.top, 0), maxTravel);
+            var progress = traveled / maxTravel;
+            var left = progress * horizontalDistance;
+
+            scrollContainer.scrollLeft = left;
         }
 
-        function lock() {
-            if (locked) return;
-            locked = true;
-            lockY  = window.scrollY;
-            document.body.style.overflow = 'hidden';
-        }
+        function handleWheel(e) {
+            if (!isDesktop()) return;
 
-        function unlock() {
-            if (!locked) return;
-            locked = false;
-            document.body.style.overflow = '';
-        }
+            var outerRect = outer.getBoundingClientRect();
+            var headerOffset = getHeaderOffset();
+            var horizontalDistance = Math.max(0, horizontal.scrollWidth - scrollContainer.clientWidth);
 
-        window.addEventListener('wheel', function(e) {
-            if (cardScrollWidth <= 0) return;
+            if (horizontalDistance <= 0) return;
 
-            var p    = progress();
-            var down = e.deltaY > 0;
-            var up   = e.deltaY < 0;
+            var stickyActive =
+                outerRect.top <= headerOffset + 2 &&
+                outerRect.bottom > section.offsetHeight + headerOffset + 2;
 
-            // Not sticky yet — let page scroll normally
-            if (!isSticky() && !locked) return;
+            if (!stickyActive) return;
 
-            // At boundaries — unlock and let page continue
-            if (down && p >= 1) { unlock(); return; }
-            if (up   && p <= 0) { unlock(); return; }
+            var atStart = scrollContainer.scrollLeft <= 2;
+            var atEnd = scrollContainer.scrollLeft >= horizontalDistance - 2;
 
-            // Lock page and move cards
-            lock();
-            e.preventDefault();
-            window.scrollTo({ top: lockY, behavior: 'instant' });
-
-            // Advance card position
-            var newP = Math.max(0, Math.min(1, p + (e.deltaY * 0.9) / cardScrollWidth));
-            apply(newP);
-
-            // Sync outer div so progress() stays accurate after unlock
-            var outerAbsTop = outer.getBoundingClientRect().top + window.scrollY;
-            lockY = outerAbsTop + newP * cardScrollWidth;
-            window.scrollTo({ top: lockY, behavior: 'instant' });
-
-        }, { passive: false });
-
-        // Keep cards in sync during normal (unlocked) scroll
-        window.addEventListener('scroll', function() {
-            if (!locked) apply(progress());
-        }, { passive: true });
-
-        function init() {
-            setup();
-            apply(progress());
-            window.addEventListener('resize', function() {
-                outer.style.height = '';
-                setup();
-                apply(progress());
-            });
-        }
-
-        if (document.readyState === 'complete') { setTimeout(init, 100); }
-        else { window.addEventListener('load', function() { setTimeout(init, 100); }); }
-
-        // Touch
-        var tx0 = 0, ty0 = 0, txL = 0, touch = false;
-        container.addEventListener('touchstart', function(e) {
-            tx0 = txL = e.touches[0].clientX; ty0 = e.touches[0].clientY; touch = true;
-        }, { passive: true });
-        container.addEventListener('touchmove', function(e) {
-            if (!touch) return;
-            var dx = Math.abs(tx0 - e.touches[0].clientX), dy = Math.abs(ty0 - e.touches[0].clientY);
-            if (dx > dy && dx > 8) { e.preventDefault(); container.scrollLeft += txL - e.touches[0].clientX; txL = e.touches[0].clientX; }
-        }, { passive: false });
-        container.addEventListener('touchend', function() { touch = false; }, { passive: true });
-    })();
-
-    // --- Horizontal scroll for dev platform section ---
-    (function () {
-        var devPlatformScroll = document.getElementById('devPlatformScroll');
-        if (!devPlatformScroll) return;
-
-        // Touch support - let CSS scroll-snap handle the smoothness
-        var touchStartX = 0;
-        var touchStartY = 0;
-        var isTouching = false;
-
-        function handleTouchStart(e) {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            isTouching = true;
-        }
-
-        function handleTouchMove(e) {
-            if (!isTouching) return;
-
-            var touchX = e.touches[0].clientX;
-            var touchY = e.touches[0].clientY;
-            var deltaX = Math.abs(touchStartX - touchX);
-            var deltaY = Math.abs(touchStartY - touchY);
-
-            // Only prevent default if horizontal swipe is dominant
-            if (deltaX > deltaY && deltaX > 10) {
+            if ((e.deltaY > 0 && !atEnd) || (e.deltaY < 0 && !atStart)) {
                 e.preventDefault();
+                window.scrollTo({
+                    top: window.scrollY + e.deltaY,
+                    behavior: 'auto'
+                });
             }
         }
 
-        function handleTouchEnd() {
-            isTouching = false;
+        updateStickyHorizontalMetrics();
+        updateHorizontalFromScroll();
+
+        window.addEventListener('scroll', updateHorizontalFromScroll, { passive: true });
+        window.addEventListener('resize', function () {
+            updateStickyHorizontalMetrics();
+            updateHorizontalFromScroll();
+        });
+
+        window.addEventListener('load', function () {
+            updateStickyHorizontalMetrics();
+            updateHorizontalFromScroll();
+        });
+
+        window.addEventListener('wheel', handleWheel, { passive: false });
+    })();
+
+    // --- Subtle Background Particles ---
+    (function () {
+        var canvas = document.createElement('canvas');
+        canvas.id = 'particleCanvas';
+        document.body.insertBefore(canvas, document.body.firstChild);
+
+        var ctx = canvas.getContext('2d');
+        var particles = [];
+        var particleCount = 60;
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
 
-        // Listen to touch events for mobile
-        devPlatformScroll.addEventListener('touchstart', handleTouchStart, { passive: true });
-        devPlatformScroll.addEventListener('touchmove', handleTouchMove, { passive: false });
-        devPlatformScroll.addEventListener('touchend', handleTouchEnd, { passive: true });
+        function Particle() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.vx = (Math.random() - 0.5) * 0.3;
+            this.vy = (Math.random() - 0.5) * 0.3;
+            this.radius = Math.random() * 1.5 + 0.5;
+        }
+
+        Particle.prototype.update = function () {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        };
+
+        Particle.prototype.draw = function () {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim() || '#ffffff';
+            ctx.fill();
+        };
+
+        function init() {
+            particles = [];
+            for (var i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (var i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                for (var j = i + 1; j < particles.length; j++) {
+                    var dx = particles[i].x - particles[j].x;
+                    var dy = particles[i].y - particles[j].y;
+                    var distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim() || '#ffffff';
+                        ctx.globalAlpha = (1 - distance / 150) * 0.12;
+                        ctx.lineWidth = 0.8;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                        ctx.globalAlpha = 1;
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        resize();
+        init();
+        animate();
+
+        window.addEventListener('resize', function () {
+            resize();
+            init();
+        });
     })();
 
 })();
