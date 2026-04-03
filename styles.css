@@ -1,4 +1,4 @@
-﻿/* ============================================
+/* ============================================
    Qaulium AI - Deep Technology Website
    ============================================ */
 
@@ -2141,8 +2141,8 @@ img { max-width: 100%; display: block; }
     }
 
     .dev-card-horizontal {
-        min-width: 280px;
-        max-width: 280px;
+        min-width: calc(85vw);
+        max-width: calc(85vw);
         flex-shrink: 0;
         scroll-snap-align: start;
         scroll-snap-stop: always;
@@ -2174,22 +2174,22 @@ img { max-width: 100%; display: block; }
     }
 
     .capabilities-horizontal .research-card {
-        min-width: 280px;
-        max-width: 280px;
+        min-width: calc(85vw);
+        max-width: calc(85vw);
         flex-shrink: 0;
         scroll-snap-align: start;
     }
 
     .capability-card-horizontal {
-        min-width: 280px;
-        max-width: 280px;
+        min-width: calc(85vw);
+        max-width: calc(85vw);
         scroll-snap-align: start;
         scroll-snap-stop: always;
     }
 
     .dev-card-horizontal {
-        min-width: 280px;
-        max-width: 280px;
+        min-width: calc(85vw);
+        max-width: calc(85vw);
     }
 
     .dev-card-image-top {
@@ -2287,8 +2287,8 @@ img { max-width: 100%; display: block; }
     }
 
     .dev-card-horizontal {
-        min-width: 260px;
-        max-width: 260px;
+        min-width: calc(82vw);
+        max-width: calc(82vw);
         scroll-snap-align: start;
     }
 
@@ -2306,14 +2306,14 @@ img { max-width: 100%; display: block; }
     }
 
     .capabilities-horizontal .research-card {
-        min-width: 260px;
-        max-width: 260px;
+        min-width: calc(82vw);
+        max-width: calc(82vw);
         scroll-snap-align: start;
     }
 
     .capability-card-horizontal {
-        min-width: 260px;
-        max-width: 260px;
+        min-width: calc(82vw);
+        max-width: calc(82vw);
         scroll-snap-align: start;
     }
 
@@ -2356,7 +2356,7 @@ img { max-width: 100%; display: block; }
 }
 
 /* ============================================
-   Quantum Processor – Advanced Animations
+   Quantum Processor � Advanced Animations
    ============================================ */
 
 /* Pulsing core glow */
