@@ -821,7 +821,6 @@
     }
 
     // --- Horizontal scroll for capabilities section ---
-    // Page stops when section is sticky + cards are mid-scroll
     (function () {
         var outer     = document.getElementById('capabilitiesOuter');
         var section   = document.getElementById('capabilities');
@@ -830,90 +829,94 @@
         if (!outer || !section || !track || !container) return;
 
         var cardScrollWidth = 0;
-        var isLocked = false;
-        var lockScrollY = 0;
+        var locked = false;
+        var lockY  = 0;
 
         function setup() {
             track.style.transform = 'translateX(0)';
+            // Measure true track width by temporarily removing overflow clip
+            var prevC = container.style.overflow;
+            var prevS = section.style.overflow;
             container.style.overflow = 'visible';
             section.style.overflow   = 'visible';
-            var trackW   = track.scrollWidth;
-            var sectionW = section.offsetWidth;
-            container.style.overflow = 'hidden';
-            section.style.overflow   = 'hidden';
-            cardScrollWidth = Math.max(0, trackW - sectionW);
+            cardScrollWidth = Math.max(0, track.scrollWidth - section.offsetWidth);
+            container.style.overflow = prevC || 'hidden';
+            section.style.overflow   = prevS || 'hidden';
             if (cardScrollWidth <= 0) return;
             outer.style.height = (section.offsetHeight + cardScrollWidth) + 'px';
         }
 
-        function getProgress() {
-            var scrolled = Math.max(0, -outer.getBoundingClientRect().top);
-            return Math.min(1, scrolled / cardScrollWidth);
+        function progress() {
+            return cardScrollWidth > 0
+                ? Math.max(0, Math.min(1, -outer.getBoundingClientRect().top / cardScrollWidth))
+                : 0;
         }
 
-        function applyProgress(p) {
+        function apply(p) {
             track.style.transform = 'translateX(' + (-p * cardScrollWidth) + 'px)';
         }
 
-        function isSectionSticky() {
-            var r = section.getBoundingClientRect();
-            return Math.abs(r.top - 72) < 4; // section is pinned at header height
+        // Section is sticky when its top is at the header (72px)
+        function isSticky() {
+            var t = section.getBoundingClientRect().top;
+            return t <= 73 && t >= 71;
         }
 
-        function lock(y) {
-            if (isLocked) return;
-            isLocked = true;
-            lockScrollY = y;
+        function lock() {
+            if (locked) return;
+            locked = true;
+            lockY  = window.scrollY;
             document.body.style.overflow = 'hidden';
         }
 
         function unlock() {
-            if (!isLocked) return;
-            isLocked = false;
+            if (!locked) return;
+            locked = false;
             document.body.style.overflow = '';
         }
 
         window.addEventListener('wheel', function(e) {
             if (cardScrollWidth <= 0) return;
-            if (!isSectionSticky()) { unlock(); return; }
 
-            var p = getProgress();
+            var p    = progress();
             var down = e.deltaY > 0;
             var up   = e.deltaY < 0;
 
+            // Not sticky yet — let page scroll normally
+            if (!isSticky() && !locked) return;
+
+            // At boundaries — unlock and let page continue
             if (down && p >= 1) { unlock(); return; }
             if (up   && p <= 0) { unlock(); return; }
 
-            lock(window.scrollY);
+            // Lock page and move cards
+            lock();
             e.preventDefault();
-            window.scrollTo({ top: lockScrollY, behavior: 'instant' });
+            window.scrollTo({ top: lockY, behavior: 'instant' });
 
-            var newScrolled = Math.max(0, -outer.getBoundingClientRect().top) + e.deltaY * 0.9;
-            var newP = Math.max(0, Math.min(1, newScrolled / cardScrollWidth));
-            applyProgress(newP);
+            // Advance card position
+            var newP = Math.max(0, Math.min(1, p + (e.deltaY * 0.9) / cardScrollWidth));
+            apply(newP);
 
-            // Sync outer div scroll position to match card progress
-            var targetOuterScroll = newP * cardScrollWidth;
-            var outerTop = outer.getBoundingClientRect().top + window.scrollY;
-            window.scrollTo({ top: outerTop + targetOuterScroll, behavior: 'instant' });
-            lockScrollY = window.scrollY;
+            // Sync outer div so progress() stays accurate after unlock
+            var outerAbsTop = outer.getBoundingClientRect().top + window.scrollY;
+            lockY = outerAbsTop + newP * cardScrollWidth;
+            window.scrollTo({ top: lockY, behavior: 'instant' });
 
         }, { passive: false });
 
-        // Also update on normal scroll (for when unlocked)
+        // Keep cards in sync during normal (unlocked) scroll
         window.addEventListener('scroll', function() {
-            if (!isLocked && cardScrollWidth > 0) {
-                applyProgress(getProgress());
-            }
+            if (!locked) apply(progress());
         }, { passive: true });
 
         function init() {
             setup();
-            applyProgress(getProgress());
+            apply(progress());
             window.addEventListener('resize', function() {
                 outer.style.height = '';
                 setup();
-                applyProgress(getProgress());
+                apply(progress());
             });
         }
 
