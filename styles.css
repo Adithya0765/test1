@@ -2803,3 +2803,80 @@ img { max-width: 100%; display: block; }
 #capabilities .capabilities-scroll-container {
     overflow: hidden;
 }
+
+/* ============================================
+   Dynamic Scaling — fluid layout for all screen sizes
+   ============================================ */
+
+/* Large desktops (1440px+) */
+@media (min-width: 1440px) {
+    :root { --container-max: 1320px; }
+    .hero-headline { font-size: 80px; }
+    .section-heading { font-size: 52px; }
+}
+
+/* Standard desktops (1280px) */
+@media (max-width: 1280px) {
+    :root { --container-max: 1100px; }
+    .dev-platform-horizontal {
+        grid-template-columns: repeat(3, 320px);
+    }
+}
+
+/* Tablets landscape (1024px already covered) */
+
+/* Tablets portrait (900px) */
+@media (max-width: 900px) {
+    .hero-split {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+    }
+    .hero-content { max-width: 100%; }
+    .hero-actions { justify-content: center; }
+    .hero-sub { margin-left: auto; margin-right: auto; }
+    .hero-visual { justify-content: center; }
+
+    .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+    .cta-banner { flex-direction: column; align-items: flex-start; padding: 48px 40px; }
+
+    .footer-top { flex-direction: column; gap: 32px; }
+    .footer-columns { flex-wrap: wrap; gap: 32px; }
+}
+
+/* Small tablets / large phones (600px) */
+@media (max-width: 600px) {
+    :root { --section-spacing: 64px; }
+
+    .container { padding: 0 16px; }
+    .nav-container { padding: 0 16px; }
+
+    .hero-headline { font-size: clamp(36px, 9vw, 56px); }
+    .section-heading { font-size: clamp(26px, 6vw, 36px); }
+    .section-intro { font-size: 16px; }
+
+    .hero-sub { font-size: 15px; }
+    .btn { padding: 12px 24px; font-size: 14px; }
+
+    .usecases-grid { grid-template-columns: 1fr; }
+    .careers-values-grid { grid-template-columns: 1fr; }
+    .roles-grid { grid-template-columns: 1fr; }
+
+    .cta-banner { padding: 40px 24px; border-radius: 12px; }
+    .cta-text h2 { font-size: 22px; }
+
+    .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+    .footer-legal { justify-content: center; flex-wrap: wrap; }
+
+    .modal-container { padding: 28px 16px; }
+    .register-form .form-row { grid-template-columns: 1fr; }
+}
+
+/* Ensure images and SVGs scale properly */
+img, svg { max-width: 100%; }
+
+/* Fluid container padding */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container { padding: 0 24px; }
+    .nav-container { padding: 0 24px; }
+}
