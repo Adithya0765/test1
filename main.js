@@ -821,26 +821,34 @@
     }
 
     // --- Horizontal scroll for capabilities section ---
-    // When section is in view: wheel scrolls cards. Page locked via overflow:hidden on body.
+    // Trigger: section bottom reaches viewport bottom → lock page, scroll cards L→R
+    // Reverse: scrolling up while cards visible → scroll cards R→L, then unlock
     (function () {
         var container = document.getElementById('capabilitiesScroll');
         if (!container) return;
 
         var locked = false;
+        var lockScrollY = 0; // page Y position where we locked
 
         function maxScroll() { return container.scrollWidth - container.clientWidth; }
         function atStart()   { return container.scrollLeft <= 2; }
         function atEnd()     { return container.scrollLeft >= maxScroll() - 2; }
 
-        function inView() {
+        function sectionBottomAtViewportBottom() {
             var r = container.getBoundingClientRect();
-            // Section top is within viewport and not fully scrolled past
-            return r.top <= window.innerHeight * 0.5 && r.bottom >= 0;
+            // Section bottom is at or below viewport bottom (within 20px tolerance)
+            return r.bottom >= window.innerHeight - 20 && r.bottom <= window.innerHeight + 200;
+        }
+
+        function sectionVisible() {
+            var r = container.getBoundingClientRect();
+            return r.top < window.innerHeight && r.bottom > 0;
         }
 
         function lock() {
             if (locked) return;
             locked = true;
+            lockScrollY = window.scrollY;
             document.body.style.overflow = 'hidden';
         }
 
@@ -851,17 +859,39 @@
         }
 
         window.addEventListener('wheel', function(e) {
-            if (!inView()) { unlock(); return; }
-
             var down = e.deltaY > 0;
             var up   = e.deltaY < 0;
 
-            if (down && atEnd())   { unlock(); return; }
-            if (up   && atStart()) { unlock(); return; }
+            // --- Scrolling DOWN ---
+            if (down) {
+                // Enter lock: section bottom just hit viewport bottom
+                if (!locked && sectionBottomAtViewportBottom() && !atEnd()) {
+                    lock();
+                }
+                if (locked) {
+                    if (atEnd()) { unlock(); return; } // cards done, resume page
+                    e.preventDefault();
+                    window.scrollTo(0, lockScrollY); // hold page position
+                    container.scrollLeft += e.deltaY * 0.9;
+                    return;
+                }
+            }
 
-            lock();
-            e.preventDefault();
-            container.scrollLeft += e.deltaY * 0.9;
+            // --- Scrolling UP ---
+            if (up) {
+                // Enter lock: cards have content to scroll back AND section is visible
+                if (!locked && sectionVisible() && !atStart()) {
+                    lock();
+                    lockScrollY = window.scrollY;
+                }
+                if (locked) {
+                    if (atStart()) { unlock(); return; } // cards reset, resume page
+                    e.preventDefault();
+                    window.scrollTo(0, lockScrollY);
+                    container.scrollLeft += e.deltaY * 0.9;
+                    return;
+                }
+            }
         }, { passive: false });
 
         // Touch
@@ -872,7 +902,11 @@
         container.addEventListener('touchmove', function(e) {
             if (!touch) return;
             var dx = Math.abs(tx0 - e.touches[0].clientX), dy = Math.abs(ty0 - e.touches[0].clientY);
-            if (dx > dy && dx > 8) { e.preventDefault(); container.scrollLeft += txL - e.touches[0].clientX; txL = e.touches[0].clientX; }
+            if (dx > dy && dx > 8) {
+                e.preventDefault();
+                container.scrollLeft += txL - e.touches[0].clientX;
+                txL = e.touches[0].clientX;
+            }
         }, { passive: false });
         container.addEventListener('touchend', function() { touch = false; }, { passive: true });
     })();
