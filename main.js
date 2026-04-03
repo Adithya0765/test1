@@ -822,22 +822,31 @@
 
     // --- Horizontal scroll for capabilities section ---
     (function () {
-        var outer   = document.getElementById('capabilitiesOuter');
-        var section = document.getElementById('capabilities');
-        var track   = document.getElementById('capabilitiesTrack');
-        if (!outer || !section || !track) return;
+        var outer     = document.getElementById('capabilitiesOuter');
+        var section   = document.getElementById('capabilities');
+        var track     = document.getElementById('capabilitiesTrack');
+        var container = document.getElementById('capabilitiesScroll');
+        if (!outer || !section || !track || !container) return;
 
         var cardScrollWidth = 0;
 
         function setup() {
             track.style.transform = 'translateX(0)';
-            // scrollWidth gives layout pixels; works correctly at any zoom
-            cardScrollWidth = track.scrollWidth - section.scrollWidth;
-            if (cardScrollWidth <= 0) {
-                // fallback: use offsetWidth
-                cardScrollWidth = track.offsetWidth - section.offsetWidth;
-            }
+
+            // Temporarily unhide to get true scrollWidth
+            var prevOverflow = container.style.overflow;
+            container.style.overflow = 'visible';
+            section.style.overflow   = 'visible';
+
+            var trackW   = track.scrollWidth;
+            var sectionW = section.offsetWidth;
+
+            container.style.overflow = prevOverflow || 'hidden';
+            section.style.overflow   = 'hidden';
+
+            cardScrollWidth = Math.max(0, trackW - sectionW);
             if (cardScrollWidth <= 0) return;
+
             var sectionH = section.offsetHeight;
             outer.style.height = (sectionH + cardScrollWidth) + 'px';
         }
@@ -860,16 +869,11 @@
             });
         }
 
-        // Delay init slightly to ensure layout is complete
-        if (document.readyState === 'complete') {
-            setTimeout(init, 50);
-        } else {
-            window.addEventListener('load', function() { setTimeout(init, 50); });
-        }
+        if (document.readyState === 'complete') { setTimeout(init, 100); }
+        else { window.addEventListener('load', function() { setTimeout(init, 100); }); }
 
         // Touch
         var tx0 = 0, ty0 = 0, txL = 0, touch = false;
-        var container = document.getElementById('capabilitiesScroll');
         if (container) {
             container.addEventListener('touchstart', function(e) {
                 tx0 = txL = e.touches[0].clientX; ty0 = e.touches[0].clientY; touch = true;
@@ -877,11 +881,7 @@
             container.addEventListener('touchmove', function(e) {
                 if (!touch) return;
                 var dx = Math.abs(tx0 - e.touches[0].clientX), dy = Math.abs(ty0 - e.touches[0].clientY);
-                if (dx > dy && dx > 8) {
-                    e.preventDefault();
-                    container.scrollLeft += txL - e.touches[0].clientX;
-                    txL = e.touches[0].clientX;
-                }
+                if (dx > dy && dx > 8) { e.preventDefault(); container.scrollLeft += txL - e.touches[0].clientX; txL = e.touches[0].clientX; }
             }, { passive: false });
             container.addEventListener('touchend', function() { touch = false; }, { passive: true });
         }
