@@ -821,36 +821,38 @@
     }
 
     // --- Horizontal scroll for capabilities section ---
-    // DOWN: lock when section.bottom == viewport.bottom (full card visible at bottom)
-    // UP:   lock when section.top == header.bottom (full card visible at top)
+    // Point A (down): section.bottom == viewport.bottom  → lock, scroll L→R, continue down
+    // Point B (up):   section.top    == header.bottom    → lock, scroll R→L, continue up
     (function () {
         var container = document.getElementById('capabilitiesScroll');
         if (!container) return;
 
-        var locked = false;
-        var lockY = 0;
         var HEADER = 72;
-        var TOLERANCE = 40;
+        var locked = false;
+        var lockY  = 0;
+        var TOLERANCE = 40; // px window to catch the trigger
 
         function maxScroll() { return container.scrollWidth - container.clientWidth; }
         function atStart()   { return container.scrollLeft <= 2; }
         function atEnd()     { return container.scrollLeft >= maxScroll() - 2; }
 
-        function bottomAligned() {
-            // section bottom is within tolerance of viewport bottom
-            var b = container.getBoundingClientRect().bottom;
-            return Math.abs(b - window.innerHeight) < TOLERANCE;
+        function rect()      { return container.getBoundingClientRect(); }
+
+        // Point A: section bottom is at viewport bottom (full card visible from top)
+        function atPointA() {
+            var b = rect().bottom;
+            return b >= window.innerHeight - TOLERANCE && b <= window.innerHeight + TOLERANCE;
         }
 
-        function topAligned() {
-            // section top is within tolerance of header bottom
-            var t = container.getBoundingClientRect().top;
-            return Math.abs(t - HEADER) < TOLERANCE;
+        // Point B: section top is just below header (full card visible from bottom)
+        function atPointB() {
+            var t = rect().top;
+            return t >= HEADER - TOLERANCE && t <= HEADER + TOLERANCE;
         }
 
         function lock() {
             locked = true;
-            lockY = window.scrollY;
+            lockY  = window.scrollY;
             document.body.style.overflow = 'hidden';
         }
 
@@ -864,35 +866,27 @@
             var up   = e.deltaY < 0;
 
             if (!locked) {
-                // Snap to lock position when crossing the trigger
-                if (down && !atEnd()) {
-                    var b = container.getBoundingClientRect().bottom;
-                    if (b <= window.innerHeight + TOLERANCE && b >= window.innerHeight - TOLERANCE * 3) {
-                        // Snap page so section bottom == viewport bottom
-                        var snapY = window.scrollY + (b - window.innerHeight);
-                        window.scrollTo({ top: snapY, behavior: 'instant' });
-                        lock();
-                        lockY = window.scrollY;
-                        e.preventDefault();
-                        return;
-                    }
+                // Snap to Point A when scrolling down and we're close
+                if (down && atPointA() && !atEnd()) {
+                    // Snap page so section bottom is exactly at viewport bottom
+                    var snapY = window.scrollY + rect().bottom - window.innerHeight;
+                    window.scrollTo({ top: snapY, behavior: 'instant' });
+                    lock();
+                    e.preventDefault();
+                    return;
                 }
-                if (up && !atStart()) {
-                    var t = container.getBoundingClientRect().top;
-                    if (t >= HEADER - TOLERANCE * 3 && t <= HEADER + TOLERANCE) {
-                        // Snap page so section top == header bottom
-                        var snapY = window.scrollY - (HEADER - t);
-                        window.scrollTo({ top: snapY, behavior: 'instant' });
-                        lock();
-                        lockY = window.scrollY;
-                        e.preventDefault();
-                        return;
-                    }
+                // Snap to Point B when scrolling up and we're close
+                if (up && atPointB() && !atStart()) {
+                    var snapY = window.scrollY + rect().top - HEADER;
+                    window.scrollTo({ top: snapY, behavior: 'instant' });
+                    lock();
+                    e.preventDefault();
+                    return;
                 }
-                return;
+                return; // not near trigger, normal page scroll
             }
 
-            // Locked — drive cards
+            // --- Locked: drive cards ---
             e.preventDefault();
             window.scrollTo({ top: lockY, behavior: 'instant' });
 
