@@ -227,6 +227,7 @@
         </section>
 
         <!-- Engineering Capabilities -->
+        <div id="capabilitiesOuter" style="position:relative;">
         <section class="section section-capabilities" id="capabilities">
             <div class="container-full">
                 <div class="container">
@@ -234,8 +235,8 @@
                     <h2 class="section-heading">From photon to production</h2>
                 </div>
                 
-                <div class="capabilities-scroll-container" id="capabilitiesScroll">
-                    <div class="capabilities-horizontal">
+                <div class="capabilities-scroll-container" id="capabilitiesScroll" style="overflow:hidden;">
+                    <div class="capabilities-horizontal" id="capabilitiesTrack">
                         <article class="dev-card-horizontal">
                             <div class="dev-card-image-top">
                                 <svg class="dev-illustration" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -383,6 +384,11 @@
 
             </div>
         </section>
+
+        </div><!-- end capabilitiesOuter -->
+
+        <!-- Spacer -->
+        <div style="height:5vh;background:var(--color-surface);"></div>
 
         <!-- CTA -->
         <section class="section section-cta">

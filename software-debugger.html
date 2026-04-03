@@ -268,7 +268,8 @@
         </section>
         
         <!-- Capabilities Section -->
-        <section class="section section-capabilities">
+        <div id="capabilitiesOuter" style="position:relative;">
+        <section class="section section-capabilities" id="capabilities" style="position:sticky;top:72px;z-index:10;background:var(--color-surface);">
             <div class="container-full">
                 <div class="container">
                     <div class="section-label">Software Capabilities</div>
@@ -276,8 +277,8 @@
                     <p class="section-intro" style="margin-bottom: 32px;">Step through quantum execution frame by frame, inspect state at every gate, and isolate fidelity issues before they reach hardware.</p>
                 </div>
 
-                <div class="capabilities-scroll-container" id="capabilitiesScroll">
-                    <div class="capabilities-horizontal">
+                <div class="capabilities-scroll-container" id="capabilitiesScroll" style="overflow:hidden;">
+                    <div class="capabilities-horizontal" id="capabilitiesTrack">
                         <article class="dev-card-horizontal">
                             <div class="dev-card-image-top"><svg class="dev-illustration" viewBox="0 0 400 200" fill="none">
                                     <rect x="100" y="55" width="200" height="90" rx="8" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="2"/>
@@ -372,7 +373,12 @@
         </section>
 
 
-                <!-- Universal Call to Action -->
+        </div><!-- end capabilitiesOuter -->
+
+        <!-- Spacer -->
+        <div style="height:5vh;background:var(--color-surface);"></div>
+
+        <!-- Universal Call to Action -->
         <section class="section section-cta" style="margin-bottom: 80px;">
             <div class="container">
                 <div class="cta-banner">
