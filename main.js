@@ -2,6 +2,25 @@
    Qaulium AI - Main JavaScript
    ============================================ */
 
+// --- DPI / OS Scale compensation ---
+// Keeps layout consistent regardless of Windows display scaling (100%, 125%, 150%)
+(function() {
+    function applyZoom() {
+        var dpr = window.devicePixelRatio || 1;
+        // Only compensate on desktop (not mobile/tablet)
+        if (window.innerWidth < 768) return;
+        // At 100% scale dpr=1, at 125% dpr=1.25, at 150% dpr=1.5
+        // We counter-zoom to make 125% look like 100%
+        if (dpr > 1 && dpr <= 2) {
+            document.documentElement.style.zoom = (1 / dpr);
+        } else {
+            document.documentElement.style.zoom = '';
+        }
+    }
+    applyZoom();
+    window.addEventListener('resize', applyZoom);
+})();
+
 (function () {
     'use strict';
 
