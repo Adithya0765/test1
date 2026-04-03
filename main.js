@@ -444,7 +444,7 @@
             strictMode: true,
             nationalMode: false,
             autoPlaceholder: 'polite',
-            separateDialCode: true,
+            showSelectedDialCode: true,
             loadUtilsOnInit: true,
             dropdownContainer: document.body,
             geoIpLookup: function (callback) {
