@@ -2791,3 +2791,9 @@ img { max-width: 100%; display: block; }
     color: #a0a0a0;
 }
 
+
+/* Capabilities horizontal track — driven by translateX via JS */
+#capabilitiesTrack {
+    will-change: transform;
+    transition: none;
+}

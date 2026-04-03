@@ -372,6 +372,7 @@
                 </div>
             </div>
         </section>
+        </div><!-- end capabilitiesOuter -->
 
         <!-- Use Cases -->
         <section class="section section-usecases" id="usecases">
@@ -436,15 +437,16 @@
         </section>
 
         <!-- Software Capabilities -->
-        <section class="section section-capabilities" id="capabilities">
+        <div id="capabilitiesOuter" style="position:relative;">
+        <section class="section section-capabilities" id="capabilities" style="position:sticky;top:72px;">
             <div class="container-full">
                 <div class="container">
                     <div class="section-label">Software Capabilities</div>
                     <h2 class="section-heading">From concept to quantum advantage</h2>
                 </div>
                 
-                <div class="capabilities-scroll-container" id="capabilitiesScroll">
-                    <div class="capabilities-horizontal">
+                <div class="capabilities-scroll-container" id="capabilitiesScroll" style="overflow:hidden;">
+                    <div class="capabilities-horizontal" id="capabilitiesTrack">
                         <article class="dev-card-horizontal">
                             <div class="dev-card-image-top">
                                 <svg class="dev-illustration" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
