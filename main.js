@@ -926,33 +926,6 @@
         window.addEventListener('load', updateMaxScroll);
     })();
 
-    // --- Auto-scroll capabilities on hover ---
-    document.querySelectorAll('.capabilities-scroll-container').forEach(function(container) {
-        var scrollInterval = null;
-        var speed = 1.5; // px per frame
-
-        container.addEventListener('mouseenter', function() {
-            scrollInterval = setInterval(function() {
-                container.scrollLeft += speed;
-                // Reset to start when near end
-                if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
-                    container.scrollLeft = 0;
-                }
-            }, 16);
-        });
-
-        container.addEventListener('mouseleave', function() {
-            clearInterval(scrollInterval);
-            scrollInterval = null;
-        });
-
-        // Stop on manual scroll/touch
-        container.addEventListener('wheel', function() {
-            clearInterval(scrollInterval);
-            scrollInterval = null;
-        }, { passive: true });
-    });
-
     // --- Horizontal scroll for dev platform section ---
     (function () {
         var devPlatformScroll = document.getElementById('devPlatformScroll');
