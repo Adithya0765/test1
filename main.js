@@ -445,6 +445,7 @@
             nationalMode: false,
             autoPlaceholder: 'polite',
             showSelectedDialCode: true,
+            countrySearch: false,
             loadUtilsOnInit: true,
             dropdownContainer: document.body,
             geoIpLookup: function (callback) {
