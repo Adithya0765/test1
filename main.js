@@ -821,38 +821,40 @@
     }
 
     // --- Horizontal scroll for capabilities section ---
-    // Point A (down): section.bottom == viewport.bottom  → lock, scroll L→R, continue down
-    // Point B (up):   section.top    == header.bottom    → lock, scroll R→L, continue up
     (function () {
         var container = document.getElementById('capabilitiesScroll');
         if (!container) return;
 
-        var HEADER = 72;
         var locked = false;
         var lockY  = 0;
-        var TOLERANCE = 40; // px window to catch the trigger
+        var targetLeft = 0;
+        var currentLeft = 0;
+        var rafRunning = false;
+        var LERP = 0.12; // smoothing factor
 
         function maxScroll() { return container.scrollWidth - container.clientWidth; }
-        function atStart()   { return container.scrollLeft <= 2; }
-        function atEnd()     { return container.scrollLeft >= maxScroll() - 2; }
+        function atStart()   { return targetLeft <= 2; }
+        function atEnd()     { return targetLeft >= maxScroll() - 2; }
 
-        function rect()      { return container.getBoundingClientRect(); }
-
-        // Point A: section bottom is at viewport bottom (full card visible from top)
-        function atPointA() {
-            var b = rect().bottom;
-            return b >= window.innerHeight - TOLERANCE && b <= window.innerHeight + TOLERANCE;
+        // Smooth render loop
+        function renderLoop() {
+            currentLeft += (targetLeft - currentLeft) * LERP;
+            container.scrollLeft = currentLeft;
+            if (Math.abs(targetLeft - currentLeft) > 0.5) {
+                requestAnimationFrame(renderLoop);
+            } else {
+                container.scrollLeft = targetLeft;
+                rafRunning = false;
+            }
         }
 
-        // Point B: section top is just below header (full card visible from bottom)
-        function atPointB() {
-            var t = rect().top;
-            return t >= HEADER - TOLERANCE && t <= HEADER + TOLERANCE;
+        function startRender() {
+            if (!rafRunning) { rafRunning = true; requestAnimationFrame(renderLoop); }
         }
 
-        function lock() {
+        function lock(snapY) {
             locked = true;
-            lockY  = window.scrollY;
+            lockY  = snapY !== undefined ? snapY : window.scrollY;
             document.body.style.overflow = 'hidden';
         }
 
@@ -861,54 +863,80 @@
             document.body.style.overflow = '';
         }
 
+        // Use IntersectionObserver on two sentinels for reliable trigger detection
+        // Sentinel A: bottom of section — triggers when section bottom enters viewport
+        // Sentinel B: top of section — triggers when section top enters viewport from above
+
+        var sentinelA = document.createElement('div');
+        sentinelA.style.cssText = 'position:absolute;bottom:0;left:0;width:1px;height:1px;pointer-events:none;';
+        var sentinelB = document.createElement('div');
+        sentinelB.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none;';
+
+        var section = container.closest('.section-capabilities') || container.parentElement.parentElement;
+        section.style.position = 'relative';
+        section.appendChild(sentinelA);
+        section.appendChild(sentinelB);
+
+        var sectionBottomVisible = false;
+        var sectionTopVisible = false;
+
+        new IntersectionObserver(function(entries) {
+            sectionBottomVisible = entries[0].isIntersecting;
+        }, { threshold: 0, rootMargin: '0px 0px 0px 0px' }).observe(sentinelA);
+
+        new IntersectionObserver(function(entries) {
+            sectionTopVisible = entries[0].isIntersecting;
+        }, { threshold: 0, rootMargin: '-72px 0px 0px 0px' }).observe(sentinelB);
+
         window.addEventListener('wheel', function(e) {
             var down = e.deltaY > 0;
             var up   = e.deltaY < 0;
 
             if (!locked) {
-                // Snap to Point A when scrolling down and we're close
-                if (down && atPointA() && !atEnd()) {
-                    // Snap page so section bottom is exactly at viewport bottom
-                    var snapY = window.scrollY + rect().bottom - window.innerHeight;
-                    window.scrollTo({ top: snapY, behavior: 'instant' });
-                    lock();
+                if (down && sectionBottomVisible && !atEnd()) {
                     e.preventDefault();
+                    lock();
                     return;
                 }
-                // Snap to Point B when scrolling up and we're close
-                if (up && atPointB() && !atStart()) {
-                    var snapY = window.scrollY + rect().top - HEADER;
-                    window.scrollTo({ top: snapY, behavior: 'instant' });
-                    lock();
+                if (up && sectionTopVisible && !atStart()) {
                     e.preventDefault();
+                    lock();
                     return;
                 }
-                return; // not near trigger, normal page scroll
+                return;
             }
 
-            // --- Locked: drive cards ---
+            // Locked — drive cards
             e.preventDefault();
             window.scrollTo({ top: lockY, behavior: 'instant' });
 
             if (down && atEnd())   { unlock(); return; }
             if (up   && atStart()) { unlock(); return; }
 
-            container.scrollLeft += e.deltaY * 0.9;
+            targetLeft = Math.max(0, Math.min(maxScroll(), targetLeft + e.deltaY * 0.9));
+            startRender();
 
         }, { passive: false });
+
+        // Sync currentLeft on unlock so re-entry is smooth
+        window.addEventListener('scroll', function() {
+            if (!locked) { currentLeft = container.scrollLeft; targetLeft = currentLeft; }
+        }, { passive: true });
 
         // Touch
         var tx0 = 0, ty0 = 0, txL = 0, touch = false;
         container.addEventListener('touchstart', function(e) {
-            tx0 = txL = e.touches[0].clientX; ty0 = e.touches[0].clientY; touch = true;
+            tx0 = txL = e.touches[0].clientX; ty0 = e.touches[0].clientY;
+            touch = true; currentLeft = container.scrollLeft; targetLeft = currentLeft;
         }, { passive: true });
         container.addEventListener('touchmove', function(e) {
             if (!touch) return;
             var dx = Math.abs(tx0 - e.touches[0].clientX), dy = Math.abs(ty0 - e.touches[0].clientY);
             if (dx > dy && dx > 8) {
                 e.preventDefault();
-                container.scrollLeft += txL - e.touches[0].clientX;
+                targetLeft = Math.max(0, Math.min(maxScroll(), targetLeft + (txL - e.touches[0].clientX)));
                 txL = e.touches[0].clientX;
+                startRender();
             }
         }, { passive: false });
         container.addEventListener('touchend', function() { touch = false; }, { passive: true });
