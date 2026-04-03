@@ -2785,3 +2785,41 @@ main,
 [data-theme="dark"] .iti__selected-dial-code {
     color: #a0a0a0;
 }
+
+/* ============================================
+   Scale-proof layout — consistent across OS display scaling
+   ============================================ */
+
+/* Ensure consistent box model and font rendering at any DPI */
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* Prevent Windows high-DPI scaling from breaking fixed layouts */
+@media screen and (-webkit-min-device-pixel-ratio: 1.25),
+       screen and (min-resolution: 120dpi) {
+    /* Ensure containers don't overflow at higher DPI */
+    .container, .nav-container {
+        max-width: var(--container-max);
+    }
+    /* Keep horizontal scroll sections from overflowing */
+    .capabilities-scroll-container,
+    .dev-platform-scroll-container {
+        max-width: 100vw;
+    }
+}
+
+/* Tablet/laptop breakpoint — handles 125% Windows scaling on 1920px screens */
+@media (max-width: 1280px) and (min-width: 1025px) {
+    :root { --container-max: 1100px; }
+    .dev-platform-horizontal {
+        grid-template-columns: repeat(3, 320px);
+    }
+    .hero-headline { font-size: clamp(40px, 4.5vw, 64px); }
+}
+
+/* Handles 150% Windows scaling on 1920px (reports as ~1280px) */
+@media (max-width: 1024px) and (min-width: 769px) {
+    :root { --container-max: 960px; }
+}
