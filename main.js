@@ -72,6 +72,44 @@
         });
     }
 
+    // --- Mobile accordion dropdowns ---
+    function setupMobileAccordion(toggleId, menuId) {
+        var toggle = document.getElementById(toggleId);
+        var menu = document.getElementById(menuId);
+        if (!toggle || !menu) return;
+        toggle.addEventListener('click', function () {
+            var isOpen = menu.classList.contains('open');
+            // Close all submenus first
+            document.querySelectorAll('.mobile-nav-submenu').forEach(function (m) { m.classList.remove('open'); });
+            document.querySelectorAll('.mobile-nav-accordion-toggle').forEach(function (t) { t.classList.remove('open'); });
+            if (!isOpen) {
+                menu.classList.add('open');
+                toggle.classList.add('open');
+            }
+        });
+    }
+
+    setupMobileAccordion('mobileProductsToggle', 'mobileProductsMenu');
+    setupMobileAccordion('mobileResearchToggle', 'mobileResearchMenu');
+
+    // --- Mobile nav CTA opens modal ---
+    var mobileNavCta = document.getElementById('mobileNavCta');
+    if (mobileNavCta) {
+        mobileNavCta.addEventListener('click', function (e) {
+            e.preventDefault();
+            navToggle.classList.remove('active');
+            mobileNav.classList.remove('open');
+            document.body.style.overflow = '';
+            var modal = document.getElementById('registerModal');
+            if (modal) {
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            } else {
+                window.location.href = '/registration';
+            }
+        });
+    }
+
     // --- Desktop products dropdown (hover-based, no JS needed for open/close) ---
     var productDropdown = document.getElementById('productDropdown');
 

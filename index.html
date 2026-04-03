@@ -77,11 +77,35 @@
     <div class="mobile-nav" id="mobileNav">
         <ul class="mobile-nav-links">
             <li><a href="/">Home</a></li>
-            <li><a href="#products">Products</a></li>
-            <li><a href="/nirvana">Hardware</a></li>
+            <li>
+                <button class="mobile-nav-accordion-toggle" id="mobileProductsToggle">
+                    Products <span class="dropdown-caret" aria-hidden="true"></span>
+                </button>
+                <div class="mobile-nav-submenu" id="mobileProductsMenu">
+                    <div class="mobile-nav-submenu-title">Hardware</div>
+                    <a href="/nirvana">NIRVANA</a>
+                    <div class="mobile-nav-submenu-title">Software</div>
+                    <a href="#software">Visual Circuit Builder & IDE</a>
+                    <a href="#software">vQPU Simulation Engine</a>
+                    <a href="#software">Quantum AI Co-Scientist</a>
+                    <a href="#software">Time-Travel Debugger</a>
+                </div>
+            </li>
+            <li>
+                <button class="mobile-nav-accordion-toggle" id="mobileResearchToggle">
+                    Research <span class="dropdown-caret" aria-hidden="true"></span>
+                </button>
+                <div class="mobile-nav-submenu" id="mobileResearchMenu">
+                    <div class="mobile-nav-submenu-title">Research</div>
+                    <a href="#research">Research Blogs</a>
+                </div>
+            </li>
             <li><a href="/careers">Careers</a></li>
             <li><a href="#contact">Contact</a></li>
         </ul>
+        <div class="mobile-nav-cta">
+            <a href="#" id="mobileNavCta">Get Early Access</a>
+        </div>
     </div>
 
     <main>
