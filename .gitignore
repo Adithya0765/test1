@@ -18,6 +18,7 @@
 !favicon*.png
 !apple-touch-icon.png
 !logo-white.png
+!*.svg
 !vercel.json
 !package.json
 !package-lock.json

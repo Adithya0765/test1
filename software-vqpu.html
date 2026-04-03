@@ -129,30 +129,7 @@
                     </div>
                     <div class="hero-visual">
                         <div class="sw-hero-visual">
-                            <style>
-                            .vqpu-sphere { position:relative; width:280px; height:280px; }
-                            .vqpu-sphere svg { width:100%; height:100%; }
-                            .vqpu-state-vec { transform-origin:200px 200px; animation:vqpuRotate 4s linear infinite; }
-                            @keyframes vqpuRotate { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-                            .vqpu-pulse { animation:vqpuPulse 2s ease-in-out infinite; }
-                            @keyframes vqpuPulse { 0%,100%{opacity:0.3} 50%{opacity:0.8} }
-                            </style>
-                            <div class="vqpu-sphere">
-                                <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="200" cy="200" r="140" stroke="var(--color-border)" stroke-width="2"/>
-                                    <ellipse cx="200" cy="200" rx="140" ry="42" stroke="var(--color-border)" stroke-width="1.5" stroke-dasharray="4 4"/>
-                                    <line x1="200" y1="60" x2="200" y2="340" stroke="var(--color-border)" stroke-width="1.5"/>
-                                    <line x1="60" y1="200" x2="340" y2="200" stroke="var(--color-border)" stroke-width="1.5"/>
-                                    <g class="vqpu-state-vec">
-                                        <line x1="200" y1="200" x2="200" y2="80" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round"/>
-                                        <circle cx="200" cy="80" r="8" fill="#3B82F6"/>
-                                    </g>
-                                    <circle cx="200" cy="200" r="6" fill="#3B82F6" class="vqpu-pulse"/>
-                                    <text x="210" y="68" font-size="14" fill="#3B82F6" font-family="monospace">|ψ⟩</text>
-                                    <text x="205" y="355" font-size="12" fill="var(--color-text-tertiary)" font-family="monospace">|0⟩</text>
-                                    <text x="205" y="58" font-size="12" fill="var(--color-text-tertiary)" font-family="monospace">|1⟩</text>
-                                </svg>
-                            </div>
+                            <img src="vgpu engine.svg" alt="vQPU Engine" style="width:280px;height:auto;">
                         </div>
                     </div>
                 </div>
