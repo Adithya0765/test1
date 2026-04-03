@@ -132,23 +132,59 @@
                         <div class="sw-hero-visual" id="studioVisual">
                             <style>
                             .sw-hero-visual { display:flex; align-items:center; justify-content:center; width:100%; height:100%; }
-                            .sw-card { background:var(--color-bg); border:1.5px solid var(--color-border); border-radius:16px; padding:32px; width:340px; box-shadow:0 4px 24px rgba(0,0,0,0.06); }
-                            .sw-line { height:8px; border-radius:4px; background:var(--color-accent); opacity:0.25; margin-bottom:14px; animation:swPulse 2s ease-in-out infinite; }
-                            .sw-line:nth-child(1) { width:80%; animation-delay:0s; }
-                            .sw-line:nth-child(2) { width:60%; animation-delay:0.2s; }
-                            .sw-line:nth-child(3) { width:90%; animation-delay:0.4s; }
-                            .sw-line:nth-child(4) { width:50%; animation-delay:0.6s; }
-                            .sw-cursor { display:inline-block; width:2px; height:18px; background:var(--color-accent); animation:swBlink 1s step-end infinite; vertical-align:middle; margin-left:2px; }
-                            @keyframes swPulse { 0%,100%{opacity:0.2} 50%{opacity:0.6} }
-                            @keyframes swBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+                            .studio-circuit { background:var(--color-bg); border:1.5px solid var(--color-border); border-radius:16px; padding:28px 32px; width:360px; box-shadow:0 4px 24px rgba(0,0,0,0.06); }
+                            .studio-toolbar { display:flex; gap:6px; margin-bottom:20px; }
+                            .studio-tb-dot { width:10px; height:10px; border-radius:50%; }
+                            .studio-wire-row { display:flex; align-items:center; gap:0; margin-bottom:12px; }
+                            .studio-qubit { font-family:var(--font-mono); font-size:12px; color:var(--color-text-tertiary); width:28px; flex-shrink:0; }
+                            .studio-wire { flex:1; height:1.5px; background:var(--color-border); position:relative; }
+                            .studio-gate { position:absolute; top:50%; transform:translateY(-50%); width:28px; height:28px; border-radius:5px; border:1.5px solid var(--color-accent); background:var(--color-bg); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11px; font-weight:600; color:var(--color-accent); opacity:0; transition:opacity 0.25s ease; }
+                            .studio-gate.show { opacity:1; }
+                            .studio-measure { border-color:var(--color-text-tertiary); color:var(--color-text-tertiary); }
                             </style>
-                            <div class="sw-card">
-                                <div class="sw-line"></div>
-                                <div class="sw-line"></div>
-                                <div class="sw-line"></div>
-                                <div class="sw-line"></div>
-                                <span class="sw-cursor"></span>
+                            <div class="studio-circuit">
+                                <div class="studio-toolbar">
+                                    <div class="studio-tb-dot" style="background:#EF4444;opacity:0.7"></div>
+                                    <div class="studio-tb-dot" style="background:#F59E0B;opacity:0.7"></div>
+                                    <div class="studio-tb-dot" style="background:#10B981;opacity:0.7"></div>
+                                </div>
+                                <div class="studio-wire-row">
+                                    <span class="studio-qubit">q₀</span>
+                                    <div class="studio-wire" id="sw0">
+                                        <div class="studio-gate" id="sg0a" style="left:10%">H</div>
+                                        <div class="studio-gate" id="sg0b" style="left:40%">●</div>
+                                        <div class="studio-gate studio-measure" id="sg0c" style="left:72%">M</div>
+                                    </div>
+                                </div>
+                                <div class="studio-wire-row">
+                                    <span class="studio-qubit">q₁</span>
+                                    <div class="studio-wire" id="sw1">
+                                        <div class="studio-gate" id="sg1a" style="left:10%">X</div>
+                                        <div class="studio-gate" id="sg1b" style="left:40%">⊕</div>
+                                        <div class="studio-gate studio-measure" id="sg1c" style="left:72%">M</div>
+                                    </div>
+                                </div>
+                                <div class="studio-wire-row">
+                                    <span class="studio-qubit">q₂</span>
+                                    <div class="studio-wire" id="sw2">
+                                        <div class="studio-gate" id="sg2a" style="left:10%">H</div>
+                                        <div class="studio-gate" id="sg2b" style="left:55%">Rz</div>
+                                        <div class="studio-gate studio-measure" id="sg2c" style="left:72%">M</div>
+                                    </div>
+                                </div>
                             </div>
+                            <script>
+                            (function loop() {
+                                var gates = ['sg0a','sg1a','sg2a','sg0b','sg1b','sg2b','sg0c','sg1c','sg2c'];
+                                function reset() { gates.forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('show'); }); }
+                                function showAt(id, delay) { setTimeout(function(){ var el=document.getElementById(id); if(el) el.classList.add('show'); }, delay); }
+                                reset();
+                                var t = 200;
+                                gates.forEach(function(id) { showAt(id, t); t += 300; });
+                                setTimeout(function(){ reset(); setTimeout(loop, 400); }, t + 1200);
+                            })();
+                            </script>
+                        </div>
                         </div>
                     </div>
                 </div>
