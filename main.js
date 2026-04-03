@@ -445,6 +445,7 @@
             nationalMode: false,
             autoPlaceholder: 'polite',
             showSelectedDialCode: true,
+            separateDialCode: false,
             countrySearch: false,
             loadUtilsOnInit: true,
             dropdownContainer: document.body,

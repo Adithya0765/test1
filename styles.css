@@ -2703,26 +2703,59 @@ img { max-width: 100%; display: block; }
     display: block;
 }
 
+/* Make the flag button sit inside the input */
 .iti__flag-container {
     z-index: 10;
 }
 
-/* Dropdown appended to body - ensure proper z-index and max height */
+.iti__selected-dial-code {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--color-text-secondary);
+    padding-left: 4px;
+}
+
+/* Dropdown appended to body */
 .iti__country-list:not(.iti__hide) {
     z-index: 1001;
-    max-height: 200px;
+    max-height: 220px;
     overflow-y: auto;
     border-radius: 8px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+}
+
+.iti__country {
+    padding: 8px 12px;
+    font-size: 14px;
+    color: var(--color-text);
+}
+
+.iti__country:hover,
+.iti__country.iti__highlight {
+    background: var(--color-surface);
+}
+
+.iti__dial-code {
+    color: var(--color-text-secondary);
+    font-size: 13px;
 }
 
 [data-theme="dark"] .iti__country-list {
     background: #1a1a1a;
     border-color: #2a2a2a;
+}
+
+[data-theme="dark"] .iti__country {
     color: #e5e5e5;
 }
 
-[data-theme="dark"] .iti__country-list .iti__country:hover,
-[data-theme="dark"] .iti__country-list .iti__country.iti__highlight {
+[data-theme="dark"] .iti__country:hover,
+[data-theme="dark"] .iti__country.iti__highlight {
     background: #2a2a2a;
+}
+
+[data-theme="dark"] .iti__selected-dial-code {
+    color: #a0a0a0;
 }
