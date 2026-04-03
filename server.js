@@ -3844,6 +3844,12 @@ app.get('/nirvana', (req, res) => {
     res.sendFile(path.join(__dirname, 'hardware.html'));
 });
 
+// --- Software product routes ---
+app.get('/software/studio', (req, res) => res.sendFile(path.join(__dirname, 'software-studio.html')));
+app.get('/software/vqpu', (req, res) => res.sendFile(path.join(__dirname, 'software-vqpu.html')));
+app.get('/software/ai-scientist', (req, res) => res.sendFile(path.join(__dirname, 'software-ai-scientist.html')));
+app.get('/software/debugger', (req, res) => res.sendFile(path.join(__dirname, 'software-debugger.html')));
+
 // --- Catch-all route: Serve index.html for all non-API routes ---
 app.get('/', (req, res) => {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');

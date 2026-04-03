@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vQPU Simulation Engine - Virtual Quantum Processor | Qaulium AI</title>
+    <meta name="description" content="Scalable virtual quantum processor with state vector, density matrix, and tensor network simulations. Live digital twins of real quantum hardware.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+    <link rel="icon" type="image/png" sizes="256x256" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+
+
+
+
+</head>
+<body>
+
+    <header class="site-header" id="siteHeader">
+        <nav class="nav-container">
+            <a href="#" class="nav-logo">
+                <img class="logo-mark" src="logo-white.png" alt="Qaulium AI" height="36">
+            </a>
+            <ul class="nav-links">
+                <li><a href="#architecture">Platform</a></li>
+                <li><a href="hardware.html">Hardware</a></li>
+                <li class="nav-item-dropdown">
+                    <a href="#" class="nav-dropdown-trigger" id="productsDropdownTrigger">Products <span class="dropdown-arrow">▼</span></a>
+                    <div class="products-mega-menu" id="productsMegaMenu">
+                        <div class="mega-menu-container">
+                            <div class="mega-menu-section">
+                                <h3 class="mega-menu-title">CORE PLATFORM</h3>
+                                <a href="product-qaulium-studio.html" class="mega-menu-item">
+                                    <div class="mega-menu-icon">
+                                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                            <rect x="4" y="4" width="24" height="24" rx="3" stroke="currentColor" stroke-width="2"/>
+                                            <path d="M4 12H28M12 4V28" stroke="currentColor" stroke-width="2"/>
+                                            <circle cx="18" cy="18" r="3" stroke="currentColor" stroke-width="2"/>
+                                        </svg>
+                                    </div>
+                                    <div class="mega-menu-content">
+                                        <h4>Qaulium-Studio</h4>
+                                        <p>Unified quantum IDE with visual circuit builder</p>
+                                    </div>
+                                </a>
+                                <a href="product-vqpu-engine.html" class="mega-menu-item">
+                                    <div class="mega-menu-icon">
+                                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                            <circle cx="16" cy="16" r="10" stroke="currentColor" stroke-width="2"/>
+                                            <circle cx="16" cy="16" r="6" stroke="currentColor" stroke-width="2"/>
+                                            <circle cx="16" cy="16" r="2" fill="currentColor"/>
+                                            <path d="M16 6V10M16 22V26M26 16H22M10 16H6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="mega-menu-content">
+                                        <h4>vQPU Simulation Engine</h4>
+                                        <p>Virtual quantum processor with digital twins</p>
+                                    </div>
+                                </a>
+                                <a href="product-data-engine.html" class="mega-menu-item">
+                                    <div class="mega-menu-icon">
+                                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                            <path d="M16 4L4 10L16 16L28 10L16 4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                                            <path d="M4 22L16 28L28 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M4 16L16 22L28 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="mega-menu-content">
+                                        <h4>Quantum Data Engine</h4>
+                                        <p>Data infrastructure for quantum ML</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="mega-menu-section">
+                                <h3 class="mega-menu-title">AI & DEBUGGING</h3>
+                                <a href="product-ai-co-scientist.html" class="mega-menu-item">
+                                    <div class="mega-menu-icon">
+                                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                            <rect x="6" y="6" width="20" height="20" rx="3" stroke="currentColor" stroke-width="2"/>
+                                            <path d="M12 16L15 19L20 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <circle cx="22" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/>
+                                        </svg>
+                                    </div>
+                                    <div class="mega-menu-content">
+                                        <h4>Quantum AI Co-Scientist</h4>
+                                        <p>AI assistant for quantum development</p>
+                                    </div>
+                                </a>
+                                <a href="product-time-travel-debugger.html" class="mega-menu-item">
+                                    <div class="mega-menu-icon">
+                                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                            <circle cx="16" cy="16" r="10" stroke="currentColor" stroke-width="2"/>
+                                            <path d="M16 8V16L20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M8 12L6 10L8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="mega-menu-content">
+                                        <h4>Time-Travel Debugger</h4>
+                                        <p>Advanced debugging with state branching</p>
+                                    </div>
+                                </a>
+                                <a href="product-donovan.html" class="mega-menu-item">
+                                    <div class="mega-menu-icon">
+                                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                            <path d="M16 4L20 12L28 14L22 20L24 28L16 24L8 28L10 20L4 14L12 12L16 4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="mega-menu-content">
+                                        <h4>Quantum Donovan</h4>
+                                        <p>Mission-critical Agentic AI</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="#research">Research</a></li>
+                <li><a href="registration.html">Pre-Register</a></li>
+                <li><a href="careers.html">Careers</a></li>
+                <li><a href="#contact" class="nav-cta">Contact Us</a></li>
+            </ul>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                <svg class="theme-icon theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+                <svg class="theme-icon theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+            </button>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu">
+                <span></span><span></span>
+            </button>
+        </nav>
+    </header>
+
+    <div class="mobile-nav" id="mobileNav">
+        <ul class="mobile-nav-links">
+            <li><a href="#architecture">Platform</a></li>
+            <li><a href="hardware.html">Hardware</a></li>
+            <li><a href="product-data-engine.html">Products</a></li>
+            <li><a href="#research">Research</a></li>
+            <li><a href="registration.html">Pre-Register</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="#contact">Contact Us</a></li>
+        </ul>
+    </div>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <div class="container">
+                <div class="hero-split">
+                    <div class="hero-content">
+                        <p class="hero-eyebrow">Digital Twin Simulation</p>
+                        <h1 class="hero-headline">vQPU Engine.</h1>
+                        <p class="hero-sub">Test massively scalable quantum states using tensor networks before touching physical hardware. Powered by dynamic digital twins mapping identical calibration noise.</p>
+                        <div class="hero-actions">
+                            <a href="registration.html" class="btn btn-primary">Start Building <span class="btn-icon">&rarr;</span></a>
+                            <a href="index.html#contact" class="btn btn-secondary">Request Demo</a>
+                        </div>
+                    </div>
+                    <div class="hero-visual">
+                        
+        <div class="custom-hero-model vqpu-model">
+            <style data-keep="true">
+                .vqpu-model { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+                .vqpu-core { width: 80px; height: 80px; background: rgba(56, 189, 248, 0.2); border: 2px solid #38bdf8; border-radius: 50%; box-shadow: 0 0 60px rgba(56, 189, 248, 0.5); position: relative; display: flex; align-items: center; justify-content: center; z-index: 2; }
+                .vqpu-core::after { content: ''; width: 30px; height: 30px; background: #38bdf8; border-radius: 50%; animation: pulse 2s infinite alternate; }
+                .vqpu-ring { position: absolute; border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 50%; animation: spin var(--duration) linear infinite; }
+                .vr-1 { width: 180px; height: 180px; --duration: 10s; }
+                .vr-2 { width: 280px; height: 280px; --duration: 20s; animation-direction: reverse; border-style: dotted; border-width: 2px; }
+                @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(1.2); opacity: 1; } }
+                @keyframes spin { 100% { transform: rotate(360deg); } }
+                [data-theme="light"] .vqpu-core { background: rgba(56, 189, 248, 0.1); border-color: #0ea5e9; }
+                [data-theme="light"] .vqpu-core::after { background: #0ea5e9; }
+                [data-theme="light"] .vqpu-ring { border-color: rgba(14, 165, 233, 0.5); }
+            </style>
+            <div class="vqpu-ring vr-2"></div>
+            <div class="vqpu-ring vr-1"></div>
+            <div class="vqpu-core"></div>
+        </div>
+        
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Engine Features -->
+        <section class="section section-architecture" id="architecture">
+            <div class="container">
+                <div class="section-label">Architecture</div>
+                <h2 class="section-heading">Core Engine Features</h2>
+                <div class="architecture-grid">
+                    
+        <div class="arch-block">
+            <div class="arch-diagram">
+                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="15" y="15" width="90" height="90" rx="6" stroke="currentColor" stroke-width="1.5" opacity="0.2"/><rect x="25" y="25" width="30" height="30" rx="3" stroke="#2563EB" stroke-width="1.5" opacity="0.6"/><rect x="65" y="25" width="30" height="30" rx="3" stroke="#2563EB" stroke-width="1.5" opacity="0.4"/><rect x="25" y="65" width="30" height="30" rx="3" stroke="#2563EB" stroke-width="1.5" opacity="0.4"/><rect x="65" y="65" width="30" height="30" rx="3" stroke="#2563EB" stroke-width="1.5" opacity="0.6"/><line x1="55" y1="40" x2="65" y2="40" stroke="#2563EB" stroke-width="1" opacity="0.4"/><line x1="40" y1="55" x2="40" y2="65" stroke="#2563EB" stroke-width="1" opacity="0.4"/><line x1="80" y1="55" x2="80" y2="65" stroke="#2563EB" stroke-width="1" opacity="0.4"/><line x1="55" y1="80" x2="65" y2="80" stroke="#2563EB" stroke-width="1" opacity="0.4"/></svg>
+            </div>
+            <div class="arch-content">
+                <span class="arch-number">01</span>
+                <h3>12+ Live Digital Twins</h3>
+                <p>Compile against exact logical topological parameters mapping to IBM, IonQ, and Rigetti machines locally up to 97% accuracy.</p>
+            </div>
+        </div>
+        <div class="arch-block">
+            <div class="arch-diagram">
+                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="30" stroke="#2563EB" stroke-width="1.5" opacity="0.3"/><circle cx="60" cy="60" r="15" stroke="#2563EB" stroke-width="2" opacity="0.6"/><circle cx="60" cy="60" r="4" fill="#2563EB" opacity="0.4"/><line x1="60" y1="15" x2="60" y2="30" stroke="currentColor" stroke-width="1" opacity="0.3"/><line x1="60" y1="90" x2="60" y2="105" stroke="currentColor" stroke-width="1" opacity="0.3"/><line x1="15" y1="60" x2="30" y2="60" stroke="currentColor" stroke-width="1" opacity="0.3"/><line x1="90" y1="60" x2="105" y2="60" stroke="currentColor" stroke-width="1" opacity="0.3"/><circle cx="60" cy="30" r="3" fill="#2563EB" opacity="0.5"/><circle cx="90" cy="60" r="3" fill="#2563EB" opacity="0.5"/><circle cx="60" cy="90" r="3" fill="#2563EB" opacity="0.5"/><circle cx="30" cy="60" r="3" fill="#2563EB" opacity="0.5"/></svg>
+            </div>
+            <div class="arch-content">
+                <span class="arch-number">02</span>
+                <h3>Scalable Tensor Networks</h3>
+                <p>Support for aggressive parallel execution of deep entanglements utilizing Matrix Product States (MPS) and PEPS simulation pathways.</p>
+            </div>
+        </div>
+        <div class="arch-block">
+            <div class="arch-diagram">
+                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="30" width="80" height="60" rx="5" stroke="currentColor" stroke-width="1.5" opacity="0.2"/><circle cx="45" cy="55" r="10" stroke="#2563EB" stroke-width="1.5" opacity="0.6"/><path d="M40 55 L45 50 L50 55 L45 60 Z" fill="#2563EB" opacity="0.2"/><circle cx="75" cy="55" r="10" stroke="#2563EB" stroke-width="1.5" opacity="0.4"/><line x1="55" y1="55" x2="65" y2="55" stroke="#2563EB" stroke-width="1.5" opacity="0.5"/><line x1="75" y1="45" x2="75" y2="35" stroke="currentColor" stroke-width="1" opacity="0.3"/><line x1="45" y1="65" x2="45" y2="75" stroke="currentColor" stroke-width="1" opacity="0.3"/><text x="43" y="58" font-size="8" fill="#2563EB" opacity="0.7">AI</text></svg>
+            </div>
+            <div class="arch-content">
+                <span class="arch-number">03</span>
+                <h3>Noise-Aware Calibration</h3>
+                <p>Simulate nuanced crosstalk matrices, thermal relaxation times, and readout errors mimicking specific physical limitations identically.</p>
+            </div>
+        </div>
+        <div class="arch-block">
+            <div class="arch-diagram">
+                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="20" y1="35" x2="100" y2="35" stroke="currentColor" stroke-width="1" opacity="0.3"/><line x1="20" y1="60" x2="100" y2="60" stroke="currentColor" stroke-width="1" opacity="0.3"/><line x1="20" y1="85" x2="100" y2="85" stroke="currentColor" stroke-width="1" opacity="0.3"/><circle cx="40" cy="35" r="5" stroke="#2563EB" stroke-width="1.5" opacity="0.6"/><circle cx="60" cy="35" r="5" stroke="#2563EB" stroke-width="1.5" opacity="0.4"/><circle cx="80" cy="60" r="5" stroke="#2563EB" stroke-width="1.5" opacity="0.6"/><circle cx="50" cy="85" r="5" stroke="#2563EB" stroke-width="1.5" opacity="0.4"/><circle cx="70" cy="85" r="5" stroke="#2563EB" stroke-width="1.5" opacity="0.6"/><line x1="60" y1="40" x2="60" y2="55" stroke="#2563EB" stroke-width="1" opacity="0.4" stroke-dasharray="2,2"/><line x1="80" y1="65" x2="80" y2="80" stroke="#2563EB" stroke-width="1" opacity="0.4" stroke-dasharray="2,2"/><rect x="35" y="30" width="10" height="10" rx="2" stroke="#2563EB" stroke-width="0.5" opacity="0.2"/></svg>
+            </div>
+            <div class="arch-content">
+                <span class="arch-number">04</span>
+                <h3>GPU-Accelerated Pipelines</h3>
+                <p>Harness powerful cloud NVIDIA/AMD clusters automatically for ultra-fast multi-shot execution against highly dense circuit blocks.</p>
+            </div>
+        </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Use Cases & Deployment -->
+        <section class="section section-developer" id="developer">
+            <div class="container">
+                <div class="section-label">Developer Usage</div>
+                <h2 class="section-heading">Built for performance</h2>
+                <div class="dev-platform-grid">
+                    
+        <div class="dev-card">
+            <span class="dev-card-tag">Routing</span>
+            <h3>Smart Backend Advisor</h3>
+            <p>Automatically profiles your circuit depth and routes execution sequentially to the most efficient simulated or physical backend available.</p>
+            <ul class="dev-features">
+                <li>Heuristic analysis</li><li>Latency checking</li><li>Best-backend routing</li>
+            </ul>
+        </div>
+        <div class="dev-card">
+            <span class="dev-card-tag">Benchmarking</span>
+            <h3>Fidelity Profiling</h3>
+            <p>Algorithmically compare ideal state vectors against heavily noisy theoretical executions immediately within your CI/CD test loops.</p>
+            <ul class="dev-features">
+                <li>Theoretical baseline mapping</li><li>Noisy matrix comparisons</li><li>Automated regression alerts</li>
+            </ul>
+        </div>
+        <div class="dev-card">
+            <span class="dev-card-tag">Automation</span>
+            <h3>API Orchestration Array</h3>
+            <p>Trigger scripts capable of compiling and firing thousands of distinct parameterized circuits consistently through secure API endpoints.</p>
+            <ul class="dev-features">
+                <li>High frequency API limits</li><li>Encrypted payloads</li><li>Scalable load balancing</li>
+            </ul>
+        </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Advanced Research Elements -->
+        <section class="section section-research" id="research">
+            <div class="container">
+                <div class="section-label">Research & Analytics</div>
+                <h2 class="section-heading">Deep functional analysis</h2>
+                <div class="research-grid">
+                    
+        <div class="research-card">
+            <span class="research-number">01</span>
+            <h3>Custom Noise Injection</h3>
+            <p>Define utterly bespoke Hamiltonian error matrices to investigate extreme corner cases of theoretical localized degradation methodologies.</p>
+            <div class="research-topics">
+                <span>Hamiltonian</span><span>Kraus Operators</span><span>Bespoke Noise</span>
+            </div>
+        </div>
+        <div class="research-card">
+            <span class="research-number">02</span>
+            <h3>Clifford & Stabilizer Systems</h3>
+            <p>Simulate massively scaled stabilizer groups linearly, effectively visualizing error-correction thresholds spanning thousands of logical qubits.</p>
+            <div class="research-topics">
+                <span>Clifford Group</span><span>Linear Scaling</span><span>QEC Testing</span>
+            </div>
+        </div>
+        <div class="research-card">
+            <span class="research-number">03</span>
+            <h3>Parametric Benchmarking</h3>
+            <p>Test generic algorithmic scaling metrics forcefully against artificially simulated low-fidelity and high-frequency noise profiles simultaneously.</p>
+            <div class="research-topics">
+                <span>Algorithmic Scaling</span><span>Low-Fidelity Params</span><span>Stress Testing</span>
+            </div>
+        </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Capabilities Footer Grid -->
+        <section class="section section-capabilities">
+            <div class="container">
+                <div class="section-label">Software Capabilities</div>
+                <h2 class="section-heading">Extended tooling suite</h2>
+                <div class="capabilities-grid">
+                    
+        <div class="capability-card">
+            <div class="capability-number">01</div>
+            <h4>Shot Batching</h4>
+            <p>Aggregate multi-shot job queues sequentially.</p>
+        </div>
+        <div class="capability-card">
+            <div class="capability-number">02</div>
+            <h4>Decoherence Limits</h4>
+            <p>Set strict timing boundaries representing T1 limits.</p>
+        </div>
+        <div class="capability-card">
+            <div class="capability-number">03</div>
+            <h4>Custom Topologies</h4>
+            <p>Build fictional qubit couplings arbitrarily.</p>
+        </div>
+        <div class="capability-card">
+            <div class="capability-number">04</div>
+            <h4>Hardware Connectors</h4>
+            <p>1-click export of identical simulated logic to QPUs.</p>
+        </div>
+        <div class="capability-card">
+            <div class="capability-number">05</div>
+            <h4>Advanced Readout Metrics</h4>
+            <p>Detailed post-execution fidelity mapping arrays.</p>
+        </div>
+        <div class="capability-card">
+            <div class="capability-number">06</div>
+            <h4>State Vector Exports</h4>
+            <p>Download final multi-gigabyte matrices natively.</p>
+        </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Universal Call to Action -->
+        <section class="section section-cta" style="margin-bottom: 80px;">
+            <div class="container">
+                <div class="cta-banner">
+                    <div class="cta-text">
+                        <h2>Deploy in the real world</h2>
+                        <p>Join the ecosystem that securely bridges computational quantum physics and massively scalable classical application development structures natively.</p>
+                    </div>
+                    <div class="cta-actions">
+                        <a href="registration.html" class="btn btn-primary btn-light">Get Access <span class="btn-icon">&rarr;</span></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 Qaulium AI, Inc. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="index.html">Home</a>
+                    <a href="index.html#contact">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>
