@@ -881,6 +881,7 @@ img { max-width: 100%; display: block; }
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: var(--color-border) transparent;
+    scroll-behavior: smooth;
 }
 
 .dev-platform-scroll-container::-webkit-scrollbar {
@@ -1251,6 +1252,7 @@ img { max-width: 100%; display: block; }
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: var(--color-border) transparent;
+    scroll-behavior: smooth;
 }
 
 .capabilities-scroll-container::-webkit-scrollbar {
@@ -1922,6 +1924,8 @@ img { max-width: 100%; display: block; }
     .dev-platform-scroll-container {
         padding: 0 20px 40px;
         margin: 0 -20px;
+        scroll-snap-type: x mandatory;
+        scroll-padding: 0 20px;
     }
 
     .dev-platform-horizontal {
@@ -1934,12 +1938,16 @@ img { max-width: 100%; display: block; }
         min-width: 280px;
         max-width: 280px;
         flex-shrink: 0;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
     }
 
     /* Mobile capabilities horizontal scroll */
     .capabilities-scroll-container {
         padding: 0 20px 40px;
         margin: 0 -20px;
+        scroll-snap-type: x mandatory;
+        scroll-padding: 0 20px;
     }
 
     .capabilities-horizontal {
@@ -1950,6 +1958,8 @@ img { max-width: 100%; display: block; }
     .capability-card-horizontal {
         min-width: 280px;
         max-width: 280px;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
     }
 
     .dev-card-horizontal {
@@ -2042,6 +2052,8 @@ img { max-width: 100%; display: block; }
     .dev-platform-scroll-container {
         padding: 0 16px 40px;
         margin: 0 -16px;
+        scroll-snap-type: x mandatory;
+        scroll-padding: 0 16px;
     }
 
     .dev-platform-horizontal {
@@ -2052,12 +2064,15 @@ img { max-width: 100%; display: block; }
     .dev-card-horizontal {
         min-width: 260px;
         max-width: 260px;
+        scroll-snap-align: start;
     }
 
     /* Extra small mobile - capabilities */
     .capabilities-scroll-container {
         padding: 0 16px 40px;
         margin: 0 -16px;
+        scroll-snap-type: x mandatory;
+        scroll-padding: 0 16px;
     }
 
     .capabilities-horizontal {
@@ -2068,6 +2083,7 @@ img { max-width: 100%; display: block; }
     .capability-card-horizontal {
         min-width: 260px;
         max-width: 260px;
+        scroll-snap-align: start;
     }
 
     .dev-card-image-top {

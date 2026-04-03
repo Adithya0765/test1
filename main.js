@@ -749,7 +749,6 @@
         // Touch support variables
         var touchStartX = 0;
         var touchStartY = 0;
-        var scrollStartLeft = 0;
         var isTouching = false;
 
         function updateMaxScroll() {
@@ -802,11 +801,10 @@
             }, 100);
         }
 
-        // Mobile: Touch events
+        // Mobile: Touch events - let CSS scroll-snap handle smoothness
         function handleTouchStart(e) {
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
-            scrollStartLeft = capabilitiesScroll.scrollLeft;
             isTouching = true;
         }
 
@@ -815,13 +813,12 @@
 
             var touchX = e.touches[0].clientX;
             var touchY = e.touches[0].clientY;
-            var deltaX = touchStartX - touchX;
-            var deltaY = touchStartY - touchY;
+            var deltaX = Math.abs(touchStartX - touchX);
+            var deltaY = Math.abs(touchStartY - touchY);
 
-            // If horizontal swipe is more significant than vertical
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            // Only prevent default if horizontal swipe is dominant
+            if (deltaX > deltaY && deltaX > 10) {
                 e.preventDefault();
-                capabilitiesScroll.scrollLeft = scrollStartLeft + deltaX;
             }
         }
 
@@ -851,17 +848,14 @@
         var devPlatformScroll = document.getElementById('devPlatformScroll');
         if (!devPlatformScroll) return;
 
-        // Touch support variables
+        // Touch support - let CSS scroll-snap handle the smoothness
         var touchStartX = 0;
         var touchStartY = 0;
-        var scrollStartLeft = 0;
         var isTouching = false;
 
-        // Mobile: Touch events
         function handleTouchStart(e) {
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
-            scrollStartLeft = devPlatformScroll.scrollLeft;
             isTouching = true;
         }
 
@@ -870,13 +864,12 @@
 
             var touchX = e.touches[0].clientX;
             var touchY = e.touches[0].clientY;
-            var deltaX = touchStartX - touchX;
-            var deltaY = touchStartY - touchY;
+            var deltaX = Math.abs(touchStartX - touchX);
+            var deltaY = Math.abs(touchStartY - touchY);
 
-            // If horizontal swipe is more significant than vertical
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            // Only prevent default if horizontal swipe is dominant
+            if (deltaX > deltaY && deltaX > 10) {
                 e.preventDefault();
-                devPlatformScroll.scrollLeft = scrollStartLeft + deltaX;
             }
         }
 
