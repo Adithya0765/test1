@@ -2698,15 +2698,6 @@ img { max-width: 100%; display: block; }
    intl-tel-input fixes
    ============================================ */
 
-/* Prevent country dropdown from showing open by default */
-.iti__country-list {
-    display: none !important;
-}
-
-.iti--show-dropdown .iti__country-list {
-    display: block !important;
-}
-
 .iti {
     width: 100%;
     display: block;
@@ -2714,4 +2705,11 @@ img { max-width: 100%; display: block; }
 
 .iti__flag-container {
     z-index: 10;
+}
+
+/* Ensure dropdown only shows when triggered */
+.iti__country-list:not(.iti__hide) {
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
 }

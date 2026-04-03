@@ -455,13 +455,17 @@
         });
     }
 
-    itiRegPhone = initIntlPhoneInput('regPhone');
+    itiRegPhone = null;
     itiCareerPhone = initIntlPhoneInput('careerPhone');
 
     function openModal() {
         if (!registerModal) return;
         registerModal.classList.add('open');
         document.body.style.overflow = 'hidden';
+        // Init phone input lazily on first open
+        if (!itiRegPhone) {
+            itiRegPhone = initIntlPhoneInput('regPhone');
+        }
     }
 
     function closeModal() {
