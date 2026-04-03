@@ -746,6 +746,12 @@
         var isScrolling = false;
         var scrollTimeout;
 
+        // Touch support variables
+        var touchStartX = 0;
+        var touchStartY = 0;
+        var scrollStartLeft = 0;
+        var isTouching = false;
+
         function updateMaxScroll() {
             maxScroll = capabilitiesScroll.scrollWidth - capabilitiesScroll.clientWidth;
         }
@@ -756,6 +762,7 @@
             return rect.top <= viewportMiddle && rect.bottom >= viewportMiddle;
         }
 
+        // Desktop: Mouse wheel scroll
         function handleWheel(e) {
             // Only intercept if cards are in middle of viewport
             if (!isCardsInMiddle()) {
@@ -795,8 +802,41 @@
             }, 100);
         }
 
+        // Mobile: Touch events
+        function handleTouchStart(e) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            scrollStartLeft = capabilitiesScroll.scrollLeft;
+            isTouching = true;
+        }
+
+        function handleTouchMove(e) {
+            if (!isTouching) return;
+
+            var touchX = e.touches[0].clientX;
+            var touchY = e.touches[0].clientY;
+            var deltaX = touchStartX - touchX;
+            var deltaY = touchStartY - touchY;
+
+            // If horizontal swipe is more significant than vertical
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                e.preventDefault();
+                capabilitiesScroll.scrollLeft = scrollStartLeft + deltaX;
+            }
+        }
+
+        function handleTouchEnd() {
+            isTouching = false;
+        }
+
         // Listen to wheel events (works for mouse and trackpad)
         window.addEventListener('wheel', handleWheel, { passive: false });
+        
+        // Listen to touch events for mobile
+        capabilitiesScroll.addEventListener('touchstart', handleTouchStart, { passive: true });
+        capabilitiesScroll.addEventListener('touchmove', handleTouchMove, { passive: false });
+        capabilitiesScroll.addEventListener('touchend', handleTouchEnd, { passive: true });
+        
         window.addEventListener('resize', updateMaxScroll);
         
         // Initial setup
