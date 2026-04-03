@@ -821,14 +821,17 @@
     }
 
     // --- Horizontal scroll for capabilities section ---
-    // Scrolling down the page moves cards left->right; releases at boundaries
+    // Vertical scroll position drives horizontal card movement (scroll-jacking)
     (function () {
         var capabilitiesScroll = document.getElementById('capabilitiesScroll');
         if (!capabilitiesScroll) return;
 
+        var lastScrollY = window.scrollY;
+        var ticking = false;
         var velocity = 0;
         var rafId = null;
-        var FRICTION = 0.88;
+        var FRICTION = 0.90;
+        var MULTIPLIER = 1.8;
 
         function getMaxScroll() {
             return capabilitiesScroll.scrollWidth - capabilitiesScroll.clientWidth;
@@ -836,36 +839,43 @@
 
         function isSectionActive() {
             var rect = capabilitiesScroll.getBoundingClientRect();
-            return rect.top < window.innerHeight * 0.65 && rect.bottom > window.innerHeight * 0.35;
+            // Active when section is between 20% and 80% of viewport
+            return rect.top < window.innerHeight * 0.75 && rect.bottom > window.innerHeight * 0.25;
         }
 
         function isAtStart() { return capabilitiesScroll.scrollLeft <= 2; }
         function isAtEnd()   { return capabilitiesScroll.scrollLeft >= getMaxScroll() - 2; }
 
-        function momentum() {
-            if (Math.abs(velocity) < 0.5) { velocity = 0; return; }
+        function applyMomentum() {
+            if (Math.abs(velocity) < 0.3) { velocity = 0; return; }
             capabilitiesScroll.scrollLeft += velocity;
             velocity *= FRICTION;
-            rafId = requestAnimationFrame(momentum);
+            rafId = requestAnimationFrame(applyMomentum);
         }
 
-        window.addEventListener('wheel', function(e) {
-            if (!isSectionActive()) return;
+        window.addEventListener('scroll', function() {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(function() {
+                var currentScrollY = window.scrollY;
+                var delta = currentScrollY - lastScrollY;
+                lastScrollY = currentScrollY;
+                ticking = false;
 
-            var down = e.deltaY > 0;
-            var up   = e.deltaY < 0;
+                if (!isSectionActive()) return;
 
-            // At boundaries: release so page can scroll
-            if (down && isAtEnd())   return;
-            if (up   && isAtStart()) return;
+                // At boundaries: don't intercept, let page scroll
+                if (delta > 0 && isAtEnd())   return;
+                if (delta < 0 && isAtStart()) return;
 
-            e.preventDefault();
-            velocity += e.deltaY * 0.7;
-            cancelAnimationFrame(rafId);
-            rafId = requestAnimationFrame(momentum);
-        }, { passive: false });
+                // Drive horizontal scroll from vertical delta
+                velocity += delta * MULTIPLIER;
+                cancelAnimationFrame(rafId);
+                rafId = requestAnimationFrame(applyMomentum);
+            });
+        }, { passive: true });
 
-        // Touch: horizontal swipe moves cards
+        // Touch: direct horizontal swipe
         var txStart = 0, tyStart = 0, txLast = 0, touching = false;
 
         capabilitiesScroll.addEventListener('touchstart', function(e) {
@@ -891,7 +901,7 @@
 
         capabilitiesScroll.addEventListener('touchend', function() {
             touching = false;
-            rafId = requestAnimationFrame(momentum);
+            rafId = requestAnimationFrame(applyMomentum);
         }, { passive: true });
     })();
 
