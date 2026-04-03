@@ -121,36 +121,32 @@
                     <div class="hero-content">
                         <p class="hero-eyebrow">Reasoning Layer</p>
                         <h1 class="hero-headline">AI Co-Scientist.</h1>
-                        <p class="hero-sub">Quantum GPT contextually aware of topological routing rules — synthesize circuits from papers, optimize logic automatically, and diagnose bottlenecks.</p>
+                        <p class="hero-sub">Natural language to quantum circuit generation, automated optimization, and paper-to-circuit conversion — powered by AI.</p>
                         <div class="hero-actions">
                             <a href="/registration" class="btn btn-primary">Start Building <span class="btn-icon">&rarr;</span></a>
                             <a href="/#contact" class="btn btn-secondary">Request Demo</a>
                         </div>
                     </div>
                     <div class="hero-visual">
-                        
-        <div class="custom-hero-model ai-model">
-            <style data-keep="true">
-                .ai-model { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-                .ai-brain { width: 100px; height: 100px; border-radius: 20px; background: rgba(236, 72, 153, 0.1); border: 2px solid #ec4899; box-shadow: 0 0 50px rgba(236, 72, 153, 0.4); display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 12px; z-index: 2; transform: rotate(45deg); }
-                .ai-cell { background: rgba(236, 72, 153, 0.3); border-radius: 4px; animation: flicker 3s infinite ease-in-out; }
-                .ai-cell:nth-child(odd) { animation-direction: reverse; animation-duration: 2s; }
-                .ai-wave { position: absolute; width: 200px; height: 200px; border: 1px solid rgba(236, 72, 153, 0.5); border-radius: 40%; animation: morph 6s infinite linear; }
-                .ai-wave:nth-child(3) { width: 250px; height: 250px; animation-duration: 8s; border-style: dashed; }
-                @keyframes morph { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.1); } 100% { transform: rotate(360deg) scale(1); } }
-                @keyframes flicker { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; background: #ec4899; } }
-                [data-theme="light"] .ai-brain { background: rgba(219, 39, 119, 0.05); border-color: #db2777; }
-                [data-theme="light"] .ai-wave { border-color: rgba(219, 39, 119, 0.4); }
-            </style>
-            <div class="ai-wave"></div>
-            <div class="ai-wave"></div>
-            <div class="ai-brain">
-                <div class="ai-cell"></div><div class="ai-cell"></div><div class="ai-cell"></div>
-                <div class="ai-cell"></div><div class="ai-cell"></div><div class="ai-cell"></div>
-                <div class="ai-cell"></div><div class="ai-cell"></div><div class="ai-cell"></div>
-            </div>
-        </div>
-        
+                        <div class="sw-hero-visual">
+                            <style>
+                            .ai-chat { width:320px; display:flex; flex-direction:column; gap:12px; }
+                            .ai-bubble { padding:14px 18px; border-radius:12px; font-size:13px; font-family:var(--font-body); line-height:1.5; }
+                            .ai-bubble.user { background:var(--color-accent); color:#fff; align-self:flex-end; border-bottom-right-radius:4px; animation:aiFadeIn 0.5s ease forwards; opacity:0; }
+                            .ai-bubble.bot  { background:var(--color-surface); border:1px solid var(--color-border); color:var(--color-text); align-self:flex-start; border-bottom-left-radius:4px; animation:aiFadeIn 0.5s ease 0.8s forwards; opacity:0; }
+                            .ai-bubble.bot2 { animation-delay:1.6s; }
+                            .ai-typing { display:flex; gap:4px; padding:14px 18px; background:var(--color-surface); border:1px solid var(--color-border); border-radius:12px; border-bottom-left-radius:4px; align-self:flex-start; animation:aiFadeIn 0.3s ease 0.5s forwards; opacity:0; }
+                            .ai-dot { width:6px; height:6px; border-radius:50%; background:var(--color-text-tertiary); animation:aiDot 1.2s ease-in-out infinite; }
+                            .ai-dot:nth-child(2){animation-delay:0.2s} .ai-dot:nth-child(3){animation-delay:0.4s}
+                            @keyframes aiFadeIn { to{opacity:1} }
+                            @keyframes aiDot { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+                            </style>
+                            <div class="ai-chat">
+                                <div class="ai-bubble user">Generate a VQE circuit for H₂</div>
+                                <div class="ai-typing"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>
+                                <div class="ai-bubble bot">Here's a 4-qubit VQE ansatz for H₂ using UCCSD...</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

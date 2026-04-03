@@ -121,33 +121,39 @@
                     <div class="hero-content">
                         <p class="hero-eyebrow">Digital Twin Simulation</p>
                         <h1 class="hero-headline">vQPU Engine.</h1>
-                        <p class="hero-sub">Test massively scalable quantum states using tensor networks before touching physical hardware, powered by digital twins with identical calibration noise.</p>
+                        <p class="hero-sub">Scalable virtual quantum processor with 12+ hardware digital twins, custom noise models, and state vector simulation up to 40+ qubits.</p>
                         <div class="hero-actions">
                             <a href="/registration" class="btn btn-primary">Start Building <span class="btn-icon">&rarr;</span></a>
                             <a href="/#contact" class="btn btn-secondary">Request Demo</a>
                         </div>
                     </div>
                     <div class="hero-visual">
-                        
-        <div class="custom-hero-model vqpu-model">
-            <style data-keep="true">
-                .vqpu-model { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-                .vqpu-core { width: 80px; height: 80px; background: rgba(56, 189, 248, 0.2); border: 2px solid #38bdf8; border-radius: 50%; box-shadow: 0 0 60px rgba(56, 189, 248, 0.5); position: relative; display: flex; align-items: center; justify-content: center; z-index: 2; }
-                .vqpu-core::after { content: ''; width: 30px; height: 30px; background: #38bdf8; border-radius: 50%; animation: pulse 2s infinite alternate; }
-                .vqpu-ring { position: absolute; border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 50%; animation: spin var(--duration) linear infinite; }
-                .vr-1 { width: 180px; height: 180px; --duration: 10s; }
-                .vr-2 { width: 280px; height: 280px; --duration: 20s; animation-direction: reverse; border-style: dotted; border-width: 2px; }
-                @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(1.2); opacity: 1; } }
-                @keyframes spin { 100% { transform: rotate(360deg); } }
-                [data-theme="light"] .vqpu-core { background: rgba(56, 189, 248, 0.1); border-color: #0ea5e9; }
-                [data-theme="light"] .vqpu-core::after { background: #0ea5e9; }
-                [data-theme="light"] .vqpu-ring { border-color: rgba(14, 165, 233, 0.5); }
-            </style>
-            <div class="vqpu-ring vr-2"></div>
-            <div class="vqpu-ring vr-1"></div>
-            <div class="vqpu-core"></div>
-        </div>
-        
+                        <div class="sw-hero-visual">
+                            <style>
+                            .vqpu-sphere { position:relative; width:280px; height:280px; }
+                            .vqpu-sphere svg { width:100%; height:100%; }
+                            .vqpu-state-vec { transform-origin:200px 200px; animation:vqpuRotate 4s linear infinite; }
+                            @keyframes vqpuRotate { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+                            .vqpu-pulse { animation:vqpuPulse 2s ease-in-out infinite; }
+                            @keyframes vqpuPulse { 0%,100%{opacity:0.3} 50%{opacity:0.8} }
+                            </style>
+                            <div class="vqpu-sphere">
+                                <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="200" cy="200" r="140" stroke="var(--color-border)" stroke-width="2"/>
+                                    <ellipse cx="200" cy="200" rx="140" ry="42" stroke="var(--color-border)" stroke-width="1.5" stroke-dasharray="4 4"/>
+                                    <line x1="200" y1="60" x2="200" y2="340" stroke="var(--color-border)" stroke-width="1.5"/>
+                                    <line x1="60" y1="200" x2="340" y2="200" stroke="var(--color-border)" stroke-width="1.5"/>
+                                    <g class="vqpu-state-vec">
+                                        <line x1="200" y1="200" x2="200" y2="80" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round"/>
+                                        <circle cx="200" cy="80" r="8" fill="#3B82F6"/>
+                                    </g>
+                                    <circle cx="200" cy="200" r="6" fill="#3B82F6" class="vqpu-pulse"/>
+                                    <text x="210" y="68" font-size="14" fill="#3B82F6" font-family="monospace">|ψ⟩</text>
+                                    <text x="205" y="355" font-size="12" fill="var(--color-text-tertiary)" font-family="monospace">|0⟩</text>
+                                    <text x="205" y="58" font-size="12" fill="var(--color-text-tertiary)" font-family="monospace">|1⟩</text>
+                                </svg>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

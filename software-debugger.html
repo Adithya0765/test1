@@ -121,33 +121,37 @@
                     <div class="hero-content">
                         <p class="hero-eyebrow">Inspection Tooling</p>
                         <h1 class="hero-headline">Time-Travel Debugger.</h1>
-                        <p class="hero-sub">Uncover exactly where algorithms drift into phase hazards — reversibly jump between gate frames instantly, analyzing state depth at every step.</p>
+                        <p class="hero-sub">Step through quantum execution gate by gate, inspect state at every point, and isolate fidelity issues before they reach hardware.</p>
                         <div class="hero-actions">
                             <a href="/registration" class="btn btn-primary">Start Building <span class="btn-icon">&rarr;</span></a>
                             <a href="/#contact" class="btn btn-secondary">Request Demo</a>
                         </div>
                     </div>
                     <div class="hero-visual">
-                        
-        <div class="custom-hero-model debug-model">
-            <style data-keep="true">
-                .debug-model { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; perspective: 1000px; }
-                .debug-plane { position: absolute; width: 160px; height: 160px; border: 2px solid rgba(245, 158, 11, 0.4); border-radius: 8px; background: rgba(245, 158, 11, 0.05); transform: rotateX(60deg) rotateZ(45deg); box-shadow: 0 0 30px rgba(245, 158, 11, 0.1); animation: descend 4s infinite alternate ease-in-out; }
-                .debug-plane:nth-child(1) { transform: translateY(-60px) rotateX(60deg) rotateZ(45deg); border-color: rgba(245, 158, 11, 0.8); background: rgba(245, 158, 11, 0.15); animation-delay: 0s; }
-                .debug-plane:nth-child(2) { transform: translateY(0) rotateX(60deg) rotateZ(45deg); animation-delay: 1s; }
-                .debug-plane:nth-child(3) { transform: translateY(60px) rotateX(60deg) rotateZ(45deg); animation-delay: 2s; }
-                .debug-axis { position: absolute; height: 250px; width: 2px; background: linear-gradient(to bottom, transparent, #f59e0b, transparent); box-shadow: 0 0 10px #f59e0b; }
-                @keyframes descend { 0% { opacity: 0.5; margin-top: -10px; } 100% { opacity: 1; margin-top: 10px; } }
-                [data-theme="light"] .debug-plane { border-color: rgba(217, 119, 6, 0.5); }
-                [data-theme="light"] .debug-plane:nth-child(1) { border-color: rgba(217, 119, 6, 1); }
-                [data-theme="light"] .debug-axis { background: linear-gradient(to bottom, transparent, #d97706, transparent); }
-            </style>
-            <div class="debug-axis"></div>
-            <div class="debug-plane"></div>
-            <div class="debug-plane"></div>
-            <div class="debug-plane"></div>
-        </div>
-        
+                        <div class="sw-hero-visual">
+                            <style>
+                            .dbg-timeline { width:320px; }
+                            .dbg-step { display:flex; align-items:center; gap:14px; margin-bottom:16px; opacity:0; animation:dbgStep 0.4s ease forwards; }
+                            .dbg-step:nth-child(1){animation-delay:0s}
+                            .dbg-step:nth-child(2){animation-delay:0.4s}
+                            .dbg-step:nth-child(3){animation-delay:0.8s}
+                            .dbg-step:nth-child(4){animation-delay:1.2s}
+                            .dbg-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+                            .dbg-dot.active { background:#3B82F6; box-shadow:0 0 0 4px rgba(59,130,246,0.2); animation:dbgPulse 1.5s ease-in-out infinite; }
+                            .dbg-dot.done   { background:#10B981; }
+                            .dbg-dot.idle   { background:var(--color-border); }
+                            .dbg-label { font-size:13px; font-family:var(--font-mono); color:var(--color-text-secondary); }
+                            .dbg-state { font-size:11px; font-family:var(--font-mono); color:var(--color-accent); margin-left:auto; }
+                            @keyframes dbgStep { to{opacity:1;transform:translateX(0)} from{opacity:0;transform:translateX(-10px)} }
+                            @keyframes dbgPulse { 0%,100%{box-shadow:0 0 0 4px rgba(59,130,246,0.2)} 50%{box-shadow:0 0 0 8px rgba(59,130,246,0.1)} }
+                            </style>
+                            <div class="dbg-timeline">
+                                <div class="dbg-step"><div class="dbg-dot done"></div><span class="dbg-label">H gate — q0</span><span class="dbg-state">|+⟩</span></div>
+                                <div class="dbg-step"><div class="dbg-dot done"></div><span class="dbg-label">CNOT — q0,q1</span><span class="dbg-state">|Φ+⟩</span></div>
+                                <div class="dbg-step"><div class="dbg-dot active"></div><span class="dbg-label">Rz(θ) — q1</span><span class="dbg-state">●</span></div>
+                                <div class="dbg-step"><div class="dbg-dot idle"></div><span class="dbg-label">Measure — q0,q1</span><span class="dbg-state">—</span></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
