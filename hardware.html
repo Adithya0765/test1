@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="stylesheet" href="styles.css?v=3">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="256x256" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -18,16 +18,46 @@
     <header class="site-header" id="siteHeader">
         <nav class="nav-container">
             <a href="/" class="nav-logo">
-                <img class="logo-mark" src="logo-white.png" alt="Qaulium AI" height="36">
+                <img class="logo-mark" src="logo-white.png" alt="Qaulium AI" height="44">
             </a>
             <ul class="nav-links">
-                <li><a href="/#architecture">Platform</a></li>
-                <li><a href="/hardware" class="active">Hardware</a></li>
-                <li><a href="/#developer">Developer</a></li>
-                <li><a href="/#research">Research</a></li>
-                <li><a href="/registration.html">Pre-Register</a></li>
-                <li><a href="/careers.html">Careers</a></li>
-                <li><a href="/#contact" class="nav-cta">Contact Us</a></li>
+                <li><a href="#hero">Home</a></li>
+                <li class="nav-dropdown" id="productDropdown">
+                    <button class="nav-dropdown-toggle" id="productMenuToggle" aria-expanded="false" aria-controls="productMenu">
+                        Products
+                        <span class="dropdown-caret" aria-hidden="true"></span>
+                    </button>
+                    <ul class="nav-dropdown-menu" id="productMenu">
+                        <div class="dropdown-columns">
+                            <div class="dropdown-column">
+                                <span class="dropdown-column-title">Hardware</span>
+                                <li><a href="/nirvana">NIRVANA</a></li>
+                            </div>
+                            <div class="dropdown-column">
+                                <span class="dropdown-column-title">Software</span>
+                                <li><a href="/#software">Visual Circuit Builder & IDE</a></li>
+                                <li><a href="/#software">vQPU Simulation Engine</a></li>
+                                <li><a href="/#software">Quantum AI Co-Scientist</a></li>
+                                <li><a href="/#software">Time-Travel Debugger</a></li>
+                            </div>
+                        </div>
+                    </ul>
+                </li>
+                <li class="nav-dropdown" id="researchDropdown">
+                    <button class="nav-dropdown-toggle" id="researchMenuToggle" aria-expanded="false" aria-controls="researchMenu">
+                        Research
+                        <span class="dropdown-caret" aria-hidden="true"></span>
+                    </button>
+                    <ul class="nav-dropdown-menu" id="researchMenu">
+                        <div class="dropdown-columns">
+                            <div class="dropdown-column">
+                                <span class="dropdown-column-title">Research</span>
+                                <li><a href="/#research">Research Blogs</a></li>
+                            </div>
+                        </div>
+                    </ul>
+                </li>
+                <li><a href="#" class="nav-cta">Get Early Access</a></li>
             </ul>
             <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
                 <svg class="theme-icon theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -45,13 +75,11 @@
 
     <div class="mobile-nav" id="mobileNav">
         <ul class="mobile-nav-links">
-            <li><a href="/#architecture">Platform</a></li>
-            <li><a href="/hardware">Hardware</a></li>
-            <li><a href="/#developer">Developer</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="#products">Products</a></li>
+            <li><a href="/nirvana">Hardware</a></li>
             <li><a href="/#research">Research</a></li>
-            <li><a href="/registration.html">Pre-Register</a></li>
-            <li><a href="/careers.html">Careers</a></li>
-            <li><a href="/#contact">Contact Us</a></li>
+            <li><a href="#contact">Contact</a></li>
         </ul>
     </div>
 
@@ -73,151 +101,259 @@
         </section>
 
         <!-- NIRVANA Architecture -->
-        <section class="section section-architecture" id="architecture">
+        <section class="section section-research" id="architecture">
             <div class="container">
                 <div class="section-label">Hardware Architecture</div>
                 <h2 class="section-heading">NIRVANA Architecture</h2>
                 <p class="section-intro">A software-defined quantum platform for hybrid classical-quantum workloads. Four core subsystems deliver scalable quantum compute at room temperature.</p>
 
-                <div class="architecture-grid">
-                    <div class="arch-block">
-                        <div class="arch-diagram">
-                            <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="10" y="10" width="100" height="100" rx="8" stroke="currentColor" stroke-width="1.5" opacity="0.2"/>
-                                <rect x="30" y="30" width="60" height="60" rx="4" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
-                                <circle cx="60" cy="60" r="12" stroke="#2563EB" stroke-width="2"/>
-                                <circle cx="60" cy="60" r="4" fill="#2563EB" opacity="0.3"/>
-                                <line x1="60" y1="10" x2="60" y2="30" stroke="currentColor" stroke-width="1" opacity="0.3"/>
-                                <line x1="60" y1="90" x2="60" y2="110" stroke="currentColor" stroke-width="1" opacity="0.3"/>
-                                <line x1="10" y1="60" x2="30" y2="60" stroke="currentColor" stroke-width="1" opacity="0.3"/>
-                                <line x1="90" y1="60" x2="110" y2="60" stroke="currentColor" stroke-width="1" opacity="0.3"/>
-                            </svg>
+                <div class="research-grid">
+                    <article class="research-card">
+                        <div class="research-header">
+                            <span class="research-number">01</span>
+                            <div class="research-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <line x1="12" y1="3" x2="12" y2="9"/>
+                                    <line x1="12" y1="15" x2="12" y2="21"/>
+                                    <line x1="3" y1="12" x2="9" y2="12"/>
+                                    <line x1="15" y1="12" x2="21" y2="12"/>
+                                </svg>
+                            </div>
                         </div>
-                        <div class="arch-content">
-                            <span class="arch-number">01</span>
-                            <h3>Photonic Core</h3>
-                            <p>Silicon-photonic integrated circuit operating at optical frequencies. Supports gate-level programmability with sub-nanosecond switching across 256 waveguide channels.</p>
+                        <h3>Photonic Core</h3>
+                        <p>Silicon-photonic integrated circuit operating at optical frequencies. Supports gate-level programmability with sub-nanosecond switching across 256 waveguide channels.</p>
+                        <div class="research-topics">
+                            <span>256 waveguide channels</span>
+                            <span>Sub-nanosecond switching</span>
+                            <span>Gate-level programmability</span>
                         </div>
-                    </div>
+                    </article>
+                    
+                    <article class="research-card">
+                        <div class="research-header">
+                            <span class="research-number">02</span>
+                            <div class="research-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="6" cy="6" r="3"/>
+                                    <circle cx="18" cy="6" r="3"/>
+                                    <circle cx="6" cy="18" r="3"/>
+                                    <circle cx="18" cy="18" r="3"/>
+                                    <line x1="9" y1="6" x2="15" y2="6"/>
+                                    <line x1="6" y1="9" x2="6" y2="15"/>
+                                    <line x1="18" y1="9" x2="18" y2="15"/>
+                                    <line x1="9" y1="18" x2="15" y2="18"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Continuous-Variable Qubit Matrix</h3>
+                        <p>Squeezed-state optical qubits encoded in continuous variables. Eliminates cryogenic cooling requirements while maintaining coherence across entangled qubit clusters.</p>
+                        <div class="research-topics">
+                            <span>Room-temperature operation</span>
+                            <span>Squeezed-state encoding</span>
+                            <span>Entangled clusters</span>
+                        </div>
+                    </article>
+                    
+                    <article class="research-card">
+                        <div class="research-header">
+                            <span class="research-number">03</span>
+                            <div class="research-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="4" width="18" height="4" rx="2"/>
+                                    <rect x="3" y="10" width="18" height="4" rx="2"/>
+                                    <rect x="3" y="16" width="18" height="4" rx="2"/>
+                                    <line x1="21" y1="12" x2="24" y2="12"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Quantum Memory (Q-RAM)</h3>
+                        <p>Optical quantum random-access memory with logarithmic query complexity. Stores quantum states in fiber delay lines for on-demand retrieval during multi-step algorithms.</p>
+                        <div class="research-topics">
+                            <span>Logarithmic query complexity</span>
+                            <span>Fiber delay lines</span>
+                            <span>On-demand retrieval</span>
+                        </div>
+                    </article>
 
-                    <div class="arch-block">
-                        <div class="arch-diagram">
-                            <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="30" cy="30" r="6" stroke="#2563EB" stroke-width="1.5"/>
-                                <circle cx="60" cy="30" r="6" stroke="#2563EB" stroke-width="1.5"/>
-                                <circle cx="90" cy="30" r="6" stroke="#2563EB" stroke-width="1.5"/>
-                                <circle cx="30" cy="60" r="6" stroke="#2563EB" stroke-width="1.5"/>
-                                <circle cx="60" cy="60" r="6" fill="#2563EB" opacity="0.2" stroke="#2563EB" stroke-width="1.5"/>
-                                <circle cx="90" cy="60" r="6" stroke="#2563EB" stroke-width="1.5"/>
-                                <circle cx="30" cy="90" r="6" stroke="#2563EB" stroke-width="1.5"/>
-                                <circle cx="60" cy="90" r="6" stroke="#2563EB" stroke-width="1.5"/>
-                                <circle cx="90" cy="90" r="6" stroke="#2563EB" stroke-width="1.5"/>
-                                <line x1="36" y1="30" x2="54" y2="30" stroke="currentColor" stroke-width="1" opacity="0.2"/>
-                                <line x1="66" y1="30" x2="84" y2="30" stroke="currentColor" stroke-width="1" opacity="0.2"/>
-                                <line x1="36" y1="60" x2="54" y2="60" stroke="currentColor" stroke-width="1" opacity="0.2"/>
-                                <line x1="66" y1="60" x2="84" y2="60" stroke="currentColor" stroke-width="1" opacity="0.2"/>
-                                <line x1="36" y1="90" x2="54" y2="90" stroke="currentColor" stroke-width="1" opacity="0.2"/>
-                                <line x1="66" y1="90" x2="84" y2="90" stroke="currentColor" stroke-width="1" opacity="0.2"/>
-                                <line x1="30" y1="36" x2="30" y2="54" stroke="currentColor" stroke-width="1" opacity="0.2"/>
-                                <line x1="60" y1="36" x2="60" y2="54" stroke="currentColor" stroke-width="1" opacity="0.2"/>
-                                <line x1="90" y1="36" x2="90" y2="54" stroke="currentColor" stroke-width="1" opacity="0.2"/>
-                                <line x1="30" y1="66" x2="30" y2="84" stroke="currentColor" stroke-width="1" opacity="0.2"/>
-                                <line x1="60" y1="66" x2="60" y2="84" stroke="currentColor" stroke-width="1" opacity="0.2"/>
-                                <line x1="90" y1="66" x2="90" y2="84" stroke="currentColor" stroke-width="1" opacity="0.2"/>
-                            </svg>
+                    <article class="research-card">
+                        <div class="research-header">
+                            <span class="research-number">04</span>
+                            <div class="research-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <circle cx="4" cy="4" r="2"/>
+                                    <circle cx="20" cy="4" r="2"/>
+                                    <circle cx="4" cy="20" r="2"/>
+                                    <circle cx="20" cy="20" r="2"/>
+                                    <line x1="6" y1="5" x2="10" y2="10"/>
+                                    <line x1="18" y1="5" x2="14" y2="10"/>
+                                    <line x1="6" y1="19" x2="10" y2="14"/>
+                                    <line x1="18" y1="19" x2="14" y2="14"/>
+                                </svg>
+                            </div>
                         </div>
-                        <div class="arch-content">
-                            <span class="arch-number">02</span>
-                            <h3>Continuous-Variable Qubit Matrix</h3>
-                            <p>Squeezed-state optical qubits encoded in continuous variables. Eliminates cryogenic cooling requirements while maintaining coherence across entangled qubit clusters.</p>
+                        <h3>Fiber Interconnect Fabric</h3>
+                        <p>Low-loss optical fiber mesh connecting processor modules with femtosecond synchronization. Enables linear scaling by linking multiple NIRVANA units into coherent clusters.</p>
+                        <div class="research-topics">
+                            <span>Femtosecond synchronization</span>
+                            <span>Linear scaling</span>
+                            <span>Coherent clusters</span>
                         </div>
-                    </div>
-
-                    <div class="arch-block">
-                        <div class="arch-diagram">
-                            <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="20" y="20" width="80" height="16" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
-                                <rect x="20" y="42" width="80" height="16" rx="3" stroke="#2563EB" stroke-width="1.5" opacity="0.6"/>
-                                <rect x="20" y="64" width="80" height="16" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
-                                <rect x="20" y="86" width="80" height="16" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
-                                <line x1="10" y1="28" x2="20" y2="28" stroke="currentColor" stroke-width="1" opacity="0.2"/>
-                                <line x1="10" y1="50" x2="20" y2="50" stroke="#2563EB" stroke-width="1" opacity="0.4"/>
-                                <line x1="10" y1="72" x2="20" y2="72" stroke="currentColor" stroke-width="1" opacity="0.2"/>
-                                <line x1="10" y1="94" x2="20" y2="94" stroke="currentColor" stroke-width="1" opacity="0.2"/>
-                                <line x1="100" y1="50" x2="112" y2="50" stroke="#2563EB" stroke-width="1.5" opacity="0.4"/>
-                            </svg>
-                        </div>
-                        <div class="arch-content">
-                            <span class="arch-number">03</span>
-                            <h3>Quantum Memory (Q-RAM)</h3>
-                            <p>Optical quantum random-access memory with logarithmic query complexity. Stores quantum states in fiber delay lines for on-demand retrieval during multi-step algorithms.</p>
-                        </div>
-                    </div>
-
-                    <div class="arch-block">
-                        <div class="arch-diagram">
-                            <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="60" cy="20" r="8" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
-                                <circle cx="20" cy="60" r="8" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
-                                <circle cx="100" cy="60" r="8" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
-                                <circle cx="40" cy="100" r="8" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
-                                <circle cx="80" cy="100" r="8" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
-                                <circle cx="60" cy="60" r="10" stroke="#2563EB" stroke-width="2" opacity="0.6"/>
-                                <circle cx="60" cy="60" r="4" fill="#2563EB" opacity="0.2"/>
-                                <line x1="60" y1="28" x2="60" y2="50" stroke="#2563EB" stroke-width="1" opacity="0.3"/>
-                                <line x1="28" y1="60" x2="50" y2="60" stroke="#2563EB" stroke-width="1" opacity="0.3"/>
-                                <line x1="70" y1="60" x2="92" y2="60" stroke="#2563EB" stroke-width="1" opacity="0.3"/>
-                                <line x1="53" y1="67" x2="45" y2="93" stroke="#2563EB" stroke-width="1" opacity="0.3"/>
-                                <line x1="67" y1="67" x2="75" y2="93" stroke="#2563EB" stroke-width="1" opacity="0.3"/>
-                            </svg>
-                        </div>
-                        <div class="arch-content">
-                            <span class="arch-number">04</span>
-                            <h3>Fiber Interconnect Fabric</h3>
-                            <p>Low-loss optical fiber mesh connecting processor modules with femtosecond synchronization. Enables linear scaling by linking multiple NIRVANA units into coherent clusters.</p>
-                        </div>
-                    </div>
+                    </article>
                 </div>
             </div>
         </section>
 
         <!-- Engineering Capabilities -->
-        <section class="section section-capabilities">
-            <div class="container">
-                <div class="section-label">Engineering Capabilities</div>
-                <h2 class="section-heading">From photon to production</h2>
-                <div class="capabilities-grid">
-                    <div class="capability-card">
-                        <div class="capability-number">01</div>
-                        <h4>Chip Fabrication</h4>
-                        <p>In-house silicon photonic chip design and fabrication using CMOS-compatible processes with 45nm feature resolution.</p>
-                    </div>
-                    <div class="capability-card">
-                        <div class="capability-number">02</div>
-                        <h4>Optical Assembly</h4>
-                        <p>Precision fiber-to-chip coupling, waveguide alignment, and hermetic packaging for long-term optical stability.</p>
-                    </div>
-                    <div class="capability-card">
-                        <div class="capability-number">03</div>
-                        <h4>Control Electronics</h4>
-                        <p>Custom FPGA-based control systems for real-time qubit manipulation with sub-nanosecond timing precision.</p>
-                    </div>
-                    <div class="capability-card">
-                        <div class="capability-number">04</div>
-                        <h4>Quantum Calibration</h4>
-                        <p>Automated calibration routines for gate tuning, crosstalk compensation, and fidelity optimization across all qubits.</p>
-                    </div>
-                    <div class="capability-card">
-                        <div class="capability-number">05</div>
-                        <h4>System Integration</h4>
-                        <p>Rack-scale integration of quantum and classical processing units with unified orchestration and monitoring.</p>
-                    </div>
-                    <div class="capability-card">
-                        <div class="capability-number">06</div>
-                        <h4>Testing and Validation</h4>
-                        <p>Comprehensive quantum state tomography, process benchmarking, and hardware certification protocols.</p>
+        <section class="section section-capabilities" id="capabilities">
+            <div class="container-full">
+                <div class="container">
+                    <div class="section-label">Engineering Capabilities</div>
+                    <h2 class="section-heading">From photon to production</h2>
+                </div>
+                
+                <div class="capabilities-scroll-container" id="capabilitiesScroll">
+                    <div class="capabilities-horizontal">
+                        <article class="dev-card-horizontal">
+                            <div class="dev-card-image-top">
+                                <svg class="dev-illustration" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="100" y="60" width="200" height="80" rx="8" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="2"/>
+                                    <rect x="120" y="80" width="60" height="40" rx="4" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="1.5"/>
+                                    <rect x="190" y="80" width="60" height="40" rx="4" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="1.5"/>
+                                    <rect x="260" y="80" width="20" height="40" rx="4" fill="#3B82F6" opacity="0.2" stroke="#3B82F6" stroke-width="1.5"/>
+                                    <line x1="130" y1="90" x2="170" y2="90" stroke="#9CA3AF" stroke-width="1.5"/>
+                                    <line x1="130" y1="100" x2="160" y2="100" stroke="#9CA3AF" stroke-width="1.5"/>
+                                    <line x1="200" y1="90" x2="240" y2="90" stroke="#9CA3AF" stroke-width="1.5"/>
+                                    <line x1="200" y1="100" x2="230" y2="100" stroke="#9CA3AF" stroke-width="1.5"/>
+                                </svg>
+                            </div>
+                            <div class="dev-card-content">
+                                <p class="dev-card-tag">FABRICATION</p>
+                                <h3>Chip Fabrication</h3>
+                                <ul class="dev-features">
+                                    <li>In-house silicon photonic chip design</li>
+                                    <li>CMOS-compatible processes</li>
+                                    <li>45nm feature resolution</li>
+                                </ul>
+                            </div>
+                        </article>
+
+                        <article class="dev-card-horizontal">
+                            <div class="dev-card-image-top">
+                                <svg class="dev-illustration" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="200" cy="100" r="50" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="2"/>
+                                    <line x1="150" y1="100" x2="180" y2="100" stroke="#3B82F6" stroke-width="2"/>
+                                    <line x1="220" y1="100" x2="250" y2="100" stroke="#3B82F6" stroke-width="2"/>
+                                    <circle cx="200" cy="100" r="15" fill="#FFFFFF" stroke="#3B82F6" stroke-width="2"/>
+                                    <path d="M 100 100 L 150 100" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="3 3"/>
+                                    <path d="M 250 100 L 300 100" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="3 3"/>
+                                </svg>
+                            </div>
+                            <div class="dev-card-content">
+                                <p class="dev-card-tag">ASSEMBLY</p>
+                                <h3>Optical Assembly</h3>
+                                <ul class="dev-features">
+                                    <li>Precision fiber-to-chip coupling</li>
+                                    <li>Waveguide alignment systems</li>
+                                    <li>Hermetic packaging for stability</li>
+                                </ul>
+                            </div>
+                        </article>
+
+                        <article class="dev-card-horizontal">
+                            <div class="dev-card-image-top">
+                                <svg class="dev-illustration" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="120" y="50" width="160" height="100" rx="8" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="2"/>
+                                    <rect x="140" y="70" width="40" height="30" rx="4" fill="#3B82F6" opacity="0.2" stroke="#3B82F6" stroke-width="1.5"/>
+                                    <rect x="190" y="70" width="40" height="30" rx="4" fill="#10B981" opacity="0.2" stroke="#10B981" stroke-width="1.5"/>
+                                    <rect x="240" y="70" width="20" height="30" rx="4" fill="#F59E0B" opacity="0.2" stroke="#F59E0B" stroke-width="1.5"/>
+                                    <line x1="140" y1="115" x2="180" y2="115" stroke="#9CA3AF" stroke-width="1.5"/>
+                                    <line x1="190" y1="115" x2="230" y2="115" stroke="#9CA3AF" stroke-width="1.5"/>
+                                    <line x1="240" y1="115" x2="260" y2="115" stroke="#9CA3AF" stroke-width="1.5"/>
+                                </svg>
+                            </div>
+                            <div class="dev-card-content">
+                                <p class="dev-card-tag">CONTROL</p>
+                                <h3>Control Electronics</h3>
+                                <ul class="dev-features">
+                                    <li>Custom FPGA-based control systems</li>
+                                    <li>Real-time qubit manipulation</li>
+                                    <li>Sub-nanosecond timing precision</li>
+                                </ul>
+                            </div>
+                        </article>
+
+                        <article class="dev-card-horizontal">
+                            <div class="dev-card-image-top">
+                                <svg class="dev-illustration" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M 100 150 Q 150 50 200 100 T 300 100" stroke="#3B82F6" stroke-width="2" fill="none"/>
+                                    <circle cx="100" cy="150" r="6" fill="#3B82F6"/>
+                                    <circle cx="200" cy="100" r="6" fill="#10B981"/>
+                                    <circle cx="300" cy="100" r="6" fill="#F59E0B"/>
+                                    <line x1="100" y1="150" x2="100" y2="170" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="2 2"/>
+                                    <line x1="200" y1="100" x2="200" y2="170" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="2 2"/>
+                                    <line x1="300" y1="100" x2="300" y2="170" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="2 2"/>
+                                    <line x1="80" y1="170" x2="320" y2="170" stroke="#9CA3AF" stroke-width="1.5"/>
+                                </svg>
+                            </div>
+                            <div class="dev-card-content">
+                                <p class="dev-card-tag">CALIBRATION</p>
+                                <h3>Quantum Calibration</h3>
+                                <ul class="dev-features">
+                                    <li>Automated calibration routines</li>
+                                    <li>Gate tuning and crosstalk compensation</li>
+                                    <li>Fidelity optimization across qubits</li>
+                                </ul>
+                            </div>
+                        </article>
+
+                        <article class="dev-card-horizontal">
+                            <div class="dev-card-image-top">
+                                <svg class="dev-illustration" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="80" y="60" width="80" height="80" rx="6" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="2"/>
+                                    <rect x="240" y="60" width="80" height="80" rx="6" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="2"/>
+                                    <rect x="95" y="80" width="50" height="40" rx="4" fill="#3B82F6" opacity="0.2" stroke="#3B82F6" stroke-width="1.5"/>
+                                    <rect x="255" y="80" width="50" height="40" rx="4" fill="#10B981" opacity="0.2" stroke="#10B981" stroke-width="1.5"/>
+                                    <line x1="160" y1="100" x2="240" y2="100" stroke="#9CA3AF" stroke-width="2"/>
+                                    <path d="M 230 95 L 240 100 L 230 105" stroke="#9CA3AF" stroke-width="2" fill="none"/>
+                                </svg>
+                            </div>
+                            <div class="dev-card-content">
+                                <p class="dev-card-tag">INTEGRATION</p>
+                                <h3>System Integration</h3>
+                                <ul class="dev-features">
+                                    <li>Rack-scale quantum-classical integration</li>
+                                    <li>Unified orchestration layer</li>
+                                    <li>Real-time monitoring and telemetry</li>
+                                </ul>
+                            </div>
+                        </article>
+
+                        <article class="dev-card-horizontal">
+                            <div class="dev-card-image-top">
+                                <svg class="dev-illustration" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="200" cy="100" r="60" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="2"/>
+                                    <path d="M 200 40 L 200 160" stroke="#9CA3AF" stroke-width="1.5"/>
+                                    <path d="M 140 100 L 260 100" stroke="#9CA3AF" stroke-width="1.5"/>
+                                    <circle cx="200" cy="100" r="20" fill="#FFFFFF" stroke="#3B82F6" stroke-width="2"/>
+                                    <path d="M 190 100 L 195 105 L 210 90" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                </svg>
+                            </div>
+                            <div class="dev-card-content">
+                                <p class="dev-card-tag">VALIDATION</p>
+                                <h3>Testing and Validation</h3>
+                                <ul class="dev-features">
+                                    <li>Quantum state tomography</li>
+                                    <li>Process benchmarking protocols</li>
+                                    <li>Hardware certification standards</li>
+                                </ul>
+                            </div>
+                        </article>
                     </div>
                 </div>
+
             </div>
         </section>
 
@@ -230,7 +366,7 @@
                         <p>Schedule a briefing to learn how the NIRVANA platform can accelerate your workloads.</p>
                     </div>
                     <div class="cta-actions">
-                        <a href="index.html#contact" class="btn btn-primary btn-light">Schedule a Briefing <span class="btn-icon">&rarr;</span></a>
+                        <a href="/#contact" class="btn btn-primary btn-light">Schedule a Briefing <span class="btn-icon">&rarr;</span></a>
                     </div>
                 </div>
             </div>
@@ -248,105 +384,24 @@
                 </div>
                 <div class="footer-columns">
                     <div class="footer-column">
-                        <h4>Platform</h4>
+                        <h4>PRODUCTS</h4>
                         <ul>
-                            <li><a href="/#architecture">Qaulium AI Studio</a></li>
-                            <li><a href="/hardware">Hardware</a></li>
-                            <li><a href="#">Documentation</a></li>
+                            <li><a href="/">Overview</a></li>
+                            <li><a href="/nirvana">Hardware</a></li>
                         </ul>
                     </div>
                     <div class="footer-column">
-                        <h4>Developer</h4>
+                        <h4>COMPANY</h4>
                         <ul>
-                            <li><a href="/#developer">Qaulium-Studio</a></li>
-                            <li><a href="/#developer">vQPU Engine</a></li>
-                            <li><a href="#">Documentation</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4>Research</h4>
-                        <ul>
-                            <li><a href="/#research">Publications</a></li>
-                            <li><a href="#">Open Source</a></li>
-                            <li><a href="/careers.html">Careers</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4>Company</h4>
-                        <ul>
+                            <li><a href="/careers">Careers</a></li>
                             <li><a href="/#contact">Contact</a></li>
-                            <li><a href="#">Press</a></li>
-                            <li><a href="#">Partnerships</a></li>
                         </ul>
                     </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 Qaulium AI, Inc. All rights reserved.</p>
-                <div class="footer-legal">
-                    <a href="#">Privacy</a>
-                    <a href="#">Terms</a>
-                    <a href="#">Security</a>
                 </div>
             </div>
         </div>
     </footer>
 
-    <script>
-        // Theme toggle for hardware page
-        (function() {
-            const toggle = document.getElementById('themeToggle');
-            const html = document.documentElement;
-            const saved = localStorage.getItem('qualium-theme');
-            html.setAttribute('data-theme', saved || 'light');
-
-            if (toggle) {
-                toggle.addEventListener('click', () => {
-                    const current = html.getAttribute('data-theme');
-                    const next = current === 'dark' ? 'light' : 'dark';
-                    html.setAttribute('data-theme', next);
-                    localStorage.setItem('qualium-theme', next);
-                });
-            }
-
-            // Mobile nav toggle
-            const navToggle = document.getElementById('navToggle');
-            const mobileNav = document.getElementById('mobileNav');
-            if (navToggle && mobileNav) {
-                navToggle.addEventListener('click', () => {
-                    mobileNav.classList.toggle('open');
-                    navToggle.classList.toggle('open');
-                });
-                mobileNav.querySelectorAll('a').forEach(a => {
-                    a.addEventListener('click', () => {
-                        mobileNav.classList.remove('open');
-                        navToggle.classList.remove('open');
-                    });
-                });
-            }
-
-            // Header scroll effect
-            const header = document.getElementById('siteHeader');
-            if (header) {
-                window.addEventListener('scroll', () => {
-                    header.classList.toggle('scrolled', window.scrollY > 40);
-                });
-            }
-
-            // Scroll reveal
-            const revealEls = document.querySelectorAll('.arch-block, .capability-card');
-            if (revealEls.length > 0) {
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('revealed');
-                            observer.unobserve(entry.target);
-                        }
-                    });
-                }, { threshold: 0.15 });
-                revealEls.forEach(el => observer.observe(el));
-            }
-        })();
-    </script>
+    <script src="main.js"></script>
 </body>
 </html>
