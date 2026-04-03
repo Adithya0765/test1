@@ -2693,3 +2693,25 @@ img { max-width: 100%; display: block; }
         grid-template-columns: 1fr;
     }
 }
+
+/* ============================================
+   intl-tel-input fixes
+   ============================================ */
+
+/* Prevent country dropdown from showing open by default */
+.iti__country-list {
+    display: none !important;
+}
+
+.iti--show-dropdown .iti__country-list {
+    display: block !important;
+}
+
+.iti {
+    width: 100%;
+    display: block;
+}
+
+.iti__flag-container {
+    z-index: 10;
+}
