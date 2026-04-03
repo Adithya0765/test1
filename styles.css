@@ -2790,3 +2790,44 @@ img { max-width: 100%; display: block; }
 [data-theme="dark"] .iti__selected-dial-code {
     color: #a0a0a0;
 }
+
+/* ============================================
+   Capabilities Pin Wrapper (scroll-driven horizontal)
+   ============================================ */
+
+.capabilities-pin-wrapper {
+    /* Tall enough to give scroll budget for all cards */
+    height: 300vh;
+    position: relative;
+}
+
+.capabilities-pin-wrapper .section-capabilities {
+    position: sticky;
+    top: 72px; /* below header */
+    height: calc(100vh - 72px);
+    overflow: hidden;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.capabilities-pin-wrapper .capabilities-scroll-container {
+    overflow: hidden; /* JS drives scrollLeft, no native scroll */
+    padding-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .capabilities-pin-wrapper {
+        height: auto;
+    }
+    .capabilities-pin-wrapper .section-capabilities {
+        position: relative;
+        top: auto;
+        height: auto;
+        overflow: visible;
+    }
+    .capabilities-pin-wrapper .capabilities-scroll-container {
+        overflow-x: auto;
+    }
+}
