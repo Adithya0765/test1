@@ -461,6 +461,11 @@
             e.preventDefault();
             openModal();
         });
+    } else if (navCtaBtn) {
+        navCtaBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            window.location.href = '/registration';
+        });
     }
 
     // Also wire up the CTA banner button
