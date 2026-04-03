@@ -2062,6 +2062,10 @@ img { max-width: 100%; display: block; }
         grid-template-columns: 1fr;
     }
 
+    .layer-showcase {
+        grid-template-columns: 1fr;
+    }
+
     .dev-platform-grid {
         grid-template-columns: 1fr;
     }
@@ -2356,7 +2360,7 @@ img { max-width: 100%; display: block; }
 }
 
 /* ============================================
-   Quantum Processor – Advanced Animations
+   Quantum Processor ï¿½ Advanced Animations
    ============================================ */
 
 /* Pulsing core glow */
