@@ -1266,13 +1266,10 @@ img { max-width: 100%; display: block; }
 
 /* Research cards in horizontal scroll */
 .capabilities-horizontal .research-card {
-    min-width: 340px;
-    max-width: 340px;
     flex-shrink: 0;
 }
 
 #architectureScroll .capabilities-horizontal {
-    padding: 20px 0 20px 32px;
     justify-content: flex-start;
 }
 
@@ -1437,39 +1434,26 @@ img { max-width: 100%; display: block; }
 }
 
 .capabilities-scroll-container {
-    overflow-x: auto;
-    overflow-y: hidden;
     width: 100%;
     position: relative;
-    padding: 0 0 40px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-border) transparent;
-    scroll-behavior: smooth;
-}
-
-.capabilities-scroll-container::-webkit-scrollbar {
-    height: 8px;
-}
-
-.capabilities-scroll-container::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.capabilities-scroll-container::-webkit-scrollbar-thumb {
-    background: var(--color-border);
-    border-radius: 4px;
-}
-
-.capabilities-scroll-container::-webkit-scrollbar-thumb:hover {
-    background: var(--color-text-tertiary);
 }
 
 .capabilities-horizontal {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 24px;
     padding: 20px 0;
 }
+
+/* Architecture cards: 4-col grid on desktop */
+#architectureScroll .capabilities-horizontal {
+    grid-template-columns: repeat(4, 1fr);
+    padding: 20px 0;
+    justify-content: unset;
+}
+
+/* Hide scrollbar on desktop */
+.capabilities-scroll-container::-webkit-scrollbar { display: none; }
 
 .capability-card-horizontal {
     background: var(--color-bg);
@@ -2137,20 +2121,34 @@ img { max-width: 100%; display: block; }
 
     /* Mobile capabilities horizontal scroll */
     .capabilities-scroll-container {
+        overflow-x: auto;
+        overflow-y: hidden;
         padding: 0 20px 40px;
         margin: 0 -20px;
         scroll-snap-type: x mandatory;
         scroll-padding: 0 20px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        scroll-behavior: smooth;
     }
 
+    .capabilities-scroll-container::-webkit-scrollbar { display: none; }
+
     .capabilities-horizontal {
+        display: flex !important;
         padding: 20px 0 20px 20px;
         gap: 16px;
+    }
+
+    #architectureScroll .capabilities-horizontal {
+        grid-template-columns: unset;
     }
 
     .capabilities-horizontal .research-card {
         min-width: 280px;
         max-width: 280px;
+        flex-shrink: 0;
+        scroll-snap-align: start;
     }
 
     .capability-card-horizontal {
@@ -2281,6 +2279,7 @@ img { max-width: 100%; display: block; }
     .capabilities-horizontal .research-card {
         min-width: 260px;
         max-width: 260px;
+        scroll-snap-align: start;
     }
 
     .capability-card-horizontal {
