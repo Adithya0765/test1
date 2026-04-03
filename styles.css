@@ -1110,7 +1110,6 @@ img { max-width: 100%; display: block; }
 .dev-card-horizontal:hover {
     border-color: var(--color-text-tertiary);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px);
 }
 
 .dev-card-image-top {
