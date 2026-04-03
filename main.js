@@ -835,8 +835,8 @@
             cardScrollWidth = track.scrollWidth - section.offsetWidth;
             if (cardScrollWidth <= 0) return;
             var sectionH = section.offsetHeight;
-            // Outer height: section + full card travel + section again as buffer
-            outer.style.height = (sectionH + cardScrollWidth + sectionH) + 'px';
+            // Outer height: section + card travel only (no extra buffer)
+            outer.style.height = (sectionH + cardScrollWidth) + 'px';
             outer.style.paddingBottom = '0';
             document.documentElement.style.setProperty('--capabilities-section-height', sectionH + 'px');
         }
