@@ -8,11 +8,7 @@
     // --- Theme toggle ---
     var themeToggle = document.getElementById('themeToggle');
     var savedTheme = localStorage.getItem('qualium-theme');
-    var prefersDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    function applyTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-    }
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
     function setTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
@@ -20,9 +16,9 @@
     }
 
     if (savedTheme) {
-        applyTheme(savedTheme);
+        setTheme(savedTheme);
     } else {
-        applyTheme(prefersDarkQuery.matches ? 'dark' : 'light');
+        setTheme('light');
     }
 
     if (themeToggle) {
@@ -32,9 +28,9 @@
         });
     }
 
-    prefersDarkQuery.addEventListener('change', function (e) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
         if (!localStorage.getItem('qualium-theme')) {
-            applyTheme(e.matches ? 'dark' : 'light');
+            setTheme(e.matches ? 'dark' : 'light');
         }
     });
 
@@ -81,17 +77,11 @@
         var toggle = document.getElementById(toggleId);
         var menu = document.getElementById(menuId);
         if (!toggle || !menu) return;
-
         toggle.addEventListener('click', function () {
             var isOpen = menu.classList.contains('open');
-
-            document.querySelectorAll('.mobile-nav-submenu').forEach(function (m) {
-                m.classList.remove('open');
-            });
-            document.querySelectorAll('.mobile-nav-accordion-toggle').forEach(function (t) {
-                t.classList.remove('open');
-            });
-
+            // Close all submenus first
+            document.querySelectorAll('.mobile-nav-submenu').forEach(function (m) { m.classList.remove('open'); });
+            document.querySelectorAll('.mobile-nav-accordion-toggle').forEach(function (t) { t.classList.remove('open'); });
             if (!isOpen) {
                 menu.classList.add('open');
                 toggle.classList.add('open');
@@ -107,11 +97,9 @@
     if (mobileNavCta) {
         mobileNavCta.addEventListener('click', function (e) {
             e.preventDefault();
-
-            if (navToggle) navToggle.classList.remove('active');
-            if (mobileNav) mobileNav.classList.remove('open');
+            navToggle.classList.remove('active');
+            mobileNav.classList.remove('open');
             document.body.style.overflow = '';
-
             var modal = document.getElementById('registerModal');
             if (modal) {
                 modal.classList.add('open');
@@ -122,22 +110,26 @@
         });
     }
 
-    // --- Desktop products dropdown ---
+    // --- Desktop products dropdown (hover-based, no JS needed for open/close) ---
     var productDropdown = document.getElementById('productDropdown');
+
     if (productDropdown) {
+        // Keep links functional for navigation
         productDropdown.querySelectorAll('a').forEach(function (link) {
             link.addEventListener('click', function () {
-                // Let links work normally
+                // Just let the link work normally
             });
         });
     }
 
-    // --- Desktop research dropdown ---
+    // --- Desktop research dropdown (hover-based, no JS needed for open/close) ---
     var researchDropdown = document.getElementById('researchDropdown');
+
     if (researchDropdown) {
+        // Keep links functional for navigation
         researchDropdown.querySelectorAll('a').forEach(function (link) {
             link.addEventListener('click', function () {
-                // Let links work normally
+                // Just let the link work normally
             });
         });
     }
@@ -149,8 +141,9 @@
 
         var QUBITS = 3;
         var COLS = 6;
-        var GATE_DELAY = 200;
-        var HOLD_TIME = 5000;
+        var ROW_H = 64; // matches CSS .qc-cell height
+        var GATE_DELAY = 200; // ms between gate pops
+        var HOLD_TIME = 5000; // ms to hold completed circuit
         var FADE_TIME = 400;
 
         var singleGates = ['H', 'X', 'Y', 'Z', 'S', 'T', 'Rz'];
@@ -159,21 +152,23 @@
         function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
         function randInt(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
 
+        // Generate a random circuit layout
         function generateCircuit() {
+            // grid[row][col] = { type, label } or null
             var grid = [];
             for (var r = 0; r < QUBITS; r++) {
                 grid[r] = [];
                 for (var c = 0; c < COLS; c++) grid[r][c] = null;
             }
 
-            var cnots = [];
+            var cnots = []; // { ctrl: row, tgt: row, col }
+            // Place 1-2 CNOTs
             var numCnot = randInt(1, 2);
-
             for (var i = 0; i < numCnot; i++) {
                 var col = randInt(0, COLS - 2);
                 var ctrlRow = randInt(0, QUBITS - 2);
                 var tgtRow = ctrlRow + 1;
-
+                // Check column is free
                 if (!grid[ctrlRow][col] && !grid[tgtRow][col]) {
                     grid[ctrlRow][col] = { type: 'ctrl' };
                     grid[tgtRow][col] = { type: 'tgt' };
@@ -181,6 +176,7 @@
                 }
             }
 
+            // Fill remaining empty cells with single gates or nothing
             for (var r2 = 0; r2 < QUBITS; r2++) {
                 for (var c2 = 0; c2 < COLS; c2++) {
                     if (!grid[r2][c2]) {
@@ -191,6 +187,7 @@
                 }
             }
 
+            // Optionally add a measurement to last column of a random qubit
             if (Math.random() < 0.5) {
                 var mRow = randInt(0, QUBITS - 1);
                 grid[mRow][COLS - 1] = { type: 'meter' };
@@ -205,15 +202,17 @@
             gridEl.className = 'qc-grid';
             gridEl.style.setProperty('--qc-cols', COLS);
 
-            var elements = [];
+            var elements = []; // { el, col } for sequential animation
 
             for (var r = 0; r < QUBITS; r++) {
+                // Label cell
                 var lbl = document.createElement('div');
                 lbl.className = 'qc-cell qc-label-cell';
                 lbl.textContent = 'q\u2080\u2081\u2082'[0] + '\u2080\u2081\u2082'[r];
                 gridEl.appendChild(lbl);
                 elements.push({ el: lbl, col: -1 });
 
+                // Gate cells
                 for (var c = 0; c < COLS; c++) {
                     var cell = document.createElement('div');
                     cell.className = 'qc-cell';
@@ -247,8 +246,10 @@
 
             container.appendChild(gridEl);
 
+            // Sort elements by column for sequential animation
             elements.sort(function (a, b) { return a.col - b.col; });
 
+            // Create CNOT vertical lines (positioned after layout)
             var vlines = [];
             circuit.cnots.forEach(function (cn) {
                 var vl = document.createElement('div');
@@ -266,7 +267,8 @@
                 var cn = v.cnot;
                 var gridEl = container.querySelector('.qc-grid');
                 if (!gridEl) return;
-                var ctrlIdx = cn.ctrl * (COLS + 1) + 1 + cn.col;
+                // Find ctrl and tgt cells
+                var ctrlIdx = cn.ctrl * (COLS + 1) + 1 + cn.col; // +1 for label col
                 var tgtIdx = cn.tgt * (COLS + 1) + 1 + cn.col;
                 var cells = gridEl.children;
                 if (!cells[ctrlIdx] || !cells[tgtIdx]) return;
@@ -296,6 +298,7 @@
                 delay += GATE_DELAY;
             });
 
+            // Position and animate vlines after the last gate column
             setTimeout(function () {
                 positionVLines(dom.vlines);
                 dom.vlines.forEach(function (v) { v.el.classList.add('qc-pop'); });
@@ -315,16 +318,27 @@
         function cycle() {
             var circuit = generateCircuit();
             var dom = buildDOM(circuit);
+            // Small delay to let DOM settle before animation
             requestAnimationFrame(function () {
                 animateIn(dom, function () {
                     fadeOutAll(dom, function () {
-                        cycle();
+                        cycle(); // rebuild with a new random circuit
                     });
                 });
             });
         }
 
         cycle();
+        window.addEventListener('resize', function () {
+            var vlines = container.querySelectorAll('.qc-vline');
+            if (vlines.length) {
+                // Recalculate on resize
+                var gridEl = container.querySelector('.qc-grid');
+                if (!gridEl) return;
+                var cRect = container.getBoundingClientRect();
+                // Simple re-position already handled by next cycle
+            }
+        });
     })();
 
     // --- Scroll-reveal ---
@@ -347,9 +361,7 @@
         '.usecase-card',
         '.careers-value-card',
         '.role-card',
-        '.careers-apply-wrap',
-        '.dev-card-horizontal',
-        '.layer-surface'
+        '.careers-apply-wrap'
     ];
 
     var elements = document.querySelectorAll(revealTargets.join(','));
@@ -449,8 +461,10 @@
     itiRegPhone = null;
     itiCareerPhone = null;
 
+    // Init career phone lazily on page load only if the form is visible (not in a modal)
     var careerPhoneInput = document.getElementById('careerPhone');
     if (careerPhoneInput) {
+        // Defer init so it doesn't trigger dropdown on load
         setTimeout(function () {
             itiCareerPhone = initIntlPhoneInput('careerPhone');
         }, 300);
@@ -460,6 +474,7 @@
         if (!registerModal) return;
         registerModal.classList.add('open');
         document.body.style.overflow = 'hidden';
+        // Init phone input lazily on first open
         if (!itiRegPhone) {
             itiRegPhone = initIntlPhoneInput('regPhone');
         }
@@ -485,6 +500,7 @@
         });
     }
 
+    // Wire up registration buttons (nav CTA + hero buttons that lead to registration)
     var tryStudioBtn = document.querySelector('a[href="#developer"].btn-secondary');
     if (tryStudioBtn && registerModal) {
         tryStudioBtn.addEventListener('click', function (e) {
@@ -494,21 +510,28 @@
     }
 
     var navCtaBtn = document.querySelector('.nav-cta');
-    if (navCtaBtn) {
+    if (navCtaBtn && registerModal) {
+        navCtaBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            openModal();
+        });
+    } else if (navCtaBtn) {
         navCtaBtn.addEventListener('click', function (e) {
             e.preventDefault();
             openModal();
         });
     }
 
+    // Also wire up the CTA banner button
     var ctaBannerBtn = document.querySelector('.cta-banner .btn');
-    if (ctaBannerBtn && registerModal && ctaBannerBtn.getAttribute('href') === '#') {
+    if (ctaBannerBtn && registerModal) {
         ctaBannerBtn.addEventListener('click', function (e) {
             e.preventDefault();
             openModal();
         });
     }
 
+    // Wire up Pre-Register Now button in CTA section
     var ctaRegisterBtn = document.getElementById('ctaRegisterBtn');
     if (ctaRegisterBtn && registerModal) {
         ctaRegisterBtn.addEventListener('click', function () {
@@ -542,6 +565,7 @@
                     : 'landing_modal';
             }
 
+            // Basic validation
             if (!firstName || !lastName || !email || !company || !role || !useCase) {
                 showStatus('Please fill in all required fields.', 'error');
                 return;
@@ -586,11 +610,11 @@
                 if (data.success) {
                     showStatus('Registration successful! A confirmation email has been sent to ' + email + '.', 'success');
                     registerForm.reset();
-                    if (itiRegPhone) itiRegPhone.setNumber('');
 
                     var redirectTo = (registerForm.getAttribute('data-redirect-on-success') || '').trim();
                     var redirectDelay = parseInt(registerForm.getAttribute('data-redirect-delay-ms') || '2200', 10);
 
+                    // Always redirect to landing page after success when submitting from registration portal.
                     if (!redirectTo && window.location.pathname.indexOf('registration') !== -1) {
                         redirectTo = '/';
                     }
@@ -702,7 +726,6 @@
                 if (data.success) {
                     showCareerStatus('Application submitted successfully. A confirmation email has been sent to ' + payload.email + '.', 'success');
                     careerForm.reset();
-                    if (itiCareerPhone) itiCareerPhone.setNumber('');
                 } else {
                     showCareerStatus(data.message || 'Unable to submit application right now. Please try again.', 'error');
                 }
@@ -732,17 +755,16 @@
             var message = document.getElementById('message').value.trim();
             var company = document.getElementById('company').value.trim();
 
-            var btn = form.querySelector('button[type="submit"]');
-            var statusEl = form.querySelector('.contact-form-status') || (function () {
-                var s = document.createElement('div');
-                s.className = 'form-status contact-form-status';
-                form.appendChild(s);
-                return s;
-            }());
-
             if (!name || !email || !message || !company) {
-                btn.textContent = 'Send Message';
-                btn.disabled = false;
+                var btn2 = form.querySelector('button[type="submit"]');
+                btn2.textContent = 'Send Message';
+                btn2.disabled = false;
+                var statusEl = form.querySelector('.contact-form-status') || (function() {
+                    var s = document.createElement('div');
+                    s.className = 'form-status error contact-form-status';
+                    form.appendChild(s);
+                    return s;
+                }());
                 statusEl.className = 'form-status error contact-form-status';
                 statusEl.textContent = 'Please fill in all required fields.';
                 return;
@@ -750,17 +772,25 @@
 
             var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailPattern.test(email)) {
-                btn.textContent = 'Send Message';
-                btn.disabled = false;
-                statusEl.className = 'form-status error contact-form-status';
-                statusEl.textContent = 'Please enter a valid email address.';
+                var btn3 = form.querySelector('button[type="submit"]');
+                var statusEl2 = form.querySelector('.contact-form-status') || (function() {
+                    var s = document.createElement('div');
+                    s.className = 'form-status error contact-form-status';
+                    form.appendChild(s);
+                    return s;
+                }());
+                statusEl2.className = 'form-status error contact-form-status';
+                statusEl2.textContent = 'Please enter a valid email address.';
                 return;
             }
 
+            var btn = form.querySelector('button[type="submit"]');
             btn.textContent = 'Sending...';
             btn.disabled = true;
-            statusEl.textContent = '';
-            statusEl.className = 'form-status contact-form-status';
+
+            // Clear any validation status
+            var existingStatus = form.querySelector('.contact-form-status');
+            if (existingStatus) existingStatus.textContent = '';
 
             fetch('/api/contact', {
                 method: 'POST',
@@ -772,13 +802,10 @@
                 if (data.success) {
                     btn.textContent = 'Message Sent';
                     form.reset();
-                    statusEl.className = 'form-status success contact-form-status';
-                    statusEl.textContent = 'Your message has been sent successfully.';
                 } else {
                     btn.textContent = 'Send Message';
                     btn.disabled = false;
-                    statusEl.className = 'form-status error contact-form-status';
-                    statusEl.textContent = data.message || 'Failed to send message. Please try again.';
+                    alert(data.message || 'Failed to send message. Please try again.');
                     return;
                 }
                 setTimeout(function () {
@@ -789,139 +816,67 @@
             .catch(function () {
                 btn.textContent = 'Send Message';
                 btn.disabled = false;
-                statusEl.className = 'form-status error contact-form-status';
-                statusEl.textContent = 'Unable to connect to server. Please try again later.';
             });
         });
     }
 
     // --- Horizontal scroll for capabilities section ---
     (function () {
-        var outer = document.getElementById('capabilitiesOuter');
+        var outer   = document.getElementById('capabilitiesOuter');
         var section = document.getElementById('capabilities');
-        var track = document.getElementById('capabilitiesTrack');
+        var track   = document.getElementById('capabilitiesTrack');
+        if (!outer || !section || !track) return;
+
+        var cardScrollWidth = 0;
+
+        function setup() {
+            // Force layout recalc
+            track.style.transform = 'translateX(0)';
+            cardScrollWidth = track.scrollWidth - section.offsetWidth;
+            if (cardScrollWidth <= 0) return;
+            var sectionH = section.offsetHeight;
+            // Outer height: section + card travel only (no extra buffer)
+            outer.style.height = (sectionH + cardScrollWidth) + 'px';
+            outer.style.paddingBottom = '0';
+            document.documentElement.style.setProperty('--capabilities-section-height', sectionH + 'px');
+        }
+
+        function update() {
+            if (cardScrollWidth <= 0) return;
+            var outerTop = outer.getBoundingClientRect().top;
+            var sectionH = section.offsetHeight;
+            // scrolled = how far past the outer top we are (starts when outerTop goes negative)
+            // but we only start moving cards once the section is sticky (outerTop <= 0)
+            var scrolled = Math.max(0, -outerTop);
+            // progress only counts the card travel portion, not the buffer
+            var progress = Math.min(1, scrolled / cardScrollWidth);
+            track.style.transform = 'translateX(' + (-progress * cardScrollWidth) + 'px)';
+        }
+
+        function init() {
+            setup();
+            update();
+            window.addEventListener('scroll', update, { passive: true });
+            window.addEventListener('resize', function() { outer.style.height = ''; setup(); update(); });
+        }
+
+        if (document.readyState === 'complete') { init(); }
+        else { window.addEventListener('load', init); }
+
+        // Touch fallback
+        var tx0 = 0, ty0 = 0, txL = 0, touch = false;
         var container = document.getElementById('capabilitiesScroll');
-
-        if (!outer || !section || !track || !container) return;
-
-        function isDesktop() {
-            return window.innerWidth > 768;
+        if (container) {
+            container.addEventListener('touchstart', function(e) {
+                tx0 = txL = e.touches[0].clientX; ty0 = e.touches[0].clientY; touch = true;
+            }, { passive: true });
+            container.addEventListener('touchmove', function(e) {
+                if (!touch) return;
+                var dx = Math.abs(tx0 - e.touches[0].clientX), dy = Math.abs(ty0 - e.touches[0].clientY);
+                if (dx > dy && dx > 8) { e.preventDefault(); container.scrollLeft += txL - e.touches[0].clientX; txL = e.touches[0].clientX; }
+            }, { passive: false });
+            container.addEventListener('touchend', function() { touch = false; }, { passive: true });
         }
-
-        function getHeaderHeight() {
-            return header ? header.offsetHeight : 72;
-        }
-
-        function getHorizontalDistance() {
-            return Math.max(0, track.scrollWidth - container.clientWidth);
-        }
-
-        function setupCapabilitiesScroll() {
-            if (!isDesktop()) {
-                outer.style.height = '';
-                track.style.transform = '';
-                container.scrollLeft = 0;
-                return;
-            }
-
-            var horizontalDistance = getHorizontalDistance();
-            var stickyHeight = section.offsetHeight;
-            outer.style.height = (stickyHeight + horizontalDistance) + 'px';
-            syncCapabilitiesToScroll();
-        }
-
-        function getProgress() {
-            var horizontalDistance = getHorizontalDistance();
-            if (horizontalDistance <= 0) return 0;
-
-            var outerRect = outer.getBoundingClientRect();
-            var headerHeight = getHeaderHeight();
-            var maxTravel = horizontalDistance;
-            var travelled = Math.min(Math.max(headerHeight - outerRect.top, 0), maxTravel);
-
-            return travelled / maxTravel;
-        }
-
-        function syncCapabilitiesToScroll() {
-            if (!isDesktop()) return;
-            var horizontalDistance = getHorizontalDistance();
-            var p = getProgress();
-            var x = -p * horizontalDistance;
-            track.style.transform = 'translate3d(' + x + 'px, 0, 0)';
-        }
-
-        function handleWheel(e) {
-            if (!isDesktop()) return;
-
-            var horizontalDistance = getHorizontalDistance();
-            if (horizontalDistance <= 0) return;
-
-            var outerRect = outer.getBoundingClientRect();
-            var headerHeight = getHeaderHeight();
-            var stickyStart = outerRect.top <= headerHeight;
-            var stickyEnd = outerRect.bottom > section.offsetHeight + headerHeight;
-
-            if (!(stickyStart && stickyEnd)) return;
-
-            var p = getProgress();
-            var goingDown = e.deltaY > 0;
-            var goingUp = e.deltaY < 0;
-
-            if ((goingDown && p < 1) || (goingUp && p > 0)) {
-                e.preventDefault();
-                window.scrollTo(0, window.scrollY + e.deltaY);
-            }
-        }
-
-        function initCapabilitiesScroll() {
-            setupCapabilitiesScroll();
-            syncCapabilitiesToScroll();
-        }
-
-        window.addEventListener('scroll', syncCapabilitiesToScroll, { passive: true });
-        window.addEventListener('resize', function () {
-            setupCapabilitiesScroll();
-            syncCapabilitiesToScroll();
-        });
-        window.addEventListener('load', initCapabilitiesScroll);
-        window.addEventListener('wheel', handleWheel, { passive: false });
-
-        if (document.readyState === 'complete') {
-            initCapabilitiesScroll();
-        } else {
-            window.addEventListener('load', initCapabilitiesScroll);
-        }
-
-        // Touch support
-        var touchStartX = 0;
-        var touchStartY = 0;
-        var lastTouchX = 0;
-        var touchActive = false;
-
-        container.addEventListener('touchstart', function (e) {
-            touchStartX = lastTouchX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            touchActive = true;
-        }, { passive: true });
-
-        container.addEventListener('touchmove', function (e) {
-            if (!touchActive || isDesktop()) return;
-
-            var currentX = e.touches[0].clientX;
-            var currentY = e.touches[0].clientY;
-            var dx = Math.abs(touchStartX - currentX);
-            var dy = Math.abs(touchStartY - currentY);
-
-            if (dx > dy && dx > 8) {
-                e.preventDefault();
-                container.scrollLeft += (lastTouchX - currentX);
-                lastTouchX = currentX;
-            }
-        }, { passive: false });
-
-        container.addEventListener('touchend', function () {
-            touchActive = false;
-        }, { passive: true });
     })();
 
     // --- Horizontal scroll for dev platform section ---
@@ -929,6 +884,7 @@
         var devPlatformScroll = document.getElementById('devPlatformScroll');
         if (!devPlatformScroll) return;
 
+        // Touch support - let CSS scroll-snap handle the smoothness
         var touchStartX = 0;
         var touchStartY = 0;
         var isTouching = false;
@@ -947,6 +903,7 @@
             var deltaX = Math.abs(touchStartX - touchX);
             var deltaY = Math.abs(touchStartY - touchY);
 
+            // Only prevent default if horizontal swipe is dominant
             if (deltaX > deltaY && deltaX > 10) {
                 e.preventDefault();
             }
@@ -956,6 +913,7 @@
             isTouching = false;
         }
 
+        // Listen to touch events for mobile
         devPlatformScroll.addEventListener('touchstart', handleTouchStart, { passive: true });
         devPlatformScroll.addEventListener('touchmove', handleTouchMove, { passive: false });
         devPlatformScroll.addEventListener('touchend', handleTouchEnd, { passive: true });
