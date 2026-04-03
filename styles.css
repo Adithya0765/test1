@@ -1377,7 +1377,8 @@ img { max-width: 100%; display: block; }
 .capabilities-horizontal {
     display: flex;
     gap: 24px;
-    padding: 20px 0;
+    padding: 20px max(20px, calc((100vw - 1400px) / 2));
+    justify-content: flex-start;
 }
 
 .capability-card-horizontal {
