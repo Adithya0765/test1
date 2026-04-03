@@ -821,6 +821,7 @@
     }
 
     // --- Horizontal scroll for capabilities section ---
+    // Page stops when section is sticky + cards are mid-scroll
     (function () {
         var outer     = document.getElementById('capabilitiesOuter');
         var section   = document.getElementById('capabilities');
@@ -829,43 +830,90 @@
         if (!outer || !section || !track || !container) return;
 
         var cardScrollWidth = 0;
+        var isLocked = false;
+        var lockScrollY = 0;
 
         function setup() {
             track.style.transform = 'translateX(0)';
-
-            // Temporarily unhide to get true scrollWidth
-            var prevOverflow = container.style.overflow;
             container.style.overflow = 'visible';
             section.style.overflow   = 'visible';
-
             var trackW   = track.scrollWidth;
             var sectionW = section.offsetWidth;
-
-            container.style.overflow = prevOverflow || 'hidden';
+            container.style.overflow = 'hidden';
             section.style.overflow   = 'hidden';
-
             cardScrollWidth = Math.max(0, trackW - sectionW);
             if (cardScrollWidth <= 0) return;
-
-            var sectionH = section.offsetHeight;
-            outer.style.height = (sectionH + cardScrollWidth) + 'px';
+            outer.style.height = (section.offsetHeight + cardScrollWidth) + 'px';
         }
 
-        function update() {
-            if (cardScrollWidth <= 0) return;
+        function getProgress() {
             var scrolled = Math.max(0, -outer.getBoundingClientRect().top);
-            var progress = Math.min(1, scrolled / cardScrollWidth);
-            track.style.transform = 'translateX(' + (-progress * cardScrollWidth) + 'px)';
+            return Math.min(1, scrolled / cardScrollWidth);
         }
+
+        function applyProgress(p) {
+            track.style.transform = 'translateX(' + (-p * cardScrollWidth) + 'px)';
+        }
+
+        function isSectionSticky() {
+            var r = section.getBoundingClientRect();
+            return Math.abs(r.top - 72) < 4; // section is pinned at header height
+        }
+
+        function lock(y) {
+            if (isLocked) return;
+            isLocked = true;
+            lockScrollY = y;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function unlock() {
+            if (!isLocked) return;
+            isLocked = false;
+            document.body.style.overflow = '';
+        }
+
+        window.addEventListener('wheel', function(e) {
+            if (cardScrollWidth <= 0) return;
+            if (!isSectionSticky()) { unlock(); return; }
+
+            var p = getProgress();
+            var down = e.deltaY > 0;
+            var up   = e.deltaY < 0;
+
+            if (down && p >= 1) { unlock(); return; }
+            if (up   && p <= 0) { unlock(); return; }
+
+            lock(window.scrollY);
+            e.preventDefault();
+            window.scrollTo({ top: lockScrollY, behavior: 'instant' });
+
+            var newScrolled = Math.max(0, -outer.getBoundingClientRect().top) + e.deltaY * 0.9;
+            var newP = Math.max(0, Math.min(1, newScrolled / cardScrollWidth));
+            applyProgress(newP);
+
+            // Sync outer div scroll position to match card progress
+            var targetOuterScroll = newP * cardScrollWidth;
+            var outerTop = outer.getBoundingClientRect().top + window.scrollY;
+            window.scrollTo({ top: outerTop + targetOuterScroll, behavior: 'instant' });
+            lockScrollY = window.scrollY;
+
+        }, { passive: false });
+
+        // Also update on normal scroll (for when unlocked)
+        window.addEventListener('scroll', function() {
+            if (!isLocked && cardScrollWidth > 0) {
+                applyProgress(getProgress());
+            }
+        }, { passive: true });
 
         function init() {
             setup();
-            update();
-            window.addEventListener('scroll', update, { passive: true });
+            applyProgress(getProgress());
             window.addEventListener('resize', function() {
                 outer.style.height = '';
                 setup();
-                update();
+                applyProgress(getProgress());
             });
         }
 
@@ -874,17 +922,15 @@
 
         // Touch
         var tx0 = 0, ty0 = 0, txL = 0, touch = false;
-        if (container) {
-            container.addEventListener('touchstart', function(e) {
-                tx0 = txL = e.touches[0].clientX; ty0 = e.touches[0].clientY; touch = true;
-            }, { passive: true });
-            container.addEventListener('touchmove', function(e) {
-                if (!touch) return;
-                var dx = Math.abs(tx0 - e.touches[0].clientX), dy = Math.abs(ty0 - e.touches[0].clientY);
-                if (dx > dy && dx > 8) { e.preventDefault(); container.scrollLeft += txL - e.touches[0].clientX; txL = e.touches[0].clientX; }
-            }, { passive: false });
-            container.addEventListener('touchend', function() { touch = false; }, { passive: true });
-        }
+        container.addEventListener('touchstart', function(e) {
+            tx0 = txL = e.touches[0].clientX; ty0 = e.touches[0].clientY; touch = true;
+        }, { passive: true });
+        container.addEventListener('touchmove', function(e) {
+            if (!touch) return;
+            var dx = Math.abs(tx0 - e.touches[0].clientX), dy = Math.abs(ty0 - e.touches[0].clientY);
+            if (dx > dy && dx > 8) { e.preventDefault(); container.scrollLeft += txL - e.touches[0].clientX; txL = e.touches[0].clientX; }
+        }, { passive: false });
+        container.addEventListener('touchend', function() { touch = false; }, { passive: true });
     })();
 
     // --- Horizontal scroll for dev platform section ---
