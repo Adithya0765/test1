@@ -131,26 +131,59 @@
                         <div class="sw-hero-visual">
                             <style>
                             .dbg-timeline { width:320px; }
-                            .dbg-step { display:flex; align-items:center; gap:14px; margin-bottom:16px; opacity:0; animation:dbgStep 0.4s ease forwards; }
-                            .dbg-step:nth-child(1){animation-delay:0s}
-                            .dbg-step:nth-child(2){animation-delay:0.4s}
-                            .dbg-step:nth-child(3){animation-delay:0.8s}
-                            .dbg-step:nth-child(4){animation-delay:1.2s}
-                            .dbg-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
-                            .dbg-dot.active { background:#3B82F6; box-shadow:0 0 0 4px rgba(59,130,246,0.2); animation:dbgPulse 1.5s ease-in-out infinite; }
+                            .dbg-step { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+                            .dbg-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; transition:background 0.3s, box-shadow 0.3s; }
                             .dbg-dot.done   { background:#10B981; }
+                            .dbg-dot.active { background:#3B82F6; box-shadow:0 0 0 4px rgba(59,130,246,0.25); }
                             .dbg-dot.idle   { background:var(--color-border); }
-                            .dbg-label { font-size:13px; font-family:var(--font-mono); color:var(--color-text-secondary); }
-                            .dbg-state { font-size:11px; font-family:var(--font-mono); color:var(--color-accent); margin-left:auto; }
-                            @keyframes dbgStep { to{opacity:1;transform:translateX(0)} from{opacity:0;transform:translateX(-10px)} }
-                            @keyframes dbgPulse { 0%,100%{box-shadow:0 0 0 4px rgba(59,130,246,0.2)} 50%{box-shadow:0 0 0 8px rgba(59,130,246,0.1)} }
+                            .dbg-label { font-size:13px; font-family:var(--font-mono); color:var(--color-text-secondary); transition:color 0.3s; }
+                            .dbg-label.active { color:var(--color-primary); font-weight:600; }
+                            .dbg-state { font-size:11px; font-family:var(--font-mono); color:var(--color-accent); margin-left:auto; opacity:0; transition:opacity 0.3s; }
+                            .dbg-state.visible { opacity:1; }
                             </style>
-                            <div class="dbg-timeline">
-                                <div class="dbg-step"><div class="dbg-dot done"></div><span class="dbg-label">H gate — q0</span><span class="dbg-state">|+⟩</span></div>
-                                <div class="dbg-step"><div class="dbg-dot done"></div><span class="dbg-label">CNOT — q0,q1</span><span class="dbg-state">|Φ+⟩</span></div>
-                                <div class="dbg-step"><div class="dbg-dot active"></div><span class="dbg-label">Rz(θ) — q1</span><span class="dbg-state">●</span></div>
-                                <div class="dbg-step"><div class="dbg-dot idle"></div><span class="dbg-label">Measure — q0,q1</span><span class="dbg-state">—</span></div>
+                            <div class="dbg-timeline" id="dbgTimeline">
+                                <div class="dbg-step" id="dbgS0"><div class="dbg-dot idle" id="dbgD0"></div><span class="dbg-label" id="dbgL0">H gate — q0</span><span class="dbg-state" id="dbgSt0">|+⟩</span></div>
+                                <div class="dbg-step" id="dbgS1"><div class="dbg-dot idle" id="dbgD1"></div><span class="dbg-label" id="dbgL1">CNOT — q0,q1</span><span class="dbg-state" id="dbgSt1">|Φ+⟩</span></div>
+                                <div class="dbg-step" id="dbgS2"><div class="dbg-dot idle" id="dbgD2"></div><span class="dbg-label" id="dbgL2">Rz(θ) — q1</span><span class="dbg-state" id="dbgSt2">0.94</span></div>
+                                <div class="dbg-step" id="dbgS3"><div class="dbg-dot idle" id="dbgD3"></div><span class="dbg-label" id="dbgL3">Measure — q0,q1</span><span class="dbg-state" id="dbgSt3">|01⟩</span></div>
                             </div>
+                            <script>
+                            (function loop() {
+                                var n = 4;
+                                function dot(i) { return document.getElementById('dbgD'+i); }
+                                function lbl(i) { return document.getElementById('dbgL'+i); }
+                                function st(i)  { return document.getElementById('dbgSt'+i); }
+                                function reset() {
+                                    for (var i=0;i<n;i++) {
+                                        dot(i).className='dbg-dot idle';
+                                        lbl(i).className='dbg-label';
+                                        st(i).className='dbg-state';
+                                    }
+                                }
+                                function step(active) {
+                                    reset();
+                                    for (var i=0;i<active;i++) {
+                                        dot(i).className='dbg-dot done';
+                                        st(i).className='dbg-state visible';
+                                    }
+                                    if (active < n) {
+                                        dot(active).className='dbg-dot active';
+                                        lbl(active).className='dbg-label active';
+                                    }
+                                }
+                                var cur = 0;
+                                function tick() {
+                                    step(cur);
+                                    cur++;
+                                    if (cur <= n) {
+                                        setTimeout(tick, cur <= n ? 900 : 0);
+                                    } else {
+                                        setTimeout(function(){ reset(); cur=0; setTimeout(tick, 600); }, 1500);
+                                    }
+                                }
+                                tick();
+                            })();
+                            </script>
                         </div>
                     </div>
                 </div>

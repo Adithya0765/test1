@@ -131,34 +131,49 @@
                         <div class="sw-hero-visual">
                             <style>
                             .ai-chat { width:340px; display:flex; flex-direction:column; gap:10px; }
-                            .ai-bubble { padding:12px 16px; border-radius:12px; font-size:13px; font-family:var(--font-body); line-height:1.5; opacity:0; }
+                            .ai-bubble { padding:12px 16px; border-radius:12px; font-size:13px; font-family:var(--font-body); line-height:1.5; opacity:0; transition:opacity 0.3s ease; }
                             .ai-bubble.user { background:var(--color-accent); color:#fff; align-self:flex-end; border-bottom-right-radius:4px; }
                             .ai-bubble.bot  { background:var(--color-surface); border:1px solid var(--color-border); color:var(--color-text); align-self:flex-start; border-bottom-left-radius:4px; }
-                            .ai-typing { display:flex; gap:4px; padding:12px 16px; background:var(--color-surface); border:1px solid var(--color-border); border-radius:12px; border-bottom-left-radius:4px; align-self:flex-start; opacity:0; }
+                            .ai-typing { display:flex; gap:4px; padding:12px 16px; background:var(--color-surface); border:1px solid var(--color-border); border-radius:12px; border-bottom-left-radius:4px; align-self:flex-start; opacity:0; transition:opacity 0.3s ease; }
                             .ai-dot { width:6px; height:6px; border-radius:50%; background:var(--color-text-tertiary); animation:aiDot 1.2s ease-in-out infinite; }
                             .ai-dot:nth-child(2){animation-delay:0.2s} .ai-dot:nth-child(3){animation-delay:0.4s}
                             @keyframes aiDot { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
-                            @keyframes aiFade { to{opacity:1} }
                             </style>
-                            <div class="ai-chat" id="aiConversation">
-                                <div class="ai-bubble user" style="animation:aiFade 0.3s ease 0.2s forwards;">Generate a VQE circuit for H₂</div>
-                                <div class="ai-typing" id="aiTyping1" style="animation:aiFade 0.3s ease 0.7s forwards;"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>
-                                <div class="ai-bubble bot" id="aiReply1" style="animation:aiFade 0.3s ease 1.6s forwards;">Here's a 4-qubit UCCSD ansatz for H₂. Depth: 12, params: 3.</div>
-                                <div class="ai-bubble user" style="animation:aiFade 0.3s ease 2.4s forwards;">Optimize it for IBM Nairobi topology</div>
-                                <div class="ai-typing" id="aiTyping2" style="animation:aiFade 0.3s ease 2.9s forwards;"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>
-                                <div class="ai-bubble bot" style="animation:aiFade 0.3s ease 3.8s forwards;">Transpiled — depth reduced to 8, SWAP overhead: 1 gate.</div>
+                            <div class="ai-chat" id="aiChat">
+                                <div class="ai-bubble user" id="aiU1">Generate a VQE circuit for H₂</div>
+                                <div class="ai-typing" id="aiT1"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>
+                                <div class="ai-bubble bot" id="aiB1">Here's a 4-qubit UCCSD ansatz. Depth: 12, params: 3.</div>
+                                <div class="ai-bubble user" id="aiU2">Optimize for IBM Nairobi topology</div>
+                                <div class="ai-typing" id="aiT2"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>
+                                <div class="ai-bubble bot" id="aiB2">Transpiled — depth reduced to 8, SWAP overhead: 1.</div>
                             </div>
                             <script>
-                            (function(){
-                                // Hide typing indicators once their reply appears
-                                function hideAt(typingId, delay) {
+                            (function loop() {
+                                var seq = [
+                                    ['aiU1', 300],
+                                    ['aiT1', 700],
+                                    [null, 900, 'aiT1'],   // hide typing
+                                    ['aiB1', 950],
+                                    ['aiU2', 1800],
+                                    ['aiT2', 2200],
+                                    [null, 2200, 'aiT2'],
+                                    ['aiB2', 2250],
+                                ];
+                                var ids = ['aiU1','aiT1','aiB1','aiU2','aiT2','aiB2'];
+                                function reset() { ids.forEach(function(id){ var el=document.getElementById(id); if(el){el.style.opacity='0';} }); }
+                                function show(id) { var el=document.getElementById(id); if(el) el.style.opacity='1'; }
+                                function hide(id) { var el=document.getElementById(id); if(el) el.style.opacity='0'; }
+                                function run(i) {
+                                    if (i >= seq.length) { setTimeout(function(){ reset(); setTimeout(function(){ loop(); }, 600); }, 2000); return; }
+                                    var step = seq[i];
                                     setTimeout(function() {
-                                        var el = document.getElementById(typingId);
-                                        if (el) el.style.display = 'none';
-                                    }, delay);
+                                        if (step[0]) show(step[0]);
+                                        if (step[2]) hide(step[2]);
+                                        run(i + 1);
+                                    }, step[1]);
                                 }
-                                hideAt('aiTyping1', 1600);
-                                hideAt('aiTyping2', 3800);
+                                reset();
+                                run(0);
                             })();
                             </script>
                         </div>
