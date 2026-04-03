@@ -102,107 +102,112 @@
 
         <!-- NIRVANA Architecture -->
         <section class="section section-research" id="architecture">
-            <div class="container">
-                <div class="section-label">Hardware Architecture</div>
-                <h2 class="section-heading">NIRVANA Architecture</h2>
-                <p class="section-intro">A software-defined quantum platform for hybrid classical-quantum workloads. Four core subsystems deliver scalable quantum compute at room temperature.</p>
-
-                <div class="research-grid">
-                    <article class="research-card">
-                        <div class="research-header">
-                            <span class="research-number">01</span>
-                            <div class="research-icon">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                    <circle cx="12" cy="12" r="3"/>
-                                    <line x1="12" y1="3" x2="12" y2="9"/>
-                                    <line x1="12" y1="15" x2="12" y2="21"/>
-                                    <line x1="3" y1="12" x2="9" y2="12"/>
-                                    <line x1="15" y1="12" x2="21" y2="12"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <h3>Photonic Core</h3>
-                        <p>Silicon-photonic integrated circuit operating at optical frequencies. Supports gate-level programmability with sub-nanosecond switching across 256 waveguide channels.</p>
-                        <div class="research-topics">
-                            <span>256 waveguide channels</span>
-                            <span>Sub-nanosecond switching</span>
-                            <span>Gate-level programmability</span>
-                        </div>
-                    </article>
-                    
-                    <article class="research-card">
-                        <div class="research-header">
-                            <span class="research-number">02</span>
-                            <div class="research-icon">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <circle cx="6" cy="6" r="3"/>
-                                    <circle cx="18" cy="6" r="3"/>
-                                    <circle cx="6" cy="18" r="3"/>
-                                    <circle cx="18" cy="18" r="3"/>
-                                    <line x1="9" y1="6" x2="15" y2="6"/>
-                                    <line x1="6" y1="9" x2="6" y2="15"/>
-                                    <line x1="18" y1="9" x2="18" y2="15"/>
-                                    <line x1="9" y1="18" x2="15" y2="18"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <h3>Continuous-Variable Qubit Matrix</h3>
-                        <p>Squeezed-state optical qubits encoded in continuous variables. Eliminates cryogenic cooling requirements while maintaining coherence across entangled qubit clusters.</p>
-                        <div class="research-topics">
-                            <span>Room-temperature operation</span>
-                            <span>Squeezed-state encoding</span>
-                            <span>Entangled clusters</span>
-                        </div>
-                    </article>
-                    
-                    <article class="research-card">
-                        <div class="research-header">
-                            <span class="research-number">03</span>
-                            <div class="research-icon">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <rect x="3" y="4" width="18" height="4" rx="2"/>
-                                    <rect x="3" y="10" width="18" height="4" rx="2"/>
-                                    <rect x="3" y="16" width="18" height="4" rx="2"/>
-                                    <line x1="21" y1="12" x2="24" y2="12"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <h3>Quantum Memory (Q-RAM)</h3>
-                        <p>Optical quantum random-access memory with logarithmic query complexity. Stores quantum states in fiber delay lines for on-demand retrieval during multi-step algorithms.</p>
-                        <div class="research-topics">
-                            <span>Logarithmic query complexity</span>
-                            <span>Fiber delay lines</span>
-                            <span>On-demand retrieval</span>
-                        </div>
-                    </article>
-
-                    <article class="research-card">
-                        <div class="research-header">
-                            <span class="research-number">04</span>
-                            <div class="research-icon">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <circle cx="12" cy="12" r="3"/>
-                                    <circle cx="4" cy="4" r="2"/>
-                                    <circle cx="20" cy="4" r="2"/>
-                                    <circle cx="4" cy="20" r="2"/>
-                                    <circle cx="20" cy="20" r="2"/>
-                                    <line x1="6" y1="5" x2="10" y2="10"/>
-                                    <line x1="18" y1="5" x2="14" y2="10"/>
-                                    <line x1="6" y1="19" x2="10" y2="14"/>
-                                    <line x1="18" y1="19" x2="14" y2="14"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <h3>Fiber Interconnect Fabric</h3>
-                        <p>Low-loss optical fiber mesh connecting processor modules with femtosecond synchronization. Enables linear scaling by linking multiple NIRVANA units into coherent clusters.</p>
-                        <div class="research-topics">
-                            <span>Femtosecond synchronization</span>
-                            <span>Linear scaling</span>
-                            <span>Coherent clusters</span>
-                        </div>
-                    </article>
+            <div class="container-full">
+                <div class="container">
+                    <div class="section-label">Hardware Architecture</div>
+                    <h2 class="section-heading">NIRVANA Architecture</h2>
+                    <p class="section-intro">A software-defined quantum platform for hybrid classical-quantum workloads. Four core subsystems deliver scalable quantum compute at room temperature.</p>
                 </div>
+                
+                <div class="capabilities-scroll-container" id="architectureScroll">
+                    <div class="capabilities-horizontal">
+                        <article class="research-card">
+                            <div class="research-header">
+                                <span class="research-number">01</span>
+                                <div class="research-icon">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                        <line x1="12" y1="3" x2="12" y2="9"/>
+                                        <line x1="12" y1="15" x2="12" y2="21"/>
+                                        <line x1="3" y1="12" x2="9" y2="12"/>
+                                        <line x1="15" y1="12" x2="21" y2="12"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3>Photonic Core</h3>
+                            <p>Silicon-photonic integrated circuit operating at optical frequencies. Supports gate-level programmability with sub-nanosecond switching across 256 waveguide channels.</p>
+                            <div class="research-topics">
+                                <span>256 waveguide channels</span>
+                                <span>Sub-nanosecond switching</span>
+                                <span>Gate-level programmability</span>
+                            </div>
+                        </article>
+                        
+                        <article class="research-card">
+                            <div class="research-header">
+                                <span class="research-number">02</span>
+                                <div class="research-icon">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <circle cx="6" cy="6" r="3"/>
+                                        <circle cx="18" cy="6" r="3"/>
+                                        <circle cx="6" cy="18" r="3"/>
+                                        <circle cx="18" cy="18" r="3"/>
+                                        <line x1="9" y1="6" x2="15" y2="6"/>
+                                        <line x1="6" y1="9" x2="6" y2="15"/>
+                                        <line x1="18" y1="9" x2="18" y2="15"/>
+                                        <line x1="9" y1="18" x2="15" y2="18"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3>Continuous-Variable Qubit Matrix</h3>
+                            <p>Squeezed-state optical qubits encoded in continuous variables. Eliminates cryogenic cooling requirements while maintaining coherence across entangled qubit clusters.</p>
+                            <div class="research-topics">
+                                <span>Room-temperature operation</span>
+                                <span>Squeezed-state encoding</span>
+                                <span>Entangled clusters</span>
+                            </div>
+                        </article>
+                        
+                        <article class="research-card">
+                            <div class="research-header">
+                                <span class="research-number">03</span>
+                                <div class="research-icon">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <rect x="3" y="4" width="18" height="4" rx="2"/>
+                                        <rect x="3" y="10" width="18" height="4" rx="2"/>
+                                        <rect x="3" y="16" width="18" height="4" rx="2"/>
+                                        <line x1="21" y1="12" x2="24" y2="12"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3>Quantum Memory (Q-RAM)</h3>
+                            <p>Optical quantum random-access memory with logarithmic query complexity. Stores quantum states in fiber delay lines for on-demand retrieval during multi-step algorithms.</p>
+                            <div class="research-topics">
+                                <span>Logarithmic query complexity</span>
+                                <span>Fiber delay lines</span>
+                                <span>On-demand retrieval</span>
+                            </div>
+                        </article>
+
+                        <article class="research-card">
+                            <div class="research-header">
+                                <span class="research-number">04</span>
+                                <div class="research-icon">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <circle cx="12" cy="12" r="3"/>
+                                        <circle cx="4" cy="4" r="2"/>
+                                        <circle cx="20" cy="4" r="2"/>
+                                        <circle cx="4" cy="20" r="2"/>
+                                        <circle cx="20" cy="20" r="2"/>
+                                        <line x1="6" y1="5" x2="10" y2="10"/>
+                                        <line x1="18" y1="5" x2="14" y2="10"/>
+                                        <line x1="6" y1="19" x2="10" y2="14"/>
+                                        <line x1="18" y1="19" x2="14" y2="14"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3>Fiber Interconnect Fabric</h3>
+                            <p>Low-loss optical fiber mesh connecting processor modules with femtosecond synchronization. Enables linear scaling by linking multiple NIRVANA units into coherent clusters.</p>
+                            <div class="research-topics">
+                                <span>Femtosecond synchronization</span>
+                                <span>Linear scaling</span>
+                                <span>Coherent clusters</span>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+
             </div>
         </section>
 
