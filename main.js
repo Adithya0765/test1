@@ -7,47 +7,50 @@
 
     // --- Theme toggle ---
     var themeToggle = document.getElementById('themeToggle');
-    var savedTheme = localStorage.getItem('qaulium-theme');
-    var systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    var savedTheme = localStorage.getItem('qualium-theme');
+    var prefersDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
     function applyTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
     }
 
-    function setUserTheme(theme) {
-        localStorage.setItem('qaulium-theme', theme);
-        applyTheme(theme);
+    function setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('qualium-theme', theme);
     }
 
     if (savedTheme) {
         applyTheme(savedTheme);
     } else {
-        applyTheme(systemThemeQuery.matches ? 'dark' : 'light');
+        applyTheme(prefersDarkQuery.matches ? 'dark' : 'light');
     }
 
     if (themeToggle) {
         themeToggle.addEventListener('click', function () {
             var current = document.documentElement.getAttribute('data-theme');
-            setUserTheme(current === 'dark' ? 'light' : 'dark');
+            setTheme(current === 'dark' ? 'light' : 'dark');
         });
     }
 
-    systemThemeQuery.addEventListener('change', function (e) {
-        if (!localStorage.getItem('qaulium-theme')) {
+    prefersDarkQuery.addEventListener('change', function (e) {
+        if (!localStorage.getItem('qualium-theme')) {
             applyTheme(e.matches ? 'dark' : 'light');
         }
     });
 
     // --- Header scroll state ---
     var header = document.getElementById('siteHeader');
+    var lastScroll = 0;
 
     function updateHeader() {
+        var scrollY = window.scrollY;
         if (!header) return;
-        if (window.scrollY > 10) {
+        if (scrollY > 10) {
             header.classList.add('scrolled');
         } else {
             header.classList.remove('scrolled');
         }
+        lastScroll = scrollY;
     }
 
     window.addEventListener('scroll', updateHeader, { passive: true });
@@ -56,11 +59,6 @@
     // --- Mobile navigation ---
     var navToggle = document.getElementById('navToggle');
     var mobileNav = document.getElementById('mobileNav');
-    var mobileProductsToggle = document.getElementById('mobileProductsToggle');
-    var mobileProductsMenu = document.getElementById('mobileProductsMenu');
-    var mobileResearchToggle = document.getElementById('mobileResearchToggle');
-    var mobileResearchMenu = document.getElementById('mobileResearchMenu');
-    var mobileNavCta = document.getElementById('mobileNavCta');
 
     if (navToggle && mobileNav) {
         navToggle.addEventListener('click', function () {
@@ -78,17 +76,69 @@
         });
     }
 
-    if (mobileProductsToggle && mobileProductsMenu) {
-        mobileProductsToggle.addEventListener('click', function () {
-            mobileProductsToggle.classList.toggle('open');
-            mobileProductsMenu.classList.toggle('open');
+    // --- Mobile accordion dropdowns ---
+    function setupMobileAccordion(toggleId, menuId) {
+        var toggle = document.getElementById(toggleId);
+        var menu = document.getElementById(menuId);
+        if (!toggle || !menu) return;
+
+        toggle.addEventListener('click', function () {
+            var isOpen = menu.classList.contains('open');
+
+            document.querySelectorAll('.mobile-nav-submenu').forEach(function (m) {
+                m.classList.remove('open');
+            });
+            document.querySelectorAll('.mobile-nav-accordion-toggle').forEach(function (t) {
+                t.classList.remove('open');
+            });
+
+            if (!isOpen) {
+                menu.classList.add('open');
+                toggle.classList.add('open');
+            }
         });
     }
 
-    if (mobileResearchToggle && mobileResearchMenu) {
-        mobileResearchToggle.addEventListener('click', function () {
-            mobileResearchToggle.classList.toggle('open');
-            mobileResearchMenu.classList.toggle('open');
+    setupMobileAccordion('mobileProductsToggle', 'mobileProductsMenu');
+    setupMobileAccordion('mobileResearchToggle', 'mobileResearchMenu');
+
+    // --- Mobile nav CTA opens modal ---
+    var mobileNavCta = document.getElementById('mobileNavCta');
+    if (mobileNavCta) {
+        mobileNavCta.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            if (navToggle) navToggle.classList.remove('active');
+            if (mobileNav) mobileNav.classList.remove('open');
+            document.body.style.overflow = '';
+
+            var modal = document.getElementById('registerModal');
+            if (modal) {
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            } else {
+                window.location.href = '/registration';
+            }
+        });
+    }
+
+    // --- Desktop products dropdown ---
+    var productDropdown = document.getElementById('productDropdown');
+    if (productDropdown) {
+        productDropdown.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', function () {
+                // Let links work normally
+            });
+        });
+    }
+
+    // --- Desktop research dropdown ---
+    var researchDropdown = document.getElementById('researchDropdown');
+    if (researchDropdown) {
+        researchDropdown.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', function () {
+                // Let links work normally
+            });
         });
     }
 
@@ -102,17 +152,12 @@
         var GATE_DELAY = 200;
         var HOLD_TIME = 5000;
         var FADE_TIME = 400;
+
         var singleGates = ['H', 'X', 'Y', 'Z', 'S', 'T', 'Rz'];
         var meterSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18 A8 8 0 0 1 20 18"/><line x1="12" y1="18" x2="17" y2="7"/></svg>';
-        var subscripts = ['₀', '₁', '₂'];
 
-        function pick(arr) {
-            return arr[Math.floor(Math.random() * arr.length)];
-        }
-
-        function randInt(a, b) {
-            return a + Math.floor(Math.random() * (b - a + 1));
-        }
+        function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        function randInt(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
 
         function generateCircuit() {
             var grid = [];
@@ -138,8 +183,10 @@
 
             for (var r2 = 0; r2 < QUBITS; r2++) {
                 for (var c2 = 0; c2 < COLS; c2++) {
-                    if (!grid[r2][c2] && Math.random() < 0.45) {
-                        grid[r2][c2] = { type: 'gate', label: pick(singleGates) };
+                    if (!grid[r2][c2]) {
+                        if (Math.random() < 0.45) {
+                            grid[r2][c2] = { type: 'gate', label: pick(singleGates) };
+                        }
                     }
                 }
             }
@@ -163,7 +210,7 @@
             for (var r = 0; r < QUBITS; r++) {
                 var lbl = document.createElement('div');
                 lbl.className = 'qc-cell qc-label-cell';
-                lbl.textContent = 'q' + subscripts[r];
+                lbl.textContent = 'q\u2080\u2081\u2082'[0] + '\u2080\u2081\u2082'[r];
                 gridEl.appendChild(lbl);
                 elements.push({ el: lbl, col: -1 });
 
@@ -184,7 +231,7 @@
                         } else if (entry.type === 'tgt') {
                             gateEl = document.createElement('div');
                             gateEl.className = 'qc-tgt';
-                            gateEl.textContent = '⊕';
+                            gateEl.textContent = '\u2295';
                         } else if (entry.type === 'meter') {
                             gateEl = document.createElement('div');
                             gateEl.className = 'qc-meter';
@@ -210,25 +257,21 @@
                 vlines.push({ el: vl, cnot: cn });
             });
 
-            return { elements: elements, vlines: vlines };
+            return { elements: elements, vlines: vlines, gridEl: gridEl };
         }
 
         function positionVLines(vlines) {
             var cRect = container.getBoundingClientRect();
-
             vlines.forEach(function (v) {
                 var cn = v.cnot;
                 var gridEl = container.querySelector('.qc-grid');
                 if (!gridEl) return;
-
                 var ctrlIdx = cn.ctrl * (COLS + 1) + 1 + cn.col;
                 var tgtIdx = cn.tgt * (COLS + 1) + 1 + cn.col;
                 var cells = gridEl.children;
                 if (!cells[ctrlIdx] || !cells[tgtIdx]) return;
-
                 var cr = cells[ctrlIdx].getBoundingClientRect();
                 var tr = cells[tgtIdx].getBoundingClientRect();
-
                 v.el.style.left = (cr.left + cr.width / 2 - cRect.left - 1) + 'px';
                 v.el.style.top = (cr.top + cr.height / 2 - cRect.top) + 'px';
                 v.el.style.height = (tr.top + tr.height / 2 - cr.top - cr.height / 2) + 'px';
@@ -246,27 +289,22 @@
             });
 
             var cols = Object.keys(colGroups).sort(function (a, b) { return a - b; });
-
             cols.forEach(function (colKey) {
                 colGroups[colKey].forEach(function (el) {
-                    setTimeout(function () {
-                        el.classList.add('qc-pop');
-                    }, delay);
+                    setTimeout(function () { el.classList.add('qc-pop'); }, delay);
                 });
                 delay += GATE_DELAY;
             });
 
             setTimeout(function () {
                 positionVLines(dom.vlines);
-                dom.vlines.forEach(function (v) {
-                    v.el.classList.add('qc-pop');
-                });
+                dom.vlines.forEach(function (v) { v.el.classList.add('qc-pop'); });
             }, delay);
 
             setTimeout(callback, delay + HOLD_TIME);
         }
 
-        function fadeOutAll(callback) {
+        function fadeOutAll(dom, callback) {
             var allEls = container.querySelectorAll('.qc-gate, .qc-ctrl, .qc-tgt, .qc-meter, .qc-vline, .qc-label-cell');
             allEls.forEach(function (el) {
                 el.style.animation = 'qcFadeOut ' + FADE_TIME + 'ms ease forwards';
@@ -279,7 +317,7 @@
             var dom = buildDOM(circuit);
             requestAnimationFrame(function () {
                 animateIn(dom, function () {
-                    fadeOutAll(function () {
+                    fadeOutAll(dom, function () {
                         cycle();
                     });
                 });
@@ -289,7 +327,7 @@
         cycle();
     })();
 
-    // --- Scroll reveal ---
+    // --- Scroll-reveal ---
     var revealTargets = [
         '.hero-content',
         '.hero-visual',
@@ -299,7 +337,6 @@
         '.dev-card',
         '.code-example',
         '.research-card',
-        '.layer-surface',
         '.capability-card',
         '.contact-info',
         '.contact-form-wrap',
@@ -311,11 +348,12 @@
         '.careers-value-card',
         '.role-card',
         '.careers-apply-wrap',
-        '.dev-card-horizontal'
+        '.dev-card-horizontal',
+        '.layer-surface'
     ];
 
-    var revealElements = document.querySelectorAll(revealTargets.join(','));
-    revealElements.forEach(function (el) {
+    var elements = document.querySelectorAll(revealTargets.join(','));
+    elements.forEach(function (el) {
         el.classList.add('reveal');
     });
 
@@ -331,7 +369,7 @@
         rootMargin: '0px 0px -60px 0px'
     });
 
-    revealElements.forEach(function (el) {
+    elements.forEach(function (el) {
         observer.observe(el);
     });
 
@@ -340,7 +378,6 @@
         anchor.addEventListener('click', function (e) {
             var targetId = this.getAttribute('href');
             if (targetId === '#') return;
-
             var target = document.querySelector(targetId);
             if (target) {
                 e.preventDefault();
@@ -364,7 +401,6 @@
             var top = section.offsetTop;
             var height = section.offsetHeight;
             var id = section.getAttribute('id');
-
             if (scrollPos >= top && scrollPos < top + height) {
                 navLinks.forEach(function (link) {
                     link.classList.remove('active');
@@ -391,34 +427,42 @@
     function initIntlPhoneInput(inputId) {
         var input = document.getElementById(inputId);
         if (!input || typeof window.intlTelInput !== 'function') return null;
-
         return window.intlTelInput(input, {
             initialCountry: 'auto',
             strictMode: true,
             nationalMode: false,
             autoPlaceholder: 'polite',
-            separateDialCode: true,
+            showSelectedDialCode: true,
+            separateDialCode: false,
+            countrySearch: false,
             loadUtilsOnInit: true,
+            dropdownContainer: document.body,
             geoIpLookup: function (callback) {
                 fetch('https://ipapi.co/json/')
                     .then(function (res) { return res.json(); })
-                    .then(function (data) {
-                        callback((data && data.country_code) ? data.country_code : 'us');
-                    })
-                    .catch(function () {
-                        callback('us');
-                    });
+                    .then(function (data) { callback((data && data.country_code) ? data.country_code : 'us'); })
+                    .catch(function () { callback('us'); });
             }
         });
     }
 
-    itiRegPhone = initIntlPhoneInput('regPhone');
-    itiCareerPhone = initIntlPhoneInput('careerPhone');
+    itiRegPhone = null;
+    itiCareerPhone = null;
+
+    var careerPhoneInput = document.getElementById('careerPhone');
+    if (careerPhoneInput) {
+        setTimeout(function () {
+            itiCareerPhone = initIntlPhoneInput('careerPhone');
+        }, 300);
+    }
 
     function openModal() {
         if (!registerModal) return;
         registerModal.classList.add('open');
         document.body.style.overflow = 'hidden';
+        if (!itiRegPhone) {
+            itiRegPhone = initIntlPhoneInput('regPhone');
+        }
     }
 
     function closeModal() {
@@ -441,23 +485,17 @@
         });
     }
 
-    var tryStudioBtn = document.querySelector('a[href="registration"].btn-secondary');
+    var tryStudioBtn = document.querySelector('a[href="#developer"].btn-secondary');
     if (tryStudioBtn && registerModal) {
         tryStudioBtn.addEventListener('click', function (e) {
-            // allow regular navigation to registration page
-        });
-    }
-
-    var navCtaBtn = document.querySelector('.nav-cta');
-    if (navCtaBtn && registerModal) {
-        navCtaBtn.addEventListener('click', function (e) {
             e.preventDefault();
             openModal();
         });
     }
 
-    if (mobileNavCta && registerModal) {
-        mobileNavCta.addEventListener('click', function (e) {
+    var navCtaBtn = document.querySelector('.nav-cta');
+    if (navCtaBtn) {
+        navCtaBtn.addEventListener('click', function (e) {
             e.preventDefault();
             openModal();
         });
@@ -467,6 +505,19 @@
     if (ctaBannerBtn && registerModal && ctaBannerBtn.getAttribute('href') === '#') {
         ctaBannerBtn.addEventListener('click', function (e) {
             e.preventDefault();
+            openModal();
+        });
+    }
+
+    var ctaRegisterBtn = document.getElementById('ctaRegisterBtn');
+    if (ctaRegisterBtn && registerModal) {
+        ctaRegisterBtn.addEventListener('click', function () {
+            openModal();
+        });
+    }
+
+    if (portalRegisterBtn && registerModal) {
+        portalRegisterBtn.addEventListener('click', function () {
             openModal();
         });
     }
@@ -514,19 +565,21 @@
             btn.textContent = 'Registering...';
             btn.disabled = true;
 
+            var payload = {
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                phone: phone,
+                company: company,
+                role: role,
+                useCase: useCase,
+                source: registrationSource
+            };
+
             fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    firstName: firstName,
-                    lastName: lastName,
-                    email: email,
-                    phone: phone,
-                    company: company,
-                    role: role,
-                    useCase: useCase,
-                    source: registrationSource
-                })
+                body: JSON.stringify(payload)
             })
             .then(function (res) { return res.json(); })
             .then(function (data) {
@@ -534,6 +587,20 @@
                     showStatus('Registration successful! A confirmation email has been sent to ' + email + '.', 'success');
                     registerForm.reset();
                     if (itiRegPhone) itiRegPhone.setNumber('');
+
+                    var redirectTo = (registerForm.getAttribute('data-redirect-on-success') || '').trim();
+                    var redirectDelay = parseInt(registerForm.getAttribute('data-redirect-delay-ms') || '2200', 10);
+
+                    if (!redirectTo && window.location.pathname.indexOf('registration') !== -1) {
+                        redirectTo = '/';
+                    }
+
+                    if (redirectTo) {
+                        setTimeout(function () {
+                            window.location.replace(redirectTo);
+                        }, isNaN(redirectDelay) ? 2200 : redirectDelay);
+                    }
+
                     setTimeout(function () {
                         closeModal();
                         if (formStatus) {
@@ -544,7 +611,6 @@
                 } else {
                     showStatus(data.message || 'Registration failed. Please try again.', 'error');
                 }
-
                 btn.textContent = 'Register';
                 btn.disabled = false;
             })
@@ -562,19 +628,101 @@
         formStatus.className = 'form-status ' + type;
     }
 
-    // --- Contact form ---
-    var form = document.getElementById('contactForm');
+    // --- Careers form ---
+    var careerForm = document.getElementById('careerForm');
+    var careerFormStatus = document.getElementById('careerFormStatus');
+    var careerApplyBtn = document.getElementById('careerApplyBtn');
+    var careerRoleField = document.getElementById('careerRole');
 
-    function getContactStatusEl() {
-        if (!form) return null;
-        return form.querySelector('.contact-form-status') || (function () {
-            var s = document.createElement('div');
-            s.className = 'form-status contact-form-status';
-            form.appendChild(s);
-            return s;
-        })();
+    function showCareerStatus(message, type) {
+        if (!careerFormStatus) return;
+        careerFormStatus.textContent = message;
+        careerFormStatus.className = 'form-status ' + type;
     }
 
+    if (careerRoleField) {
+        var roleParam = new URLSearchParams(window.location.search).get('role');
+        if (roleParam) {
+            careerRoleField.value = roleParam;
+        }
+    }
+
+    if (careerForm) {
+        careerForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            var payload = {
+                firstName: document.getElementById('careerFirstName').value.trim(),
+                lastName: document.getElementById('careerLastName').value.trim(),
+                email: document.getElementById('careerEmail').value.trim(),
+                phone: document.getElementById('careerPhone').value.trim(),
+                roleApplied: document.getElementById('careerRole').value,
+                location: document.getElementById('careerLocation').value.trim(),
+                university: document.getElementById('careerUniversity').value.trim(),
+                degree: document.getElementById('careerDegree').value.trim(),
+                graduationYear: document.getElementById('careerGraduationYear').value.trim(),
+                availability: document.getElementById('careerAvailability').value.trim(),
+                linkedinUrl: document.getElementById('careerLinkedIn').value.trim(),
+                portfolioUrl: document.getElementById('careerPortfolio').value.trim(),
+                resumeUrl: document.getElementById('careerResume').value.trim(),
+                coverLetter: document.getElementById('careerCoverLetter').value.trim()
+            };
+
+            if (!payload.firstName || !payload.lastName || !payload.email || !payload.phone || !payload.roleApplied || !payload.location || !payload.university || !payload.degree || !payload.graduationYear || !payload.availability || !payload.resumeUrl || !payload.coverLetter) {
+                showCareerStatus('Please fill all required fields before submitting.', 'error');
+                return;
+            }
+
+            var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(payload.email)) {
+                showCareerStatus('Please enter a valid email address.', 'error');
+                return;
+            }
+
+            if (itiCareerPhone) {
+                if (!itiCareerPhone.isValidNumber()) {
+                    showCareerStatus('Please enter a valid international phone number.', 'error');
+                    return;
+                }
+                payload.phone = itiCareerPhone.getNumber();
+            }
+
+            if (careerApplyBtn) {
+                careerApplyBtn.textContent = 'Submitting...';
+                careerApplyBtn.disabled = true;
+            }
+
+            fetch('/api/careers/apply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    showCareerStatus('Application submitted successfully. A confirmation email has been sent to ' + payload.email + '.', 'success');
+                    careerForm.reset();
+                    if (itiCareerPhone) itiCareerPhone.setNumber('');
+                } else {
+                    showCareerStatus(data.message || 'Unable to submit application right now. Please try again.', 'error');
+                }
+                if (careerApplyBtn) {
+                    careerApplyBtn.textContent = 'Submit Application';
+                    careerApplyBtn.disabled = false;
+                }
+            })
+            .catch(function () {
+                showCareerStatus('Unable to connect to server. Please try again later.', 'error');
+                if (careerApplyBtn) {
+                    careerApplyBtn.textContent = 'Submit Application';
+                    careerApplyBtn.disabled = false;
+                }
+            });
+        });
+    }
+
+    // --- Contact form ---
+    var form = document.getElementById('contactForm');
     if (form) {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -583,8 +731,14 @@
             var email = document.getElementById('email').value.trim();
             var message = document.getElementById('message').value.trim();
             var company = document.getElementById('company').value.trim();
+
             var btn = form.querySelector('button[type="submit"]');
-            var statusEl = getContactStatusEl();
+            var statusEl = form.querySelector('.contact-form-status') || (function () {
+                var s = document.createElement('div');
+                s.className = 'form-status contact-form-status';
+                form.appendChild(s);
+                return s;
+            }());
 
             if (!name || !email || !message || !company) {
                 btn.textContent = 'Send Message';
@@ -611,12 +765,7 @@
             fetch('/api/contact', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: name,
-                    email: email,
-                    company: company,
-                    message: message
-                })
+                body: JSON.stringify({ name: name, email: email, company: company, message: message })
             })
             .then(function (res) { return res.json(); })
             .then(function (data) {
@@ -632,7 +781,6 @@
                     statusEl.textContent = data.message || 'Failed to send message. Please try again.';
                     return;
                 }
-
                 setTimeout(function () {
                     btn.textContent = 'Send Message';
                     btn.disabled = false;
@@ -647,185 +795,170 @@
         });
     }
 
-    // --- Sticky horizontal scroll for capabilities section ---
+    // --- Horizontal scroll for capabilities section ---
     (function () {
         var outer = document.getElementById('capabilitiesOuter');
         var section = document.getElementById('capabilities');
-        var scrollContainer = document.getElementById('capabilitiesScroll');
-        var horizontal = document.getElementById('capabilitiesHorizontal') || document.getElementById('capabilitiesTrack');
+        var track = document.getElementById('capabilitiesTrack');
+        var container = document.getElementById('capabilitiesScroll');
 
-        if (!outer || !section || !scrollContainer || !horizontal) return;
+        if (!outer || !section || !track || !container) return;
 
         function isDesktop() {
             return window.innerWidth > 768;
         }
 
-        function getHeaderOffset() {
+        function getHeaderHeight() {
             return header ? header.offsetHeight : 72;
         }
 
-        function updateStickyHorizontalMetrics() {
+        function getHorizontalDistance() {
+            return Math.max(0, track.scrollWidth - container.clientWidth);
+        }
+
+        function setupCapabilitiesScroll() {
             if (!isDesktop()) {
-                outer.style.paddingBottom = '';
-                section.style.position = '';
-                section.style.top = '';
-                section.style.zIndex = '';
-                scrollContainer.style.overflowX = '';
-                scrollContainer.style.overflowY = '';
-                scrollContainer.scrollLeft = 0;
+                outer.style.height = '';
+                track.style.transform = '';
+                container.scrollLeft = 0;
                 return;
             }
 
-            var visibleWidth = scrollContainer.clientWidth;
-            var totalWidth = horizontal.scrollWidth;
-            var horizontalDistance = Math.max(0, totalWidth - visibleWidth);
-            var extraVerticalDistance = horizontalDistance;
-
-            outer.style.paddingBottom = (section.offsetHeight + extraVerticalDistance) + 'px';
-            section.style.position = 'sticky';
-            section.style.top = getHeaderOffset() + 'px';
-            section.style.zIndex = '10';
-            scrollContainer.style.overflowX = 'hidden';
-            scrollContainer.style.overflowY = 'hidden';
+            var horizontalDistance = getHorizontalDistance();
+            var stickyHeight = section.offsetHeight;
+            outer.style.height = (stickyHeight + horizontalDistance) + 'px';
+            syncCapabilitiesToScroll();
         }
 
-        function updateHorizontalFromScroll() {
-            if (!isDesktop()) return;
+        function getProgress() {
+            var horizontalDistance = getHorizontalDistance();
+            if (horizontalDistance <= 0) return 0;
 
             var outerRect = outer.getBoundingClientRect();
-            var horizontalDistance = Math.max(0, horizontal.scrollWidth - scrollContainer.clientWidth);
-            var maxTravel = Math.max(1, outer.offsetHeight - section.offsetHeight);
-            var traveled = Math.min(Math.max(-outerRect.top, 0), maxTravel);
-            var progress = traveled / maxTravel;
-            var left = progress * horizontalDistance;
+            var headerHeight = getHeaderHeight();
+            var maxTravel = horizontalDistance;
+            var travelled = Math.min(Math.max(headerHeight - outerRect.top, 0), maxTravel);
 
-            scrollContainer.scrollLeft = left;
+            return travelled / maxTravel;
+        }
+
+        function syncCapabilitiesToScroll() {
+            if (!isDesktop()) return;
+            var horizontalDistance = getHorizontalDistance();
+            var p = getProgress();
+            var x = -p * horizontalDistance;
+            track.style.transform = 'translate3d(' + x + 'px, 0, 0)';
         }
 
         function handleWheel(e) {
             if (!isDesktop()) return;
 
-            var outerRect = outer.getBoundingClientRect();
-            var headerOffset = getHeaderOffset();
-            var horizontalDistance = Math.max(0, horizontal.scrollWidth - scrollContainer.clientWidth);
-
+            var horizontalDistance = getHorizontalDistance();
             if (horizontalDistance <= 0) return;
 
-            var stickyActive =
-                outerRect.top <= headerOffset + 2 &&
-                outerRect.bottom > section.offsetHeight + headerOffset + 2;
+            var outerRect = outer.getBoundingClientRect();
+            var headerHeight = getHeaderHeight();
+            var stickyStart = outerRect.top <= headerHeight;
+            var stickyEnd = outerRect.bottom > section.offsetHeight + headerHeight;
 
-            if (!stickyActive) return;
+            if (!(stickyStart && stickyEnd)) return;
 
-            var atStart = scrollContainer.scrollLeft <= 2;
-            var atEnd = scrollContainer.scrollLeft >= horizontalDistance - 2;
+            var p = getProgress();
+            var goingDown = e.deltaY > 0;
+            var goingUp = e.deltaY < 0;
 
-            if ((e.deltaY > 0 && !atEnd) || (e.deltaY < 0 && !atStart)) {
+            if ((goingDown && p < 1) || (goingUp && p > 0)) {
                 e.preventDefault();
-                window.scrollTo({
-                    top: window.scrollY + e.deltaY,
-                    behavior: 'auto'
-                });
+                window.scrollTo(0, window.scrollY + e.deltaY);
             }
         }
 
-        updateStickyHorizontalMetrics();
-        updateHorizontalFromScroll();
+        function initCapabilitiesScroll() {
+            setupCapabilitiesScroll();
+            syncCapabilitiesToScroll();
+        }
 
-        window.addEventListener('scroll', updateHorizontalFromScroll, { passive: true });
+        window.addEventListener('scroll', syncCapabilitiesToScroll, { passive: true });
         window.addEventListener('resize', function () {
-            updateStickyHorizontalMetrics();
-            updateHorizontalFromScroll();
+            setupCapabilitiesScroll();
+            syncCapabilitiesToScroll();
         });
-
-        window.addEventListener('load', function () {
-            updateStickyHorizontalMetrics();
-            updateHorizontalFromScroll();
-        });
-
+        window.addEventListener('load', initCapabilitiesScroll);
         window.addEventListener('wheel', handleWheel, { passive: false });
+
+        if (document.readyState === 'complete') {
+            initCapabilitiesScroll();
+        } else {
+            window.addEventListener('load', initCapabilitiesScroll);
+        }
+
+        // Touch support
+        var touchStartX = 0;
+        var touchStartY = 0;
+        var lastTouchX = 0;
+        var touchActive = false;
+
+        container.addEventListener('touchstart', function (e) {
+            touchStartX = lastTouchX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchActive = true;
+        }, { passive: true });
+
+        container.addEventListener('touchmove', function (e) {
+            if (!touchActive || isDesktop()) return;
+
+            var currentX = e.touches[0].clientX;
+            var currentY = e.touches[0].clientY;
+            var dx = Math.abs(touchStartX - currentX);
+            var dy = Math.abs(touchStartY - currentY);
+
+            if (dx > dy && dx > 8) {
+                e.preventDefault();
+                container.scrollLeft += (lastTouchX - currentX);
+                lastTouchX = currentX;
+            }
+        }, { passive: false });
+
+        container.addEventListener('touchend', function () {
+            touchActive = false;
+        }, { passive: true });
     })();
 
-    // --- Subtle Background Particles ---
+    // --- Horizontal scroll for dev platform section ---
     (function () {
-        var canvas = document.createElement('canvas');
-        canvas.id = 'particleCanvas';
-        document.body.insertBefore(canvas, document.body.firstChild);
+        var devPlatformScroll = document.getElementById('devPlatformScroll');
+        if (!devPlatformScroll) return;
 
-        var ctx = canvas.getContext('2d');
-        var particles = [];
-        var particleCount = 60;
+        var touchStartX = 0;
+        var touchStartY = 0;
+        var isTouching = false;
 
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        function handleTouchStart(e) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            isTouching = true;
         }
 
-        function Particle() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.vx = (Math.random() - 0.5) * 0.3;
-            this.vy = (Math.random() - 0.5) * 0.3;
-            this.radius = Math.random() * 1.5 + 0.5;
-        }
+        function handleTouchMove(e) {
+            if (!isTouching) return;
 
-        Particle.prototype.update = function () {
-            this.x += this.vx;
-            this.y += this.vy;
-            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-        };
+            var touchX = e.touches[0].clientX;
+            var touchY = e.touches[0].clientY;
+            var deltaX = Math.abs(touchStartX - touchX);
+            var deltaY = Math.abs(touchStartY - touchY);
 
-        Particle.prototype.draw = function () {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim() || '#ffffff';
-            ctx.fill();
-        };
-
-        function init() {
-            particles = [];
-            for (var i = 0; i < particleCount; i++) {
-                particles.push(new Particle());
+            if (deltaX > deltaY && deltaX > 10) {
+                e.preventDefault();
             }
         }
 
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            for (var i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
-
-                for (var j = i + 1; j < particles.length; j++) {
-                    var dx = particles[i].x - particles[j].x;
-                    var dy = particles[i].y - particles[j].y;
-                    var distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance < 150) {
-                        ctx.beginPath();
-                        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim() || '#ffffff';
-                        ctx.globalAlpha = (1 - distance / 150) * 0.12;
-                        ctx.lineWidth = 0.8;
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
-                        ctx.globalAlpha = 1;
-                    }
-                }
-            }
-
-            requestAnimationFrame(animate);
+        function handleTouchEnd() {
+            isTouching = false;
         }
 
-        resize();
-        init();
-        animate();
-
-        window.addEventListener('resize', function () {
-            resize();
-            init();
-        });
+        devPlatformScroll.addEventListener('touchstart', handleTouchStart, { passive: true });
+        devPlatformScroll.addEventListener('touchmove', handleTouchMove, { passive: false });
+        devPlatformScroll.addEventListener('touchend', handleTouchEnd, { passive: true });
     })();
 
 })();
