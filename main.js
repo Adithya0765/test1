@@ -830,19 +830,25 @@
         var cardScrollWidth = 0;
 
         function setup() {
+            // Force layout recalc
+            track.style.transform = 'translateX(0)';
             cardScrollWidth = track.scrollWidth - section.offsetWidth;
             if (cardScrollWidth <= 0) return;
             var sectionH = section.offsetHeight;
-            // Outer height = section height + scroll budget for cards
-            // padding-bottom = section height so content below waits for sticky to unstick
-            outer.style.height = (sectionH + cardScrollWidth) + 'px';
-            outer.style.paddingBottom = sectionH + 'px';
+            // Outer height: section + full card travel + section again as buffer
+            outer.style.height = (sectionH + cardScrollWidth + sectionH) + 'px';
+            outer.style.paddingBottom = '0';
             document.documentElement.style.setProperty('--capabilities-section-height', sectionH + 'px');
         }
 
         function update() {
             if (cardScrollWidth <= 0) return;
-            var scrolled = Math.max(0, -outer.getBoundingClientRect().top);
+            var outerTop = outer.getBoundingClientRect().top;
+            var sectionH = section.offsetHeight;
+            // scrolled = how far past the outer top we are (starts when outerTop goes negative)
+            // but we only start moving cards once the section is sticky (outerTop <= 0)
+            var scrolled = Math.max(0, -outerTop);
+            // progress only counts the card travel portion, not the buffer
             var progress = Math.min(1, scrolled / cardScrollWidth);
             track.style.transform = 'translateX(' + (-progress * cardScrollWidth) + 'px)';
         }
