@@ -2858,3 +2858,31 @@ html {
     max-height: calc(100vh - 200px);
     overflow: hidden;
 }
+
+/* Make SVG illustration lines darker in light mode */
+.dev-card-image-top .dev-illustration [stroke="#E5E7EB"] {
+    stroke: #9CA3AF;
+}
+.dev-card-image-top .dev-illustration [stroke="#D1D5DB"] {
+    stroke: #6B7280;
+}
+.dev-card-image-top .dev-illustration [fill="#F9FAFB"] {
+    fill: #F3F4F6;
+}
+.dev-card-image-top .dev-illustration [fill="#E5E7EB"] {
+    fill: #D1D5DB;
+}
+
+/* Dark mode — keep original light colors */
+[data-theme="dark"] .dev-card-image-top .dev-illustration [stroke="#E5E7EB"] {
+    stroke: #E5E7EB;
+}
+[data-theme="dark"] .dev-card-image-top .dev-illustration [stroke="#D1D5DB"] {
+    stroke: #D1D5DB;
+}
+[data-theme="dark"] .dev-card-image-top .dev-illustration [fill="#F9FAFB"] {
+    fill: #F9FAFB;
+}
+[data-theme="dark"] .dev-card-image-top .dev-illustration [fill="#E5E7EB"] {
+    fill: #E5E7EB;
+}
